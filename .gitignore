@@ -1,0 +1,54 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Python / Backend
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+.env
+.env.*
+!.env.example
+
+# iOS / Xcode
+iOS/build/
+iOS/*.xcworkspace/xcuserdata/
+iOS/*.xcodeproj/xcuserdata/
+iOS/*.xcodeproj/project.xcworkspace/xcuserdata/
+iOS/DerivedData/
+iOS/*.moved-aside
+iOS/*.hmap
+iOS/*.ipa
+iOS/*.dSYM.zip
+iOS/*.dSYM
+iOS/Pods/
+iOS/.build/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+*.xccheckout
+*.xcscmblueprint
+
+# Secrets
+*.pem
+*.key
+*.p8
