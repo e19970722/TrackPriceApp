@@ -31,6 +31,13 @@ Two components:
 - **Alert throttle**: max 1 push per tracker per 24 hours; re-notify only when price reaches a new extreme past the threshold.
 - **Tiers**: free = 10 trackers + daily checks; paid = unlimited + hourly. Paywall not enforced yet — `subscription_tier` column exists for future use.
 
+## Git Workflow (GitHub Flow)
+
+- `main` is always deployable — never push directly to it
+- For every issue: create a branch named `feature/issue-N-short-description`
+- Open a PR into `main` when done; PR title should reference the issue (e.g. `Fix #5: scraping worker`)
+- Use `/issue <issue-number>` slash command to start working on an issue — it will fetch the issue, plan the work, branch, implement, and open a PR
+
 ## Commands
 
 _To be filled in as each component is scaffolded._
