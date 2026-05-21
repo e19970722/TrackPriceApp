@@ -36,6 +36,7 @@ iOS/*.dSYM.zip
 iOS/*.dSYM
 iOS/Pods/
 iOS/.build/
+iOS/Features/.build/
 *.pbxuser
 !default.pbxuser
 *.mode1v3

@@ -7,67 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		041E38A7033D1B483E3BDF1D /* TrackerDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E48D002F669B4E8C9B3792 /* TrackerDetailView.swift */; };
-		091CA57D93314D81C349CC0B /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DD6FD24F4E7A3621ED44B1A /* User.swift */; };
-		0EF78D252D0F96A003E62394 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8C686676C0D1B86F29507B /* SettingsView.swift */; };
-		1288CFE68D67C6FAB3133C8B /* TrackerListFeatureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98D788523933CFC48417C5FF /* TrackerListFeatureTests.swift */; };
-		1957BA51D8E2F3E6A1E6B448 /* AppFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 543E2105A13BE9D7EE3B5890 /* AppFeature.swift */; };
-		29EBAA1613B3BAA0769C0DEB /* SettingsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ACD6BBF37A248FF0AD87DA1 /* SettingsFeature.swift */; };
-		3FB215E77011E22B1FB8CCEB /* AddTrackerFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA6A7C6C24C734C9290E64A2 /* AddTrackerFeature.swift */; };
-		4D069610B3B688FF51ED8C2C /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 302A7A66DA4F31226F3D0939 /* ComposableArchitecture */; };
-		4D9B9A3AD020C182FFEBE097 /* AddTrackerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7899671F6F05926BC324D6C1 /* AddTrackerView.swift */; };
-		59A82ADCCCA8978F72357DC3 /* KeychainClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 174C0D18CDA5A444230F215B /* KeychainClient.swift */; };
-		5C0E8669D8900D7764E7AF04 /* AuthFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0705ED8A2684E52B0FBD9BD /* AuthFeature.swift */; };
-		64085533D7D88BB6CDEC0361 /* NotificationClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D70F304700A6060F746AA39 /* NotificationClient.swift */; };
-		7D91B3DE654CACACDE1C670C /* PriceSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E2BBEB5F15B4D77A6A954C /* PriceSnapshot.swift */; };
-		A50211876377C216E38DA27F /* APIClientLive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77B69513FEAB11ACF68D4D7E /* APIClientLive.swift */; };
-		A8A3710B85A3C4DFACAB4A77 /* AppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68A28038281B51FD74533640 /* AppView.swift */; };
+		4D069610B3B688FF51ED8C2C /* Features in Frameworks */ = {isa = PBXBuildFile; productRef = 3975F679576D6D63342A51BD /* Features */; };
 		B1267A956DA2EB1DFC585B84 /* TrackPriceAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B324B4C422E4CC3123CF3936 /* TrackPriceAppApp.swift */; };
-		C777C69F188BE68AE83AA02C /* Tracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8DA13EA043224FA99D58481 /* Tracker.swift */; };
-		CAB63E03122D5F589BE9A707 /* TrackerListFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF88DE34E92E05C8D07B36A6 /* TrackerListFeature.swift */; };
-		D0B4CB5882334109B2F11B47 /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4904B9B4498C46E94D962755 /* AuthView.swift */; };
-		E2912D84570E536271E90A0D /* TrackerDetailFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24142610F42A6BC8FEF20D30 /* TrackerDetailFeature.swift */; };
-		EBBBAF61098776BE49A00549 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 8E74BF822BA88A9CE0AE7A81 /* GoogleSignIn */; };
-		F4721165208CD15EB6FCAE1D /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 10B872DE9FAC3FC0F3A16D78 /* ComposableArchitecture */; };
-		F4C458F5A53D3014B55CE496 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DABF1481D927FDEFDB33D35 /* APIClient.swift */; };
-		FBFD4967271AB8F517063091 /* TrackerListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEED0C30096E5648E24C63B8 /* TrackerListView.swift */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		565B832B313AEAFC693E0616 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = B6953A998D3D7B4D3C35D3A3 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 140FB13D7938275BCE12E9ED;
-			remoteInfo = TrackPriceApp;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXFileReference section */
-		174C0D18CDA5A444230F215B /* KeychainClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainClient.swift; sourceTree = "<group>"; };
-		18E48D002F669B4E8C9B3792 /* TrackerDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerDetailView.swift; sourceTree = "<group>"; };
-		24142610F42A6BC8FEF20D30 /* TrackerDetailFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerDetailFeature.swift; sourceTree = "<group>"; };
-		2DD6FD24F4E7A3621ED44B1A /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
-		3DABF1481D927FDEFDB33D35 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
-		48E2BBEB5F15B4D77A6A954C /* PriceSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceSnapshot.swift; sourceTree = "<group>"; };
-		4904B9B4498C46E94D962755 /* AuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
-		543E2105A13BE9D7EE3B5890 /* AppFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppFeature.swift; sourceTree = "<group>"; };
-		68A28038281B51FD74533640 /* AppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppView.swift; sourceTree = "<group>"; };
-		77B69513FEAB11ACF68D4D7E /* APIClientLive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClientLive.swift; sourceTree = "<group>"; };
-		7899671F6F05926BC324D6C1 /* AddTrackerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTrackerView.swift; sourceTree = "<group>"; };
-		8ACD6BBF37A248FF0AD87DA1 /* SettingsFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsFeature.swift; sourceTree = "<group>"; };
-		98D788523933CFC48417C5FF /* TrackerListFeatureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerListFeatureTests.swift; sourceTree = "<group>"; };
-		9D70F304700A6060F746AA39 /* NotificationClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationClient.swift; sourceTree = "<group>"; };
+		2679CD5A605171BA69A73ED4 /* Features */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Features; path = Features; sourceTree = SOURCE_ROOT; };
 		B324B4C422E4CC3123CF3936 /* TrackPriceAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackPriceAppApp.swift; sourceTree = "<group>"; };
-		BA6A7C6C24C734C9290E64A2 /* AddTrackerFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTrackerFeature.swift; sourceTree = "<group>"; };
 		BC11539AFFE469D1AF325636 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		D0705ED8A2684E52B0FBD9BD /* AuthFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthFeature.swift; sourceTree = "<group>"; };
-		D353F41EB851FCE137D3D8CA /* TrackPriceAppTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TrackPriceAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		DEED0C30096E5648E24C63B8 /* TrackerListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerListView.swift; sourceTree = "<group>"; };
-		E8DA13EA043224FA99D58481 /* Tracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tracker.swift; sourceTree = "<group>"; };
-		EC8C686676C0D1B86F29507B /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		EF9C077C17178C7CA564EACA /* TrackPriceApp.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = TrackPriceApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		FF88DE34E92E05C8D07B36A6 /* TrackerListFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerListFeature.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -75,98 +23,20 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4D069610B3B688FF51ED8C2C /* ComposableArchitecture in Frameworks */,
-				EBBBAF61098776BE49A00549 /* GoogleSignIn in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		F476282AC1738826261CE2E9 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				F4721165208CD15EB6FCAE1D /* ComposableArchitecture in Frameworks */,
+				4D069610B3B688FF51ED8C2C /* Features in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		21847F9B3B0810C32A3530EE /* AddTracker */ = {
-			isa = PBXGroup;
-			children = (
-				BA6A7C6C24C734C9290E64A2 /* AddTrackerFeature.swift */,
-				7899671F6F05926BC324D6C1 /* AddTrackerView.swift */,
-			);
-			path = AddTracker;
-			sourceTree = "<group>";
-		};
-		230DFD814170E66174823303 /* KeychainClient */ = {
-			isa = PBXGroup;
-			children = (
-				174C0D18CDA5A444230F215B /* KeychainClient.swift */,
-			);
-			path = KeychainClient;
-			sourceTree = "<group>";
-		};
-		277D705094654F81E7AEFBC7 /* TrackPriceAppTests */ = {
-			isa = PBXGroup;
-			children = (
-				98D788523933CFC48417C5FF /* TrackerListFeatureTests.swift */,
-			);
-			path = TrackPriceAppTests;
-			sourceTree = "<group>";
-		};
-		3B7C7B94279CF27713FBB1CC /* NotificationClient */ = {
-			isa = PBXGroup;
-			children = (
-				9D70F304700A6060F746AA39 /* NotificationClient.swift */,
-			);
-			path = NotificationClient;
-			sourceTree = "<group>";
-		};
-		582F683814E7B5055BDD44CD /* TrackerList */ = {
-			isa = PBXGroup;
-			children = (
-				FF88DE34E92E05C8D07B36A6 /* TrackerListFeature.swift */,
-				DEED0C30096E5648E24C63B8 /* TrackerListView.swift */,
-			);
-			path = TrackerList;
-			sourceTree = "<group>";
-		};
-		58D3DE70563B8BAE1DF000BE /* APIClient */ = {
-			isa = PBXGroup;
-			children = (
-				3DABF1481D927FDEFDB33D35 /* APIClient.swift */,
-				77B69513FEAB11ACF68D4D7E /* APIClientLive.swift */,
-			);
-			path = APIClient;
-			sourceTree = "<group>";
-		};
-		5A7416E63CB0274DF3BC8203 /* Settings */ = {
-			isa = PBXGroup;
-			children = (
-				8ACD6BBF37A248FF0AD87DA1 /* SettingsFeature.swift */,
-				EC8C686676C0D1B86F29507B /* SettingsView.swift */,
-			);
-			path = Settings;
-			sourceTree = "<group>";
-		};
 		5CE868310A95C6112030C6E1 = {
 			isa = PBXGroup;
 			children = (
+				8C724AEAC7BB8844D1DFD30F /* Packages */,
 				A87CFE31CEBA924BBF976993 /* TrackPriceApp */,
-				277D705094654F81E7AEFBC7 /* TrackPriceAppTests */,
 				9B043467E6AD4107B49AD740 /* Products */,
 			);
-			sourceTree = "<group>";
-		};
-		762E16AA743E1CD5BBCF0BD1 /* Auth */ = {
-			isa = PBXGroup;
-			children = (
-				D0705ED8A2684E52B0FBD9BD /* AuthFeature.swift */,
-				4904B9B4498C46E94D962755 /* AuthView.swift */,
-			);
-			path = Auth;
 			sourceTree = "<group>";
 		};
 		8B2E804EE59FD92CA70CD88B /* Resources */ = {
@@ -177,11 +47,18 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
+		8C724AEAC7BB8844D1DFD30F /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				2679CD5A605171BA69A73ED4 /* Features */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
 		9B043467E6AD4107B49AD740 /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				EF9C077C17178C7CA564EACA /* TrackPriceApp.app */,
-				D353F41EB851FCE137D3D8CA /* TrackPriceAppTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -190,60 +67,14 @@
 			isa = PBXGroup;
 			children = (
 				FB8181541DFC0AE31773A027 /* App */,
-				F0D57D69ED68A83D5BED8D06 /* Features */,
-				C7A32EB55C8306A5294200E5 /* Models */,
 				8B2E804EE59FD92CA70CD88B /* Resources */,
-				BF8CC8345DEFC08BC3201791 /* Services */,
 			);
 			path = TrackPriceApp;
-			sourceTree = "<group>";
-		};
-		BF8CC8345DEFC08BC3201791 /* Services */ = {
-			isa = PBXGroup;
-			children = (
-				58D3DE70563B8BAE1DF000BE /* APIClient */,
-				230DFD814170E66174823303 /* KeychainClient */,
-				3B7C7B94279CF27713FBB1CC /* NotificationClient */,
-			);
-			path = Services;
-			sourceTree = "<group>";
-		};
-		C7A32EB55C8306A5294200E5 /* Models */ = {
-			isa = PBXGroup;
-			children = (
-				48E2BBEB5F15B4D77A6A954C /* PriceSnapshot.swift */,
-				E8DA13EA043224FA99D58481 /* Tracker.swift */,
-				2DD6FD24F4E7A3621ED44B1A /* User.swift */,
-			);
-			path = Models;
-			sourceTree = "<group>";
-		};
-		E2CE629CD56138B231BD08F6 /* TrackerDetail */ = {
-			isa = PBXGroup;
-			children = (
-				24142610F42A6BC8FEF20D30 /* TrackerDetailFeature.swift */,
-				18E48D002F669B4E8C9B3792 /* TrackerDetailView.swift */,
-			);
-			path = TrackerDetail;
-			sourceTree = "<group>";
-		};
-		F0D57D69ED68A83D5BED8D06 /* Features */ = {
-			isa = PBXGroup;
-			children = (
-				21847F9B3B0810C32A3530EE /* AddTracker */,
-				762E16AA743E1CD5BBCF0BD1 /* Auth */,
-				5A7416E63CB0274DF3BC8203 /* Settings */,
-				E2CE629CD56138B231BD08F6 /* TrackerDetail */,
-				582F683814E7B5055BDD44CD /* TrackerList */,
-			);
-			path = Features;
 			sourceTree = "<group>";
 		};
 		FB8181541DFC0AE31773A027 /* App */ = {
 			isa = PBXGroup;
 			children = (
-				543E2105A13BE9D7EE3B5890 /* AppFeature.swift */,
-				68A28038281B51FD74533640 /* AppView.swift */,
 				B324B4C422E4CC3123CF3936 /* TrackPriceAppApp.swift */,
 			);
 			path = App;
@@ -265,32 +96,11 @@
 			);
 			name = TrackPriceApp;
 			packageProductDependencies = (
-				302A7A66DA4F31226F3D0939 /* ComposableArchitecture */,
-				8E74BF822BA88A9CE0AE7A81 /* GoogleSignIn */,
+				3975F679576D6D63342A51BD /* Features */,
 			);
 			productName = TrackPriceApp;
 			productReference = EF9C077C17178C7CA564EACA /* TrackPriceApp.app */;
 			productType = "com.apple.product-type.application";
-		};
-		32AAEB61AFD7593DE7DE9324 /* TrackPriceAppTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = A3B2409E92A3D86E2C0D9EA3 /* Build configuration list for PBXNativeTarget "TrackPriceAppTests" */;
-			buildPhases = (
-				5512CCDABC84911748543E62 /* Sources */,
-				F476282AC1738826261CE2E9 /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				99E1EFAFE0B288DBCA1B8883 /* PBXTargetDependency */,
-			);
-			name = TrackPriceAppTests;
-			packageProductDependencies = (
-				10B872DE9FAC3FC0F3A16D78 /* ComposableArchitecture */,
-			);
-			productName = TrackPriceAppTests;
-			productReference = D353F41EB851FCE137D3D8CA /* TrackPriceAppTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -313,8 +123,7 @@
 			mainGroup = 5CE868310A95C6112030C6E1;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				357306EF5C6D30E588C29638 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
-				C47487CBD4A9E65A4D95D2CD /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				0FA40173306F32C683225D79 /* XCLocalSwiftPackageReference "Features" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9B043467E6AD4107B49AD740 /* Products */;
@@ -322,75 +131,22 @@
 			projectRoot = "";
 			targets = (
 				140FB13D7938275BCE12E9ED /* TrackPriceApp */,
-				32AAEB61AFD7593DE7DE9324 /* TrackPriceAppTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
-		5512CCDABC84911748543E62 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				1288CFE68D67C6FAB3133C8B /* TrackerListFeatureTests.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		F6F086BC4AED922B714B573F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F4C458F5A53D3014B55CE496 /* APIClient.swift in Sources */,
-				A50211876377C216E38DA27F /* APIClientLive.swift in Sources */,
-				3FB215E77011E22B1FB8CCEB /* AddTrackerFeature.swift in Sources */,
-				4D9B9A3AD020C182FFEBE097 /* AddTrackerView.swift in Sources */,
-				1957BA51D8E2F3E6A1E6B448 /* AppFeature.swift in Sources */,
-				A8A3710B85A3C4DFACAB4A77 /* AppView.swift in Sources */,
-				5C0E8669D8900D7764E7AF04 /* AuthFeature.swift in Sources */,
-				D0B4CB5882334109B2F11B47 /* AuthView.swift in Sources */,
-				59A82ADCCCA8978F72357DC3 /* KeychainClient.swift in Sources */,
-				64085533D7D88BB6CDEC0361 /* NotificationClient.swift in Sources */,
-				7D91B3DE654CACACDE1C670C /* PriceSnapshot.swift in Sources */,
-				29EBAA1613B3BAA0769C0DEB /* SettingsFeature.swift in Sources */,
-				0EF78D252D0F96A003E62394 /* SettingsView.swift in Sources */,
 				B1267A956DA2EB1DFC585B84 /* TrackPriceAppApp.swift in Sources */,
-				C777C69F188BE68AE83AA02C /* Tracker.swift in Sources */,
-				E2912D84570E536271E90A0D /* TrackerDetailFeature.swift in Sources */,
-				041E38A7033D1B483E3BDF1D /* TrackerDetailView.swift in Sources */,
-				CAB63E03122D5F589BE9A707 /* TrackerListFeature.swift in Sources */,
-				FBFD4967271AB8F517063091 /* TrackerListView.swift in Sources */,
-				091CA57D93314D81C349CC0B /* User.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
-/* Begin PBXTargetDependency section */
-		99E1EFAFE0B288DBCA1B8883 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 140FB13D7938275BCE12E9ED /* TrackPriceApp */;
-			targetProxy = 565B832B313AEAFC693E0616 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
-
 /* Begin XCBuildConfiguration section */
-		4079FA31517C2FF5BDD00F8A /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				SDKROOT = iphoneos;
-				SWIFT_VERSION = 5.9;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TrackPriceApp.app/TrackPriceApp";
-			};
-			name = Debug;
-		};
 		83B4CA125FF76D5466FEF8F8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -550,23 +306,6 @@
 			};
 			name = Debug;
 		};
-		FF725602B5C03EA8CB087A56 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				SDKROOT = iphoneos;
-				SWIFT_VERSION = 5.9;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TrackPriceApp.app/TrackPriceApp";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -575,15 +314,6 @@
 			buildConfigurations = (
 				DD8FC8D132D0BAF867F7250F /* Debug */,
 				D9498EE38378BE6C58026DF9 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
-		A3B2409E92A3D86E2C0D9EA3 /* Build configuration list for PBXNativeTarget "TrackPriceAppTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				4079FA31517C2FF5BDD00F8A /* Debug */,
-				FF725602B5C03EA8CB087A56 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
@@ -599,40 +329,17 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		357306EF5C6D30E588C29638 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.15.0;
-			};
+/* Begin XCLocalSwiftPackageReference section */
+		0FA40173306F32C683225D79 /* XCLocalSwiftPackageReference "Features" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Features;
 		};
-		C47487CBD4A9E65A4D95D2CD /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 8.0.0;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
+/* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		10B872DE9FAC3FC0F3A16D78 /* ComposableArchitecture */ = {
+		3975F679576D6D63342A51BD /* Features */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 357306EF5C6D30E588C29638 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
-			productName = ComposableArchitecture;
-		};
-		302A7A66DA4F31226F3D0939 /* ComposableArchitecture */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 357306EF5C6D30E588C29638 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
-			productName = ComposableArchitecture;
-		};
-		8E74BF822BA88A9CE0AE7A81 /* GoogleSignIn */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = C47487CBD4A9E65A4D95D2CD /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
-			productName = GoogleSignIn;
+			productName = Features;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
