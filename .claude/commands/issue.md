@@ -4,34 +4,36 @@ Follow these steps:
 
 # PLAN
 
-1. Use 'gh issue view' to get the issue details
-2. Understand the problem described in the issue
-3. Ask clarifying questions if necessary
-4. Understand the prior art for this issue
-   - Search the scratchpads for previous thoughts related to the issue
-   - Search PRs to see if you can find history on this issue
-   - Search the codebase for relevant files
-5. Think harder about how to break the issue down into a series of small, manageable tasks.
-6. Document your plan in a new scratchpad
-   - include the issue name in the filename
-   - include a link to the issue in the scratchpad.
+1. Use `gh issue view $ARGUMENTS` to get the issue details and labels
+2. Identify the agent type from labels:
+   - `backend` label → follow backend-expert conventions (FastAPI, pytest, SQLAlchemy)
+   - `ios` label → follow ios-expert conventions (TCA, SwiftUI, XCTest)
+3. Understand the problem and search the codebase for relevant existing files
+4. Check open/merged PRs for any prior art: `gh pr list --state all`
+5. Break the issue into small, sequential tasks
 
 # CREATE
 
-- Create a new branch for the issue
-- Solve the issue in small, manageable steps, according to your plan.
-- Commit your changes after each step.
+- Create a branch: `git checkout -b feature/issue-$ARGUMENTS-short-description`
+- Solve in small steps, committing after each logical unit of work
+- Commit messages: present tense, imperative ("Add migration for trackers table")
 
 # TEST
 
-- Use puppeteer via MCP to test the changes if you have made changes to the UI
-- Write rspec tests to describe the expected behavior of your code
-- Run the full test suite to ensure you haven't broken anything
-- If the tests are failing, fix them
-- Ensure that all tests are passing before moving on to the next step
+**Backend issues:**
+- Write `pytest` tests (async, against a real test DB — no mocking the DB)
+- Run: `pytest` from `Backend/`
+- Lint: `ruff check .` and `mypy .`
+
+**iOS issues:**
+- Write `XCTest` / TCA `TestStore` tests
+- Run: `xcodebuild test -scheme TrackPriceApp -destination 'platform=iOS Simulator,name=iPhone 16'` from `iOS/`
+
+Fix all failures before opening the PR.
 
 # DEPLOY
 
-- Open a PR and request a review.
+- Push branch and open a PR: `gh pr create --title "Fix #$ARGUMENTS: <short description>" --body "Closes #$ARGUMENTS"`
+- Ensure the PR description explains what changed and why
 
-Remember to use the GitHub CLI (`gh`) for all Github-related tasks.
+Remember to use the GitHub CLI (`gh`) for all GitHub-related tasks.

@@ -10,7 +10,9 @@
       "Bash(gh label *)",
       "Bash(mkdir -p /Users/yenlin/Documents/AiProjects/TrackPriceApp/.claude/commands)",
       "Bash(cp /Users/yenlin/Documents/AiProjects/TrackPriceApp/issue.md /Users/yenlin/Documents/AiProjects/TrackPriceApp/.claude/commands/issue.md)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(xcode-select -p)",
+      "Bash(swift --version)"
     ]
   }
 }
