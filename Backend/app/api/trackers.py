@@ -11,6 +11,7 @@ from app.models.price_snapshot import PriceSnapshot
 from app.models.tracker import Tracker
 from app.models.user import User
 from app.schemas.tracker import PriceSnapshotOut, TrackerCreate, TrackerOut, TrackerUpdate
+from app.worker.sync_url_jobs import ensure_url_job
 
 router = APIRouter(prefix="/trackers", tags=["trackers"])
 
@@ -46,6 +47,7 @@ async def create_tracker(
     db.add(tracker)
     await db.commit()
     await db.refresh(tracker)
+    ensure_url_job.delay(tracker.url, tracker.check_interval)
     return tracker
 
 
