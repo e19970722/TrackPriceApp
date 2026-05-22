@@ -11,7 +11,7 @@ struct AppView: View {
                 case .unauthenticated:
                     AuthView(store: store.scope(state: \.auth, action: \.auth))
                 case .authenticated:
-                    TrackerListView(store: Store(initialState: TrackerListFeature.State()) { TrackerListFeature() })
+                    authenticatedView
                 }
             }
             .onAppear {
@@ -22,5 +22,29 @@ struct AppView: View {
                 store.send(.deviceTokenReceived(token))
             }
         }
+    }
+
+    @ViewBuilder
+    private var authenticatedView: some View {
+        TrackerListView(store: Store(initialState: TrackerListFeature.State()) { TrackerListFeature() })
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        store.send(.settingsButtonTapped)
+                    } label: {
+                        Image(systemName: "gearshape")
+                    }
+                }
+            }
+            .sheet(
+                isPresented: Binding(
+                    get: { store.isSettingsPresented },
+                    set: { isPresented in
+                        if !isPresented { store.send(.settingsDismissed) }
+                    }
+                )
+            ) {
+                SettingsView(store: store.scope(state: \.settings, action: \.settings))
+            }
     }
 }
