@@ -6,7 +6,7 @@ public struct AppFeature {
 
     @ObservableState
     public struct State: Equatable {
-        public var authStatus: AuthStatus = .unauthenticated
+        public var authStatus: AuthStatus = .authenticated // TEMP: skip auth for dev testing
         public var auth: AuthFeature.State = AuthFeature.State()
         public var settings: SettingsFeature.State = SettingsFeature.State()
         public var isSettingsPresented: Bool = false
@@ -46,8 +46,22 @@ public struct AppFeature {
             switch action {
             case .checkAuthStatus:
                 let token = keychainClient.loadToken()
-                state.authStatus = token != nil ? .authenticated : .unauthenticated
+                if token != nil {
+                    state.authStatus = .authenticated
+                    return .none
+                }
+                #if DEBUG
+                return .run { _ in
+                    guard let url = URL(string: "http://localhost:8000/dev/token"),
+                          let (data, _) = try? await URLSession.shared.data(from: URLRequest(url: url)),
+                          let json = try? JSONDecoder().decode([String: String].self, from: data),
+                          let devToken = json["token"] else { return }
+                    keychainClient.saveToken(devToken)
+                }
+                #else
+                state.authStatus = .unauthenticated
                 return .none
+                #endif
 
             case let .setAuthStatus(status):
                 state.authStatus = status
