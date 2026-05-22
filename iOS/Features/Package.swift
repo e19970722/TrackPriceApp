@@ -23,7 +23,8 @@ let package = Package(
             dependencies: [
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "GoogleSignIn", package: "GoogleSignIn-iOS"),
-            ]
+            ],
+            resources: [.process("Sources/Features/Resources")]
         ),
         .testTarget(
             name: "FeaturesTests",
