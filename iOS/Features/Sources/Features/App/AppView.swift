@@ -2,14 +2,21 @@ import ComposableArchitecture
 import SwiftUI
 
 struct AppView: View {
-    let store: StoreOf<AppFeature>
+    @Perception.Bindable var store: StoreOf<AppFeature>
 
     var body: some View {
-        switch store.authStatus {
-        case .unauthenticated:
-            AuthView(store: Store(initialState: AuthFeature.State()) { AuthFeature() })
-        case .authenticated:
-            TrackerListView(store: Store(initialState: TrackerListFeature.State()) { TrackerListFeature() })
+        WithPerceptionTracking {
+            Group {
+                switch store.authStatus {
+                case .unauthenticated:
+                    AuthView(store: store.scope(state: \.auth, action: \.auth))
+                case .authenticated:
+                    TrackerListView(store: Store(initialState: TrackerListFeature.State()) { TrackerListFeature() })
+                }
+            }
+            .onAppear {
+                store.send(.checkAuthStatus)
+            }
         }
     }
 }
