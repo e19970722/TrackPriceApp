@@ -6,6 +6,8 @@ from sqlalchemy import select
 
 from app.database import AsyncSessionLocal
 from app.models.tracker import Tracker
+from app.models.user import User
+from app.push_sender import send_broken_alert
 from app.worker.celery_app import celery
 
 logger = logging.getLogger(__name__)
@@ -35,7 +37,8 @@ async def _check_broken() -> None:
         for tracker in trackers:
             tracker.status = "broken"
             if _should_notify(tracker, now):
-                await _send_broken_notification(tracker)
+                apns_token = await _get_device_token(db, tracker.user_id)
+                await send_broken_alert(apns_token or "", tracker)
                 tracker.last_notified_at = now
 
         await db.commit()
@@ -47,9 +50,10 @@ def _should_notify(tracker: Tracker, now: datetime) -> bool:
     return (now - tracker.last_notified_at).total_seconds() >= 86400
 
 
-async def _send_broken_notification(tracker: Tracker) -> None:
-    logger.warning(
-        "Tracker %s broken — user %s needs to re-select element",
-        tracker.id,
-        tracker.user_id,
+async def _get_device_token(db, user_id) -> str:
+    """Return the APNs token for *user_id*, or an empty string if absent."""
+    result = await db.execute(
+        select(User.apns_token).where(User.id == user_id)
     )
+    token = result.scalar_one_or_none()
+    return token or ""

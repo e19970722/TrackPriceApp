@@ -6,7 +6,8 @@ alembic==1.14.0
 pydantic-settings==2.6.1
 celery[redis]==5.4.0
 redis==5.2.0
-httpx==0.28.0
+httpx[http2]==0.28.0
+PyJWT[crypto]==2.10.1
 python-jose[cryptography]==3.3.0
 playwright==1.49.0
 beautifulsoup4==4.12.3

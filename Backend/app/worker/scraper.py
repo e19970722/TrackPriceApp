@@ -17,16 +17,26 @@ from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright
 from sqlalchemy import select
 
+from app.alert_evaluator import should_alert
 from app.config import settings
 from app.database import AsyncSessionLocal
 from app.models.price_snapshot import PriceSnapshot
 from app.models.tracker import Tracker
 from app.models.url_job import UrlJob
+from app.models.user import User
 from app.worker.celery_app import celery
 
 logger = logging.getLogger(__name__)
 
 _PRICE_RE = re.compile(r"[\d,]+\.?\d*")
+
+
+async def _get_device_token(db, user_id) -> Optional[str]:
+    """Return the APNs token for *user_id*, or None if absent."""
+    result = await db.execute(
+        select(User.apns_token).where(User.id == user_id)
+    )
+    return result.scalar_one_or_none()
 
 
 # ---------------------------------------------------------------------------
@@ -81,6 +91,14 @@ async def _process_url_results(url: str, html: str) -> None:
                 tracker.last_successful_fetch_at = now
                 tracker.failure_count = 0
                 tracker.first_failure_at = None
+
+                if should_alert(tracker, price, now):
+                    apns_token = await _get_device_token(session, tracker.user_id)
+                    if apns_token:
+                        from app.push_sender import send_price_alert
+                        await send_price_alert(apns_token, tracker, price)
+                    tracker.last_notified_at = now
+                    tracker.last_notified_price = price
             else:
                 tracker.last_checked_at = now
                 tracker.failure_count = (tracker.failure_count or 0) + 1
