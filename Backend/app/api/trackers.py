@@ -47,7 +47,10 @@ async def create_tracker(
     db.add(tracker)
     await db.commit()
     await db.refresh(tracker)
-    ensure_url_job.delay(tracker.url, tracker.check_interval)
+    try:
+        ensure_url_job.delay(tracker.url, tracker.check_interval)
+    except Exception:
+        pass  # Redis not available — worker will pick up job when it starts
     return tracker
 
 

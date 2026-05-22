@@ -33,10 +33,10 @@ class TrackerOut(BaseModel):
     name: str
     css_selector: str
     currency_symbol: str
-    target_price: Decimal
+    target_price: float
     target_direction: str
     status: str
-    last_price: Optional[Decimal] = None
+    last_price: Optional[float] = None
     last_checked_at: Optional[datetime] = None
     created_at: datetime
 
@@ -45,6 +45,7 @@ class PriceSnapshotOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
-    price: Decimal
+    tracker_id: uuid.UUID
+    price: float
     raw_text: str
     scraped_at: datetime

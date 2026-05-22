@@ -21,21 +21,9 @@ def _guard():
 
 
 @router.post("/token")
-async def dev_token(db: AsyncSession = Depends(get_db)):
-    """Return a signed JWT for a dev user, creating the user if needed. Not available in production."""
+async def dev_token():
+    """Return a signed JWT for the dev user. Not available in production."""
     _guard()
-    result = await db.execute(select(User).where(User.id == DEV_USER_ID))
-    user = result.scalar_one_or_none()
-    if user is None:
-        user = User(
-            id=DEV_USER_ID,
-            auth_provider="dev",
-            auth_provider_id="dev",
-            email="dev@localhost",
-        )
-        db.add(user)
-        await db.commit()
-
     payload = {
         "sub": str(DEV_USER_ID),
         "iat": datetime.now(timezone.utc),
