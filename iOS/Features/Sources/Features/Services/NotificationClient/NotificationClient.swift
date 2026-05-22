@@ -1,9 +1,12 @@
 import ComposableArchitecture
 import Foundation
+import UIKit
 import UserNotifications
 
 public struct NotificationClient {
     public var requestPermission: @Sendable () async -> Bool
+    public var registerForRemoteNotifications: @Sendable () async -> Void
+    public var getDeviceToken: @Sendable () async -> String?
 }
 
 extension NotificationClient: DependencyKey {
@@ -12,11 +15,24 @@ extension NotificationClient: DependencyKey {
             requestPermission: {
                 let center = UNUserNotificationCenter.current()
                 return (try? await center.requestAuthorization(options: [.alert, .sound, .badge])) ?? false
+            },
+            registerForRemoteNotifications: {
+                await MainActor.run {
+                    UIApplication.shared.registerForRemoteNotifications()
+                }
+            },
+            getDeviceToken: {
+                UserDefaults.standard.string(forKey: "apns_device_token")
             }
         )
     }
+
     public static var testValue: NotificationClient {
-        NotificationClient(requestPermission: { true })
+        NotificationClient(
+            requestPermission: { true },
+            registerForRemoteNotifications: { },
+            getDeviceToken: { "test-device-token" }
+        )
     }
 }
 
