@@ -2,7 +2,7 @@ import ComposableArchitecture
 import SwiftUI
 
 public struct DevConsoleView: View {
-    @Bindable var store: StoreOf<DevConsoleFeature>
+    @Perception.Bindable var store: StoreOf<DevConsoleFeature>
 
     public init(store: StoreOf<DevConsoleFeature>) {
         self.store = store
