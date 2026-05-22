@@ -11,6 +11,11 @@ class Settings(BaseSettings):
     APPLE_TEAM_ID: str = ""
     APPLE_KEY_ID: str = ""
     APPLE_BUNDLE_ID: str = ""
+    APNS_KEY_ID: str = ""
+    APNS_TEAM_ID: str = ""
+    APNS_BUNDLE_ID: str = ""
+    APNS_PRIVATE_KEY: str = ""
+    APNS_SANDBOX: bool = True
     ENVIRONMENT: str = "dev"
 
     class Config:
