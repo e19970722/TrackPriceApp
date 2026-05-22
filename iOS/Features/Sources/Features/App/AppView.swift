@@ -17,6 +17,10 @@ struct AppView: View {
             .onAppear {
                 store.send(.checkAuthStatus)
             }
+            .onReceive(NotificationCenter.default.publisher(for: .apnsTokenReceived)) { notification in
+                guard let token = notification.userInfo?["token"] as? String else { return }
+                store.send(.deviceTokenReceived(token))
+            }
         }
     }
 }
