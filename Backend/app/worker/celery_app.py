@@ -7,6 +7,7 @@ celery = Celery(
     broker=settings.REDIS_URL,
     backend=settings.REDIS_URL,
     include=[
+        "app.worker.scraper",
         "app.worker.scheduler",
         "app.worker.sync_url_jobs",
         "app.worker.failure_handler",
