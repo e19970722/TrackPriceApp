@@ -6,7 +6,7 @@ public struct AppFeature {
 
     @ObservableState
     public struct State: Equatable {
-        public var authStatus: AuthStatus = .unauthenticated
+        public var authStatus: AuthStatus = .authenticated // TEMP: skip auth for testing
         public init() {}
     }
 
