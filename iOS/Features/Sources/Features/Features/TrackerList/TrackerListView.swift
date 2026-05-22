@@ -11,7 +11,28 @@ public struct TrackerListView: View {
     public var body: some View {
         NavigationStack {
             Group {
-                if store.trackers.isEmpty {
+                if store.isLoading {
+                    ProgressView("Loading trackers…")
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else if let error = store.errorMessage {
+                    VStack(spacing: 12) {
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.system(size: 48))
+                            .foregroundStyle(.secondary)
+                        Text("Failed to load trackers")
+                            .font(.headline)
+                        Text(error)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
+                        Button("Retry") {
+                            store.send(.onAppear)
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else if store.trackers.isEmpty {
                     VStack(spacing: 16) {
                         Image(systemName: "tag.slash")
                             .font(.system(size: 48))
@@ -24,8 +45,18 @@ public struct TrackerListView: View {
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
-                    List(store.trackers) { tracker in
-                        TrackerRowView(tracker: tracker)
+                    List {
+                        ForEach(store.trackers) { tracker in
+                            Button {
+                                store.send(.trackerRowTapped(tracker))
+                            } label: {
+                                TrackerRowView(tracker: tracker)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        .onDelete { indexSet in
+                            store.send(.deleteTracker(indexSet))
+                        }
                     }
                 }
             }
@@ -48,6 +79,16 @@ public struct TrackerListView: View {
         )) {
             if let addStore = store.scope(state: \.addTracker, action: \.addTracker) {
                 AddTrackerView(store: addStore)
+            }
+        }
+        .sheet(isPresented: Binding(
+            get: { store.selectedTracker != nil },
+            set: { isPresented in
+                if !isPresented { store.send(.trackerDetailDismissed) }
+            }
+        )) {
+            if let detailStore = store.scope(state: \.selectedTracker, action: \.trackerDetail) {
+                TrackerDetailView(store: detailStore)
             }
         }
         .onAppear { store.send(.onAppear) }
