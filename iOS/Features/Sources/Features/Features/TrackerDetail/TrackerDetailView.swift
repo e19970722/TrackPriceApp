@@ -10,26 +10,28 @@ public struct TrackerDetailView: View {
     }
 
     public var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    headerCard
-                    chartSection
-                    statsGrid
+        WithPerceptionTracking {
+            NavigationStack {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 20) {
+                        headerCard
+                        chartSection
+                        statsGrid
+                    }
+                    .padding()
                 }
-                .padding()
-            }
-            .navigationTitle(store.tracker.name)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") {
-                        store.send(.dismiss)
+                .navigationTitle(store.tracker.name)
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Done") {
+                            store.send(.dismiss)
+                        }
                     }
                 }
             }
+            .onAppear { store.send(.onAppear) }
         }
-        .onAppear { store.send(.onAppear) }
     }
 
     // MARK: - Header card
