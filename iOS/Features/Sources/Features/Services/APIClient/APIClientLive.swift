@@ -160,9 +160,6 @@ extension APIClient {
             deleteTracker: { id in
                 try await apiRequestVoid("DELETE", path: "/trackers/\(id)", token: keychain.loadToken())
             },
-            fetchCurrentPrice: { id in
-                try await apiRequest("GET", path: "/trackers/\(id)/price", token: keychain.loadToken(), as: Tracker.self)
-            },
             fetchPriceHistory: { id in
                 try await apiRequest("GET", path: "/trackers/\(id)/history", token: keychain.loadToken(), as: [PriceSnapshot].self)
             }
@@ -178,7 +175,6 @@ extension APIClient {
             createTracker: { _ in fatalError("not implemented in mock") },
             updateTracker: { _, _ in fatalError("not implemented in mock") },
             deleteTracker: { _ in },
-            fetchCurrentPrice: { _ in fatalError("not implemented in mock") },
             fetchPriceHistory: { _ in [] }
         )
     }

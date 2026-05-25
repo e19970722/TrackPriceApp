@@ -1,4 +1,3 @@
-from datetime import datetime, timezone
 from typing import List
 from uuid import UUID
 
@@ -8,14 +7,28 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import get_current_user
 from app.database import get_db
-from app.models.price_snapshot import PriceSnapshot
 from app.models.tracker import Tracker
+from app.models.url_job import UrlJob
 from app.models.user import User
 from app.schemas.tracker import PriceSnapshotOut, TrackerCreate, TrackerOut, TrackerUpdate
-from app.worker.scraper import _scrape_tracker
+from app.worker.scraper import scrape_url
 from app.worker.sync_url_jobs import ensure_url_job
 
 router = APIRouter(prefix="/trackers", tags=["trackers"])
+
+
+async def _attach_next_check_at(trackers: list[Tracker], db: AsyncSession) -> list[dict]:
+    urls = list({t.url for t in trackers})
+    jobs_result = await db.execute(
+        select(UrlJob.url, UrlJob.next_fetch_at).where(UrlJob.url.in_(urls))
+    )
+    next_check_by_url = {row.url: row.next_fetch_at for row in jobs_result.all()}
+    out = []
+    for t in trackers:
+        d = TrackerOut.model_validate(t).model_dump()
+        d["next_check_at"] = next_check_by_url.get(t.url)
+        out.append(d)
+    return out
 
 
 @router.get("", response_model=List[TrackerOut])
@@ -26,7 +39,8 @@ async def list_trackers(
     result = await db.execute(
         select(Tracker).where(Tracker.user_id == current_user.id)
     )
-    return list(result.scalars().all())
+    trackers = list(result.scalars().all())
+    return await _attach_next_check_at(trackers, db)
 
 
 @router.post("", response_model=TrackerOut, status_code=status.HTTP_201_CREATED)
@@ -62,7 +76,7 @@ async def get_tracker(
     db: AsyncSession = Depends(get_db),
 ) -> TrackerOut:
     tracker = await _get_owned_tracker(tracker_id, current_user, db)
-    return tracker
+    return (await _attach_next_check_at([tracker], db))[0]
 
 
 @router.patch("/{tracker_id}", response_model=TrackerOut)
@@ -98,18 +112,11 @@ async def get_current_price(
     db: AsyncSession = Depends(get_db),
 ) -> TrackerOut:
     tracker = await _get_owned_tracker(tracker_id, current_user, db)
-    raw_text, price = await _scrape_tracker(tracker)
-    if price is not None:
-        now = datetime.now(tz=timezone.utc)
-        db.add(PriceSnapshot(tracker_id=tracker.id, price=price, raw_text=raw_text))
-        tracker.last_price = float(price)
-        tracker.last_checked_at = now
-        tracker.last_successful_fetch_at = now
-        tracker.failure_count = 0
-        tracker.first_failure_at = None
-        await db.commit()
-        await db.refresh(tracker)
-    return tracker
+    try:
+        scrape_url.delay(tracker.url)
+    except Exception:
+        pass  # Redis not available in dev — scrape runs via scheduled worker
+    return (await _attach_next_check_at([tracker], db))[0]
 
 
 @router.get("/{tracker_id}/history", response_model=List[PriceSnapshotOut])

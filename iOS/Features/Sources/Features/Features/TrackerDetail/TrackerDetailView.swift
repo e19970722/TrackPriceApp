@@ -39,10 +39,7 @@ public struct TrackerDetailView: View {
     private var headerCard: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .firstTextBaseline) {
-                if store.isRefreshingPrice {
-                    ProgressView()
-                        .frame(height: 44)
-                } else if let lastPrice = store.tracker.lastPrice {
+                if let lastPrice = store.tracker.lastPrice {
                     Text("\(store.tracker.currencySymbol)\(String(format: "%.2f", lastPrice))")
                         .font(.system(size: 40, weight: .bold, design: .rounded))
                 } else {
@@ -184,6 +181,7 @@ public struct TrackerDetailView: View {
                 } else {
                     statCell(title: "Last Checked", value: "Never")
                 }
+                statCell(title: "Next Check", value: nextCheckLabel(store.tracker.nextCheckAt))
             }
         }
         .padding()
@@ -211,6 +209,14 @@ public struct TrackerDetailView: View {
         formatter.timeStyle = .short
         return formatter.string(from: date)
     }
+
+    private func nextCheckLabel(_ date: Date?) -> String {
+        guard let date, date > Date() else { return "Scheduled soon" }
+        let hours = Int(date.timeIntervalSinceNow / 3600)
+        let minutes = Int((date.timeIntervalSinceNow.truncatingRemainder(dividingBy: 3600)) / 60)
+        if hours > 0 { return "in ~\(hours)h \(minutes)m" }
+        return "in ~\(max(minutes, 1))m"
+    }
 }
 
 // MARK: - Preview
@@ -226,6 +232,8 @@ public struct TrackerDetailView: View {
         status: .active,
         lastPrice: 1999.00,
         lastCheckedAt: Date(),
+        checkInterval: "3h",
+        nextCheckAt: Date().addingTimeInterval(7200),
         createdAt: Date()
     )
     TrackerDetailView(store: Store(

@@ -62,7 +62,6 @@ public struct APIClient {
     public var createTracker: @Sendable (CreateTrackerRequest) async throws -> Tracker
     public var updateTracker: @Sendable (UUID, UpdateTrackerRequest) async throws -> Tracker
     public var deleteTracker: @Sendable (UUID) async throws -> Void
-    public var fetchCurrentPrice: @Sendable (UUID) async throws -> Tracker
     public var fetchPriceHistory: @Sendable (UUID) async throws -> [PriceSnapshot]
 }
 

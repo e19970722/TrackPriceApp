@@ -7,14 +7,12 @@ public struct TrackerDetailFeature {
         public var tracker: Tracker
         public var history: [PriceSnapshot] = []
         public var isLoadingHistory = false
-        public var isRefreshingPrice = false
         public init(tracker: Tracker) { self.tracker = tracker }
     }
 
     public enum Action {
         case onAppear
         case historyLoaded([PriceSnapshot])
-        case priceRefreshed(Tracker)
         case dismiss
     }
 
@@ -28,28 +26,15 @@ public struct TrackerDetailFeature {
             switch action {
             case .onAppear:
                 state.isLoadingHistory = true
-                state.isRefreshingPrice = true
                 let id = state.tracker.id
-                return .merge(
-                    .run { send in
-                        let history = (try? await apiClient.fetchPriceHistory(id)) ?? []
-                        await send(.historyLoaded(history))
-                    },
-                    .run { send in
-                        if let updated = try? await apiClient.fetchCurrentPrice(id) {
-                            await send(.priceRefreshed(updated))
-                        }
-                    }
-                )
+                return .run { send in
+                    let history = (try? await apiClient.fetchPriceHistory(id)) ?? []
+                    await send(.historyLoaded(history))
+                }
 
             case let .historyLoaded(history):
                 state.isLoadingHistory = false
                 state.history = history
-                return .none
-
-            case let .priceRefreshed(updated):
-                state.isRefreshingPrice = false
-                state.tracker = updated
                 return .none
 
             case .dismiss:
