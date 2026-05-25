@@ -3,23 +3,38 @@ import Foundation
 
 // MARK: - Request types
 
+public struct InteractionStep: Codable, Equatable {
+    public let type: String
+    public let locator: String
+    public let role: String?
+    public let rawText: String?
+    public let currentPrice: Double?
+    public let currencySymbol: String?
+
+    public init(type: String, locator: String, role: String? = nil,
+                rawText: String? = nil, currentPrice: Double? = nil,
+                currencySymbol: String? = nil) {
+        self.type = type; self.locator = locator; self.role = role
+        self.rawText = rawText; self.currentPrice = currentPrice
+        self.currencySymbol = currencySymbol
+    }
+}
+
 public struct CreateTrackerRequest: Codable {
     public let url: String
     public let name: String
-    public let cssSelector: String
-    public let xpath: String
+    public let interactions: [InteractionStep]
     public let currencySymbol: String
     public let confirmedPrice: Double
     public let targetPrice: Double
     public let targetDirection: Tracker.TargetDirection
 
-    public init(url: String, name: String, cssSelector: String, xpath: String,
+    public init(url: String, name: String, interactions: [InteractionStep],
                 currencySymbol: String, confirmedPrice: Double,
                 targetPrice: Double, targetDirection: Tracker.TargetDirection) {
-        self.url = url; self.name = name; self.cssSelector = cssSelector
-        self.xpath = xpath; self.currencySymbol = currencySymbol
-        self.confirmedPrice = confirmedPrice; self.targetPrice = targetPrice
-        self.targetDirection = targetDirection
+        self.url = url; self.name = name; self.interactions = interactions
+        self.currencySymbol = currencySymbol; self.confirmedPrice = confirmedPrice
+        self.targetPrice = targetPrice; self.targetDirection = targetDirection
     }
 }
 
@@ -47,6 +62,7 @@ public struct APIClient {
     public var createTracker: @Sendable (CreateTrackerRequest) async throws -> Tracker
     public var updateTracker: @Sendable (UUID, UpdateTrackerRequest) async throws -> Tracker
     public var deleteTracker: @Sendable (UUID) async throws -> Void
+    public var fetchCurrentPrice: @Sendable (UUID) async throws -> Tracker
     public var fetchPriceHistory: @Sendable (UUID) async throws -> [PriceSnapshot]
 }
 

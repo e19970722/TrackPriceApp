@@ -4,19 +4,20 @@ import Foundation
 // MARK: - ElementInfo
 
 public struct ElementInfo: Equatable {
-    public var cssSelector: String
-    public var xpath: String
-    public var rawText: String
-    public var currentPrice: Double?
-    public var currencySymbol: String
+    public var interactions: [InteractionStep]
 
-    public init(cssSelector: String, xpath: String, rawText: String,
-                currentPrice: Double?, currencySymbol: String) {
-        self.cssSelector = cssSelector
-        self.xpath = xpath
-        self.rawText = rawText
-        self.currentPrice = currentPrice
-        self.currencySymbol = currencySymbol
+    public init(interactions: [InteractionStep]) {
+        self.interactions = interactions
+    }
+
+    public var rawText: String? {
+        interactions.last(where: { $0.role == "price" })?.rawText
+    }
+    public var currentPrice: Double? {
+        interactions.last(where: { $0.role == "price" })?.currentPrice
+    }
+    public var currencySymbol: String {
+        interactions.last(where: { $0.role == "price" })?.currencySymbol ?? ""
     }
 }
 

@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING, List, Optional
 
 from sqlalchemy import DateTime, ForeignKey, Index, Integer, Numeric, String, func
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
@@ -20,8 +21,7 @@ class Tracker(Base):
     )
     url: Mapped[str] = mapped_column(String(2048))
     name: Mapped[str] = mapped_column(String(255))
-    css_selector: Mapped[str] = mapped_column(String(1024))
-    xpath: Mapped[str] = mapped_column(String(1024))
+    interactions: Mapped[list] = mapped_column(JSONB, default=list)
     currency_symbol: Mapped[str] = mapped_column(String(10))
     target_price: Mapped[float] = mapped_column(Numeric(14, 2))
     target_direction: Mapped[str] = mapped_column(String(10))  # "below" | "above"

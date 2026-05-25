@@ -9,7 +9,21 @@ struct AppView: View {
             Group {
                 switch store.authStatus {
                 case .unauthenticated:
-                    AuthView(store: store.scope(state: \.auth, action: \.auth))
+                    ZStack(alignment: .bottom) {
+                        AuthView(store: store.scope(state: \.auth, action: \.auth))
+                        #if DEBUG
+                        Button("Dev Login") {
+                            store.send(.checkAuthStatus)
+                        }
+                        .font(.footnote)
+                        .padding(.vertical, 8)
+                        .padding(.horizontal, 20)
+                        .background(Color.orange.opacity(0.85))
+                        .foregroundStyle(.white)
+                        .clipShape(Capsule())
+                        .padding(.bottom, 20)
+                        #endif
+                    }
                 case .authenticated:
                     authenticatedView
                 }
@@ -26,25 +40,20 @@ struct AppView: View {
 
     @ViewBuilder
     private var authenticatedView: some View {
-        TrackerListView(store: Store(initialState: TrackerListFeature.State()) { TrackerListFeature() })
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button {
-                        store.send(.settingsButtonTapped)
-                    } label: {
-                        Image(systemName: "gearshape")
+        WithPerceptionTracking {
+            TrackerListView(store: Store(initialState: TrackerListFeature.State()) { TrackerListFeature() })
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button {
+                            store.send(.settingsButtonTapped)
+                        } label: {
+                            Image(systemName: "gearshape")
+                        }
                     }
                 }
-            }
-            .sheet(
-                isPresented: Binding(
-                    get: { store.isSettingsPresented },
-                    set: { isPresented in
-                        if !isPresented { store.send(.settingsDismissed) }
-                    }
-                )
-            ) {
-                SettingsView(store: store.scope(state: \.settings, action: \.settings))
-            }
+                .sheet(item: $store.scope(state: \.settings, action: \.settings)) { settingsStore in
+                    SettingsView(store: settingsStore)
+                }
+        }
     }
 }

@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import List
 from uuid import UUID
 
@@ -11,6 +12,7 @@ from app.models.price_snapshot import PriceSnapshot
 from app.models.tracker import Tracker
 from app.models.user import User
 from app.schemas.tracker import PriceSnapshotOut, TrackerCreate, TrackerOut, TrackerUpdate
+from app.worker.scraper import _scrape_tracker
 from app.worker.sync_url_jobs import ensure_url_job
 
 router = APIRouter(prefix="/trackers", tags=["trackers"])
@@ -37,8 +39,7 @@ async def create_tracker(
         user_id=current_user.id,
         url=body.url,
         name=body.name,
-        css_selector=body.css_selector,
-        xpath=body.xpath,
+        interactions=body.interactions,
         currency_symbol=body.currency_symbol,
         target_price=body.target_price,
         target_direction=body.target_direction,
@@ -88,6 +89,27 @@ async def delete_tracker(
     tracker = await _get_owned_tracker(tracker_id, current_user, db)
     await db.delete(tracker)
     await db.commit()
+
+
+@router.get("/{tracker_id}/price", response_model=TrackerOut)
+async def get_current_price(
+    tracker_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> TrackerOut:
+    tracker = await _get_owned_tracker(tracker_id, current_user, db)
+    raw_text, price = await _scrape_tracker(tracker)
+    if price is not None:
+        now = datetime.now(tz=timezone.utc)
+        db.add(PriceSnapshot(tracker_id=tracker.id, price=price, raw_text=raw_text))
+        tracker.last_price = float(price)
+        tracker.last_checked_at = now
+        tracker.last_successful_fetch_at = now
+        tracker.failure_count = 0
+        tracker.first_failure_at = None
+        await db.commit()
+        await db.refresh(tracker)
+    return tracker
 
 
 @router.get("/{tracker_id}/history", response_model=List[PriceSnapshotOut])

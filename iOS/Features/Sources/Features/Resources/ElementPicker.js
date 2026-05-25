@@ -1,72 +1,27 @@
+// RecorderScript — injected once at page load to capture all user interactions
 (function() {
-  if (window.__pickerActive) return;
-  window.__pickerActive = true;
+  if (window.__interactions !== undefined) return;
+  window.__interactions = [];
 
-  let highlighted = null;
-
-  function highlight(el) {
-    if (highlighted) highlighted.style.outline = '';
-    highlighted = el;
-    el.style.outline = '3px solid #FF6B35';
-  }
-
-  function buildSelector(el) {
-    const parts = [];
-    while (el && el.nodeType === 1 && el.tagName !== 'HTML') {
-      let seg = el.tagName.toLowerCase();
-      if (el.id) { seg += '#' + el.id; parts.unshift(seg); break; }
-      const siblings = Array.from(el.parentNode?.children || []).filter(s => s.tagName === el.tagName);
-      if (siblings.length > 1) seg += ':nth-of-type(' + (siblings.indexOf(el) + 1) + ')';
-      parts.unshift(seg);
-      el = el.parentElement;
+  function buildLocator(el) {
+    if (el.id) return '#' + el.id;
+    for (const attr of el.attributes) {
+      if (attr.name.startsWith('data-') && attr.value && !attr.value.includes(' ') && attr.value.length < 64) {
+        return '[' + attr.name + '="' + attr.value + '"]';
+      }
     }
-    return parts.join(' > ');
+    const seg = el.tagName.toLowerCase();
+    const parent = el.parentElement;
+    if (!parent || parent.tagName === 'BODY' || parent.tagName === 'HTML') return seg;
+    const parentSeg = parent.id ? '#' + parent.id : parent.tagName.toLowerCase();
+    return parentSeg + ' > ' + seg;
   }
 
-  function buildXPath(el) {
-    const parts = [];
-    while (el && el.nodeType === 1) {
-      let idx = 1;
-      let sib = el.previousSibling;
-      while (sib) { if (sib.nodeType === 1 && sib.tagName === el.tagName) idx++; sib = sib.previousSibling; }
-      parts.unshift(el.tagName.toLowerCase() + '[' + idx + ']');
-      el = el.parentElement;
-    }
-    return '/' + parts.join('/');
-  }
-
-  function parseCurrency(text) {
-    const symbols = { '$': 'USD', '€': 'EUR', '£': 'GBP', '¥': 'JPY', 'NT$': 'TWD', '₩': 'KRW' };
-    for (const [sym, _] of Object.entries(symbols)) {
-      if (text.includes(sym)) return sym;
-    }
-    return '';
-  }
-
-  function parsePrice(text) {
-    const m = text.match(/[\d,]+\.?\d*/);
-    return m ? parseFloat(m[0].replace(/,/g, '')) : null;
-  }
-
-  document.addEventListener('mouseover', e => highlight(e.target), true);
-  document.addEventListener('touchmove', e => {
-    const t = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
-    if (t) highlight(t);
-  }, { passive: true });
-
-  document.addEventListener('click', e => {
-    e.preventDefault(); e.stopPropagation();
-    const el = e.target;
-    const text = (el.innerText || el.textContent || '').trim();
-    const payload = {
-      cssSelector: buildSelector(el),
-      xpath: buildXPath(el),
-      rawText: text,
-      currentPrice: parsePrice(text),
-      currencySymbol: parseCurrency(text)
-    };
-    window.webkit.messageHandlers.elementPicked.postMessage(JSON.stringify(payload));
-    if (highlighted) highlighted.style.outline = '';
-    window.__pickerActive = false;
+  document.addEventListener('click', function(e) {
+    if (window.__pickerActive) return;
+    window.__interactions.push({ type: 'click', locator: buildLocator(e.target) });
   }, true);
 })();
+
+// PickerScript — injected on demand when user taps "Pick Element"
+// (kept here for reference; canonical Swift embed is in ElementPickerScript.swift)

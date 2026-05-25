@@ -50,14 +50,12 @@ public struct WebViewContainer: UIViewRepresentable {
     }
 
     public func updateUIView(_ webView: WKWebView, context: Context) {
-        // Load new URL if it changed
         if let url, webView.url != url,
            context.coordinator.lastLoadedURL != url {
             context.coordinator.lastLoadedURL = url
             webView.load(URLRequest(url: url))
         }
 
-        // Inject picker JS when toggled on
         let wasActive = context.coordinator.wasPickerActive
         if isPickerActive && !wasActive {
             context.coordinator.injectPickerScript(into: webView)
@@ -102,13 +100,16 @@ public struct WebViewContainer: UIViewRepresentable {
                   let payload = try? JSONDecoder().decode(ElementPickerPayload.self, from: data)
             else { return }
 
-            let info = ElementInfo(
-                cssSelector: payload.cssSelector,
-                xpath: payload.xpath,
-                rawText: payload.rawText,
-                currentPrice: payload.currentPrice,
-                currencySymbol: payload.currencySymbol
-            )
+            let info = ElementInfo(interactions: payload.interactions.map { step in
+                InteractionStep(
+                    type: step.type,
+                    locator: step.locator,
+                    role: step.role,
+                    rawText: step.rawText,
+                    currentPrice: step.currentPrice,
+                    currencySymbol: step.currencySymbol
+                )
+            })
             DispatchQueue.main.async {
                 self.onElementPicked(info)
             }
@@ -125,6 +126,8 @@ public struct WebViewContainer: UIViewRepresentable {
             if let url = webView.url {
                 onNavigated(url)
             }
+            // Inject recorder so all clicks from this point are captured
+            webView.evaluateJavaScript(ElementPickerScript.recorder, completionHandler: nil)
         }
 
         public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
@@ -143,10 +146,15 @@ public struct WebViewContainer: UIViewRepresentable {
 
 // MARK: - Decodable payload from JS
 
-private struct ElementPickerPayload: Decodable {
-    let cssSelector: String
-    let xpath: String
-    let rawText: String
+private struct InteractionStepPayload: Decodable {
+    let type: String
+    let locator: String
+    let role: String?
+    let rawText: String?
     let currentPrice: Double?
-    let currencySymbol: String
+    let currencySymbol: String?
+}
+
+private struct ElementPickerPayload: Decodable {
+    let interactions: [InteractionStepPayload]
 }

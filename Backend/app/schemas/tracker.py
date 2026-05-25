@@ -9,8 +9,7 @@ from pydantic import BaseModel, ConfigDict
 class TrackerCreate(BaseModel):
     url: str
     name: str
-    css_selector: str
-    xpath: str
+    interactions: list[dict]
     currency_symbol: str
     confirmed_price: Decimal
     target_price: Decimal
@@ -31,7 +30,6 @@ class TrackerOut(BaseModel):
     user_id: uuid.UUID
     url: str
     name: str
-    css_selector: str
     currency_symbol: str
     target_price: float
     target_direction: str

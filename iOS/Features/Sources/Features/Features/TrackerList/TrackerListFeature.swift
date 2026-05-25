@@ -8,8 +8,8 @@ public struct TrackerListFeature {
         public var trackers: [Tracker] = []
         public var isLoading = false
         public var errorMessage: String?
-        public var addTracker: AddTrackerFeature.State?
-        public var selectedTracker: TrackerDetailFeature.State?
+        @Presents public var addTracker: AddTrackerFeature.State?
+        @Presents public var selectedTracker: TrackerDetailFeature.State?
         public init() {}
     }
 
@@ -18,11 +18,9 @@ public struct TrackerListFeature {
         case trackersLoaded([Tracker])
         case loadFailed(String)
         case addTrackerButtonTapped
-        case addTracker(AddTrackerFeature.Action)
-        case addTrackerDismissed
+        case addTracker(PresentationAction<AddTrackerFeature.Action>)
         case trackerRowTapped(Tracker)
-        case trackerDetail(TrackerDetailFeature.Action)
-        case trackerDetailDismissed
+        case trackerDetail(PresentationAction<TrackerDetailFeature.Action>)
         case deleteTracker(IndexSet)
         case trackerDeleted(UUID)
     }
@@ -35,7 +33,6 @@ public struct TrackerListFeature {
         Reduce { state, action in
             switch action {
             case .onAppear:
-                guard state.trackers.isEmpty else { return .none }
                 state.isLoading = true
                 return .run { send in
                     do {
@@ -60,8 +57,7 @@ public struct TrackerListFeature {
                 state.addTracker = AddTrackerFeature.State()
                 return .none
 
-            case .addTracker(.dismiss), .addTracker(.trackerCreated):
-                state.addTracker = nil
+            case .addTracker(.dismiss), .addTracker(.presented(.trackerCreated)):
                 return .run { send in
                     if let trackers = try? await apiClient.fetchTrackers() {
                         await send(.trackersLoaded(trackers))
@@ -71,19 +67,11 @@ public struct TrackerListFeature {
             case .addTracker:
                 return .none
 
-            case .addTrackerDismissed:
-                state.addTracker = nil
-                return .none
-
             case let .trackerRowTapped(tracker):
                 state.selectedTracker = TrackerDetailFeature.State(tracker: tracker)
                 return .none
 
             case .trackerDetail:
-                return .none
-
-            case .trackerDetailDismissed:
-                state.selectedTracker = nil
                 return .none
 
             case let .deleteTracker(indexSet):
@@ -100,7 +88,7 @@ public struct TrackerListFeature {
                 return .none
             }
         }
-        .ifLet(\.addTracker, action: \.addTracker) { AddTrackerFeature() }
-        .ifLet(\.selectedTracker, action: \.trackerDetail) { TrackerDetailFeature() }
+        .ifLet(\.$addTracker, action: \.addTracker) { AddTrackerFeature() }
+        .ifLet(\.$selectedTracker, action: \.trackerDetail) { TrackerDetailFeature() }
     }
 }

@@ -7,10 +7,4 @@ public struct PriceSnapshot: Codable, Identifiable, Equatable {
     public let rawText: String
     public let scrapedAt: Date
 
-    enum CodingKeys: String, CodingKey {
-        case id, price
-        case trackerId = "tracker_id"
-        case rawText = "raw_text"
-        case scrapedAt = "scraped_at"
-    }
 }

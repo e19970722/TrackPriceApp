@@ -16,7 +16,17 @@ extension JSONDecoder {
     static let api: JSONDecoder = {
         let d = JSONDecoder()
         d.keyDecodingStrategy = .convertFromSnakeCase
-        d.dateDecodingStrategy = .iso8601
+        // Python serializes datetimes with "+00:00" offset; use a formatter that handles both
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        let formatterNoFraction = ISO8601DateFormatter()
+        formatterNoFraction.formatOptions = [.withInternetDateTime]
+        d.dateDecodingStrategy = .custom { decoder in
+            let string = try decoder.singleValueContainer().decode(String.self)
+            if let date = formatter.date(from: string) { return date }
+            if let date = formatterNoFraction.date(from: string) { return date }
+            throw DecodingError.dataCorrupted(.init(codingPath: decoder.codingPath, debugDescription: "Invalid date: \(string)"))
+        }
         return d
     }()
 }
@@ -42,6 +52,10 @@ private func apiRequest<T: Decodable>(
     if let token { request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization") }
     if let body { request.httpBody = try JSONEncoder.api.encode(body) }
 
+    #if DEBUG
+    logRequest(request)
+    #endif
+
     let (data, response): (Data, URLResponse)
     do {
         (data, response) = try await URLSession.shared.data(for: request)
@@ -51,6 +65,11 @@ private func apiRequest<T: Decodable>(
     guard let http = response as? HTTPURLResponse else {
         throw APIError.networkError(URLError(.badServerResponse))
     }
+
+    #if DEBUG
+    logResponse(http, data: data)
+    #endif
+
     switch http.statusCode {
     case 200...299:
         do { return try JSONDecoder.api.decode(T.self, from: data) }
@@ -67,10 +86,20 @@ private func apiRequestVoid(_ method: String, path: String, body: (any Encodable
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
     if let token { request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization") }
     if let body { request.httpBody = try JSONEncoder.api.encode(body) }
-    let (_, response): (Data, URLResponse)
-    do { (_, response) = try await URLSession.shared.data(for: request) }
+
+    #if DEBUG
+    logRequest(request)
+    #endif
+
+    let (data, response): (Data, URLResponse)
+    do { (data, response) = try await URLSession.shared.data(for: request) }
     catch { throw APIError.networkError(error) }
     guard let http = response as? HTTPURLResponse else { return }
+
+    #if DEBUG
+    logResponse(http, data: data)
+    #endif
+
     switch http.statusCode {
     case 200...299: return
     case 401: throw APIError.unauthorized
@@ -78,6 +107,29 @@ private func apiRequestVoid(_ method: String, path: String, body: (any Encodable
     default: throw APIError.serverError(http.statusCode)
     }
 }
+
+#if DEBUG
+private func logRequest(_ request: URLRequest) {
+    print("→ \(request.httpMethod ?? "?") \(request.url?.absoluteString ?? "")")
+    if let body = request.httpBody,
+       let json = try? JSONSerialization.jsonObject(with: body),
+       let pretty = try? JSONSerialization.data(withJSONObject: json, options: .prettyPrinted),
+       let text = String(data: pretty, encoding: .utf8) {
+        print("  Body: \(text)")
+    }
+}
+
+private func logResponse(_ response: HTTPURLResponse, data: Data) {
+    print("← \(response.statusCode) \(response.url?.absoluteString ?? "")")
+    if let json = try? JSONSerialization.jsonObject(with: data),
+       let pretty = try? JSONSerialization.data(withJSONObject: json, options: .prettyPrinted),
+       let text = String(data: pretty, encoding: .utf8) {
+        print("  Body: \(text)")
+    } else if let text = String(data: data, encoding: .utf8), !text.isEmpty {
+        print("  Body: \(text)")
+    }
+}
+#endif
 
 // MARK: - Live & Mock
 
@@ -108,6 +160,9 @@ extension APIClient {
             deleteTracker: { id in
                 try await apiRequestVoid("DELETE", path: "/trackers/\(id)", token: keychain.loadToken())
             },
+            fetchCurrentPrice: { id in
+                try await apiRequest("GET", path: "/trackers/\(id)/price", token: keychain.loadToken(), as: Tracker.self)
+            },
             fetchPriceHistory: { id in
                 try await apiRequest("GET", path: "/trackers/\(id)/history", token: keychain.loadToken(), as: [PriceSnapshot].self)
             }
@@ -123,6 +178,7 @@ extension APIClient {
             createTracker: { _ in fatalError("not implemented in mock") },
             updateTracker: { _, _ in fatalError("not implemented in mock") },
             deleteTracker: { _ in },
+            fetchCurrentPrice: { _ in fatalError("not implemented in mock") },
             fetchPriceHistory: { _ in [] }
         )
     }

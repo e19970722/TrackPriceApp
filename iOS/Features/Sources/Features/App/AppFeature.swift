@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import Foundation
 
 @Reducer
 public struct AppFeature {
@@ -6,10 +7,9 @@ public struct AppFeature {
 
     @ObservableState
     public struct State: Equatable {
-        public var authStatus: AuthStatus = .authenticated // TEMP: skip auth for dev testing
+        public var authStatus: AuthStatus = .unauthenticated
         public var auth: AuthFeature.State = AuthFeature.State()
-        public var settings: SettingsFeature.State = SettingsFeature.State()
-        public var isSettingsPresented: Bool = false
+        @Presents public var settings: SettingsFeature.State?
         public init() {}
     }
 
@@ -17,10 +17,8 @@ public struct AppFeature {
         case checkAuthStatus
         case setAuthStatus(AuthStatus)
         case auth(AuthFeature.Action)
-        case settings(SettingsFeature.Action)
+        case settings(PresentationAction<SettingsFeature.Action>)
         case settingsButtonTapped
-        case settingsDismissed
-        // Notification actions
         case notificationsRequested
         case notificationPermissionResponse(Bool)
         case deviceTokenReceived(String)
@@ -38,25 +36,22 @@ public struct AppFeature {
             AuthFeature()
         }
 
-        Scope(state: \.settings, action: \.settings) {
-            SettingsFeature()
-        }
-
         Reduce { state, action in
             switch action {
             case .checkAuthStatus:
-                let token = keychainClient.loadToken()
-                if token != nil {
+                if keychainClient.loadToken() != nil {
                     state.authStatus = .authenticated
                     return .none
                 }
                 #if DEBUG
+                state.authStatus = .authenticated
                 return .run { _ in
-                    guard let url = URL(string: "http://localhost:8000/dev/token"),
-                          let (data, _) = try? await URLSession.shared.data(from: URLRequest(url: url)),
-                          let json = try? JSONDecoder().decode([String: String].self, from: data),
-                          let devToken = json["token"] else { return }
-                    keychainClient.saveToken(devToken)
+                    struct DevTokenResponse: Decodable { let token: String }
+                    var request = URLRequest(url: URL(string: "http://127.0.0.1:8000/dev/token")!)
+                    request.httpMethod = "POST"
+                    guard let (data, _) = try? await URLSession.shared.data(for: request),
+                          let response = try? JSONDecoder().decode(DevTokenResponse.self, from: data) else { return }
+                    keychainClient.saveToken(response.token)
                 }
                 #else
                 state.authStatus = .unauthenticated
@@ -75,15 +70,11 @@ public struct AppFeature {
                 return .none
 
             case .settingsButtonTapped:
-                state.isSettingsPresented = true
+                state.settings = SettingsFeature.State()
                 return .none
 
-            case .settingsDismissed:
-                state.isSettingsPresented = false
-                return .none
-
-            case .settings(.delegate(.signedOut)):
-                state.isSettingsPresented = false
+            case .settings(.presented(.delegate(.signedOut))):
+                state.settings = nil
                 state.authStatus = .unauthenticated
                 return .none
 
@@ -110,6 +101,9 @@ public struct AppFeature {
                     try? await apiClient.updateDeviceToken(token)
                 }
             }
+        }
+        .ifLet(\.$settings, action: \.settings) {
+            SettingsFeature()
         }
     }
 }

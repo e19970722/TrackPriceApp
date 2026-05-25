@@ -1,12 +1,45 @@
-// This file embeds ElementPicker.js as a Swift string constant so it can be
-// injected into WKWebView without depending on Bundle.module resource loading.
-// The canonical source is Resources/ElementPicker.js — keep the two in sync.
+// ElementPickerScript.swift
+// Embeds both JS scripts as Swift string constants for injection into WKWebView.
+// The canonical JS source lives in Resources/ElementPicker.js — keep in sync.
 
 enum ElementPickerScript {
+
+    // Injected once when the page finishes loading.
+    // Records every user click into window.__interactions so variant selections
+    // made before activating the picker are captured.
+    static let recorder = """
+(function() {
+  if (window.__interactions !== undefined) return;
+  window.__interactions = [];
+
+  function buildLocator(el) {
+    if (el.id) return '#' + el.id;
+    for (const attr of el.attributes) {
+      if (attr.name.startsWith('data-') && attr.value && !attr.value.includes(' ') && attr.value.length < 64) {
+        return '[' + attr.name + '="' + attr.value + '"]';
+      }
+    }
+    const seg = el.tagName.toLowerCase();
+    const parent = el.parentElement;
+    if (!parent || parent.tagName === 'BODY' || parent.tagName === 'HTML') return seg;
+    const parentSeg = parent.id ? '#' + parent.id : parent.tagName.toLowerCase();
+    return parentSeg + ' > ' + seg;
+  }
+
+  document.addEventListener('click', function(e) {
+    if (window.__pickerActive) return;
+    window.__interactions.push({ type: 'click', locator: buildLocator(e.target) });
+  }, true);
+})();
+"""
+
+    // Injected on demand when the user taps "Pick Element".
+    // Activates highlight mode; the next tap sends the full interactions array.
     static let javascript = """
 (function() {
   if (window.__pickerActive) return;
   window.__pickerActive = true;
+  if (!window.__interactions) window.__interactions = [];
 
   let highlighted = null;
 
@@ -16,34 +49,23 @@ enum ElementPickerScript {
     el.style.outline = '3px solid #FF6B35';
   }
 
-  function buildSelector(el) {
-    const parts = [];
-    while (el && el.nodeType === 1 && el.tagName !== 'HTML') {
-      let seg = el.tagName.toLowerCase();
-      if (el.id) { seg += '#' + el.id; parts.unshift(seg); break; }
-      const siblings = Array.from(el.parentNode?.children || []).filter(s => s.tagName === el.tagName);
-      if (siblings.length > 1) seg += ':nth-of-type(' + (siblings.indexOf(el) + 1) + ')';
-      parts.unshift(seg);
-      el = el.parentElement;
+  function buildLocator(el) {
+    if (el.id) return '#' + el.id;
+    for (const attr of el.attributes) {
+      if (attr.name.startsWith('data-') && attr.value && !attr.value.includes(' ') && attr.value.length < 64) {
+        return '[' + attr.name + '="' + attr.value + '"]';
+      }
     }
-    return parts.join(' > ');
-  }
-
-  function buildXPath(el) {
-    const parts = [];
-    while (el && el.nodeType === 1) {
-      let idx = 1;
-      let sib = el.previousSibling;
-      while (sib) { if (sib.nodeType === 1 && sib.tagName === el.tagName) idx++; sib = sib.previousSibling; }
-      parts.unshift(el.tagName.toLowerCase() + '[' + idx + ']');
-      el = el.parentElement;
-    }
-    return '/' + parts.join('/');
+    const seg = el.tagName.toLowerCase();
+    const parent = el.parentElement;
+    if (!parent || parent.tagName === 'BODY' || parent.tagName === 'HTML') return seg;
+    const parentSeg = parent.id ? '#' + parent.id : parent.tagName.toLowerCase();
+    return parentSeg + ' > ' + seg;
   }
 
   function parseCurrency(text) {
-    const symbols = { '$': 'USD', '\\u20ac': 'EUR', '\\u00a3': 'GBP', '\\u00a5': 'JPY', 'NT$': 'TWD', '\\u20a9': 'KRW' };
-    for (const [sym, _] of Object.entries(symbols)) {
+    const symbols = ['NT$', '$', '\\u20ac', '\\u00a3', '\\u00a5', '\\u20a9'];
+    for (const sym of symbols) {
       if (text.includes(sym)) return sym;
     }
     return '';
@@ -64,13 +86,16 @@ enum ElementPickerScript {
     e.preventDefault(); e.stopPropagation();
     const el = e.target;
     const text = (el.innerText || el.textContent || '').trim();
-    const payload = {
-      cssSelector: buildSelector(el),
-      xpath: buildXPath(el),
+    const finalStep = {
+      type: 'click',
+      locator: buildLocator(el),
+      role: 'price',
       rawText: text,
       currentPrice: parsePrice(text),
       currencySymbol: parseCurrency(text)
     };
+    window.__interactions.push(finalStep);
+    const payload = { interactions: window.__interactions };
     window.webkit.messageHandlers.elementPicked.postMessage(JSON.stringify(payload));
     if (highlighted) highlighted.style.outline = '';
     window.__pickerActive = false;

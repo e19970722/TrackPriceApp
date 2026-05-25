@@ -37,7 +37,10 @@ public struct TrackerDetailView: View {
     private var headerCard: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .firstTextBaseline) {
-                if let lastPrice = store.tracker.lastPrice {
+                if store.isRefreshingPrice {
+                    ProgressView()
+                        .frame(height: 44)
+                } else if let lastPrice = store.tracker.lastPrice {
                     Text("\(store.tracker.currencySymbol)\(String(format: "%.2f", lastPrice))")
                         .font(.system(size: 40, weight: .bold, design: .rounded))
                 } else {
@@ -173,7 +176,6 @@ public struct TrackerDetailView: View {
 
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                 statCell(title: "URL", value: store.tracker.url, truncate: true)
-                statCell(title: "CSS Selector", value: store.tracker.cssSelector, truncate: true)
                 statCell(title: "Created", value: formattedDate(store.tracker.createdAt))
                 if let lastChecked = store.tracker.lastCheckedAt {
                     statCell(title: "Last Checked", value: formattedDate(lastChecked))
@@ -216,7 +218,6 @@ public struct TrackerDetailView: View {
         id: UUID(),
         name: "MacBook Pro 14\"",
         url: "https://www.apple.com/shop/buy-mac/macbook-pro",
-        cssSelector: ".rc-prices-fullprice",
         currencySymbol: "$",
         targetPrice: 1800.00,
         targetDirection: .below,
