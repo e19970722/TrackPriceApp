@@ -38,11 +38,11 @@ def _parse_price(raw_text: str) -> Optional[Decimal]:
         return None
 
 
-async def _scrape_tracker(tracker: Tracker) -> tuple[Optional[str], Optional[Decimal]]:
-    """Replay the tracker's recorded interactions via Playwright and return (raw_text, price)."""
+async def _scrape_tracker(tracker: Tracker) -> tuple[Optional[str], Optional[Decimal], Optional[str], Optional[str]]:
+    """Replay the tracker's recorded interactions via Playwright and return (raw_text, price, og_title, og_image)."""
     interactions = tracker.interactions or []
     if not interactions:
-        return None, None
+        return None, None, None, None
 
     browser_args: dict = {}
     if settings.PROXY_HOST:
@@ -86,6 +86,20 @@ async def _scrape_tracker(tracker: Tracker) -> tuple[Optional[str], Optional[Dec
                 await page.wait_for_timeout(3000)
             await page.wait_for_timeout(2000)
 
+            og_title: Optional[str] = None
+            og_image: Optional[str] = None
+            try:
+                og_title = await page.locator('meta[property="og:title"]').get_attribute("content", timeout=3000)
+            except Exception:
+                pass
+            try:
+                raw_img = await page.locator('meta[property="og:image"]').get_attribute("content", timeout=3000)
+                if raw_img:
+                    from urllib.parse import urljoin
+                    og_image = urljoin(tracker.url, raw_img)
+            except Exception:
+                pass
+
             for step in interactions[:-1]:
                 if step.get("type") == "click":
                     locator = step.get("locator", "")
@@ -101,10 +115,10 @@ async def _scrape_tracker(tracker: Tracker) -> tuple[Optional[str], Optional[Dec
                 el = page.locator(locator).first
                 raw_text = await el.inner_text(timeout=5000)
                 price = _parse_price(raw_text)
-                return raw_text, price
+                return raw_text, price, og_title, og_image
             except Exception:
                 logger.warning("Price element not found: %s", locator)
-                return None, None
+                return None, None, og_title, og_image
         finally:
             await context.close()
             await browser.close()
@@ -120,7 +134,12 @@ async def _process(tracker_id: UUID) -> None:
             logger.warning("scrape_tracker: tracker %s not found", tracker_id)
             return
 
-        raw_text, price = await _scrape_tracker(tracker)
+        raw_text, price, og_title, og_image = await _scrape_tracker(tracker)
+
+        if tracker.item_name is None and og_title:
+            tracker.item_name = og_title
+        if tracker.item_image_url is None and og_image:
+            tracker.item_image_url = og_image
 
         if price is not None:
             session.add(PriceSnapshot(tracker_id=tracker.id, price=price, raw_text=raw_text))
