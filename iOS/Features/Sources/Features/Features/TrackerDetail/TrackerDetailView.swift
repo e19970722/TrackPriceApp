@@ -181,7 +181,7 @@ public struct TrackerDetailView: View {
                 } else {
                     statCell(title: "Last Checked", value: "Never")
                 }
-                statCell(title: "Next Check", value: nextCheckLabel(store.tracker.nextCheckAt))
+                statCell(title: "Next Check", value: nextCheckLabel(store.tracker.nextCheckedAt))
             }
         }
         .padding()
@@ -233,7 +233,7 @@ public struct TrackerDetailView: View {
         lastPrice: 1999.00,
         lastCheckedAt: Date(),
         checkInterval: 180,
-        nextCheckAt: Date().addingTimeInterval(7200),
+        nextCheckedAt: Date().addingTimeInterval(7200),
         createdAt: Date()
     )
     TrackerDetailView(store: Store(

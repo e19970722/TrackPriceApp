@@ -20,7 +20,7 @@ router = APIRouter(prefix="/trackers", tags=["trackers"])
 def _build_out(tracker: Tracker) -> dict:
     d = TrackerOut.model_validate(tracker).model_dump()
     if tracker.last_checked_at is not None:
-        d["next_check_at"] = tracker.last_checked_at + timedelta(minutes=tracker.check_interval)
+        d["next_checked_at"] = tracker.last_checked_at + timedelta(minutes=tracker.check_interval)
     return d
 
 

@@ -11,7 +11,7 @@ public struct Tracker: Codable, Identifiable, Equatable {
     public var lastPrice: Double?
     public var lastCheckedAt: Date?
     public var checkInterval: Int
-    public var nextCheckAt: Date?
+    public var nextCheckedAt: Date?
     public var createdAt: Date
 
     public enum TargetDirection: String, Codable, Equatable { case below, above }

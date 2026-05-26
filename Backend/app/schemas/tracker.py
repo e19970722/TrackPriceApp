@@ -37,7 +37,7 @@ class TrackerOut(BaseModel):
     status: str
     last_price: Optional[float] = None
     last_checked_at: Optional[datetime] = None
-    next_check_at: Optional[datetime] = None
+    next_checked_at: Optional[datetime] = None
     created_at: datetime
 
 
