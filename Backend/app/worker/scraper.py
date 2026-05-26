@@ -1,30 +1,24 @@
+"""Playwright page interaction — returns (raw_text, price, og_title, og_image).
+
+This module is responsible solely for browser automation.  All database
+access, alert evaluation, and push dispatch are handled in price_service.
+"""
 import asyncio
 import logging
 import re
-from datetime import datetime, timezone
 from decimal import Decimal, InvalidOperation
 from typing import Optional
 from uuid import UUID
 
 from playwright.async_api import async_playwright
-from sqlalchemy import select
 
-from app.alert_evaluator import should_alert
 from app.config import settings
-from app.database import AsyncSessionLocal
-from app.models.price_snapshot import PriceSnapshot
-from app.models.tracker import Tracker
-from app.models.user import User
 from app.worker.celery_app import celery
+from app.worker.og_extractor import extract_og_tags
 
 logger = logging.getLogger(__name__)
 
 _PRICE_RE = re.compile(r"[\d,]+\.?\d*")
-
-
-async def _get_device_token(db, user_id) -> Optional[str]:
-    result = await db.execute(select(User.apns_token).where(User.id == user_id))
-    return result.scalar_one_or_none()
 
 
 def _parse_price(raw_text: str) -> Optional[Decimal]:
@@ -38,9 +32,16 @@ def _parse_price(raw_text: str) -> Optional[Decimal]:
         return None
 
 
-async def _scrape_tracker(tracker: Tracker) -> tuple[Optional[str], Optional[Decimal], Optional[str], Optional[str]]:
-    """Replay the tracker's recorded interactions via Playwright and return (raw_text, price, og_title, og_image)."""
-    interactions = tracker.interactions or []
+async def scrape_page(
+    url: str,
+    interactions: list[dict],
+) -> tuple[Optional[str], Optional[Decimal], Optional[str], Optional[str]]:
+    """Drive a headless browser through *interactions* and return scraped data.
+
+    Returns:
+        (raw_text, price, og_title, og_image)
+        Any element may be None if extraction fails.
+    """
     if not interactions:
         return None, None, None, None
 
@@ -80,25 +81,13 @@ async def _scrape_tracker(tracker: Tracker) -> tuple[Optional[str], Optional[Dec
         page = await context.new_page()
         try:
             try:
-                await page.goto(tracker.url, wait_until="domcontentloaded", timeout=60000)
+                await page.goto(url, wait_until="domcontentloaded", timeout=60000)
             except Exception as nav_err:
-                logger.warning("Navigation warning for %s: %s", tracker.url, nav_err)
+                logger.warning("Navigation warning for %s: %s", url, nav_err)
                 await page.wait_for_timeout(3000)
             await page.wait_for_timeout(2000)
 
-            og_title: Optional[str] = None
-            og_image: Optional[str] = None
-            try:
-                og_title = await page.locator('meta[property="og:title"]').get_attribute("content", timeout=3000)
-            except Exception:
-                pass
-            try:
-                raw_img = await page.locator('meta[property="og:image"]').get_attribute("content", timeout=3000)
-                if raw_img:
-                    from urllib.parse import urljoin
-                    og_image = urljoin(tracker.url, raw_img)
-            except Exception:
-                pass
+            og_title, og_image = await extract_og_tags(page, url)
 
             for step in interactions[:-1]:
                 if step.get("type") == "click":
@@ -124,50 +113,11 @@ async def _scrape_tracker(tracker: Tracker) -> tuple[Optional[str], Optional[Dec
             await browser.close()
 
 
-async def _process(tracker_id: UUID) -> None:
-    now = datetime.now(tz=timezone.utc)
-
-    async with AsyncSessionLocal() as session:
-        result = await session.execute(select(Tracker).where(Tracker.id == tracker_id))
-        tracker = result.scalar_one_or_none()
-        if tracker is None:
-            logger.warning("scrape_tracker: tracker %s not found", tracker_id)
-            return
-
-        raw_text, price, og_title, og_image = await _scrape_tracker(tracker)
-
-        if tracker.item_name is None and og_title:
-            tracker.item_name = og_title
-        if tracker.item_image_url is None and og_image:
-            tracker.item_image_url = og_image
-
-        if price is not None:
-            session.add(PriceSnapshot(tracker_id=tracker.id, price=price, raw_text=raw_text))
-            tracker.last_price = price
-            tracker.last_checked_at = now
-            tracker.last_successful_fetch_at = now
-            tracker.failure_count = 0
-            tracker.first_failure_at = None
-
-            if should_alert(tracker, price, now):
-                apns_token = await _get_device_token(session, tracker.user_id)
-                if apns_token:
-                    from app.push_sender import send_price_alert
-                    await send_price_alert(apns_token, tracker, price)
-                tracker.last_notified_at = now
-                tracker.last_notified_price = price
-        else:
-            tracker.last_checked_at = now
-            tracker.failure_count = (tracker.failure_count or 0) + 1
-            if tracker.failure_count == 1:
-                tracker.first_failure_at = now
-
-        await session.commit()
-
-
 @celery.task(name="app.worker.scraper.scrape_tracker")
 def scrape_tracker(tracker_id: str) -> None:
+    from app.services.price_service import process_tracker_scrape  # noqa: PLC0415
+
     try:
-        asyncio.run(_process(UUID(tracker_id)))
+        asyncio.run(process_tracker_scrape(UUID(tracker_id)))
     except Exception:
         logger.exception("scrape_tracker failed for %s", tracker_id)
