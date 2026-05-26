@@ -25,7 +25,7 @@ class Tracker(Base):
     currency_symbol: Mapped[str] = mapped_column(String(10))
     target_price: Mapped[float] = mapped_column(Numeric(14, 2))
     target_direction: Mapped[str] = mapped_column(String(10))  # "below" | "above"
-    check_interval: Mapped[str] = mapped_column(String(10), default="3h")
+    check_interval: Mapped[int] = mapped_column(Integer, default=180)
     status: Mapped[str] = mapped_column(String(10), default="active")
     last_price: Mapped[Optional[float]] = mapped_column(Numeric(14, 2), nullable=True)
     last_checked_at: Mapped[Optional[datetime]] = mapped_column(

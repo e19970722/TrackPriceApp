@@ -33,7 +33,7 @@ class TrackerOut(BaseModel):
     currency_symbol: str
     target_price: float
     target_direction: str
-    check_interval: str
+    check_interval: int
     status: str
     last_price: Optional[float] = None
     last_checked_at: Optional[datetime] = None

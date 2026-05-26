@@ -10,7 +10,7 @@ public struct Tracker: Codable, Identifiable, Equatable {
     public var status: TrackerStatus
     public var lastPrice: Double?
     public var lastCheckedAt: Date?
-    public var checkInterval: String
+    public var checkInterval: Int
     public var nextCheckAt: Date?
     public var createdAt: Date
 

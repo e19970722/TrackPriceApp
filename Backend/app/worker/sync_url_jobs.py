@@ -15,7 +15,7 @@ def ensure_url_job(url: str, check_interval: str) -> None:
 
 async def _ensure(url: str, check_interval: str) -> None:
     now = datetime.now(timezone.utc)
-    delta = {"hourly": timedelta(hours=1), "3h": timedelta(hours=3)}.get(check_interval, timedelta(hours=24))
+    delta = timedelta(minutes=check_interval)
 
     async with AsyncSessionLocal() as db:
         result = await db.execute(select(UrlJob).where(UrlJob.url == url))

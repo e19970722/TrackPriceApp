@@ -232,7 +232,7 @@ public struct TrackerDetailView: View {
         status: .active,
         lastPrice: 1999.00,
         lastCheckedAt: Date(),
-        checkInterval: "3h",
+        checkInterval: 180,
         nextCheckAt: Date().addingTimeInterval(7200),
         createdAt: Date()
     )
