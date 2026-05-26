@@ -10,30 +10,18 @@ from app.auth import get_current_user
 from app.database import get_db
 from app.models.price_snapshot import PriceSnapshot
 from app.models.tracker import Tracker
-from app.models.url_job import UrlJob
 from app.models.user import User
 from app.schemas.tracker import PriceSnapshotOut, TrackerCreate, TrackerOut, TrackerUpdate
-from app.worker.scraper import scrape_url
-from app.worker.sync_url_jobs import ensure_url_job
+from app.worker.scraper import scrape_tracker
 
 router = APIRouter(prefix="/trackers", tags=["trackers"])
 
 
-async def _attach_next_check_at(trackers: list[Tracker], db: AsyncSession) -> list[dict]:
-    urls = list({t.url for t in trackers})
-    jobs_result = await db.execute(
-        select(UrlJob.url, UrlJob.next_fetch_at).where(UrlJob.url.in_(urls))
-    )
-    next_check_by_url = {row.url: row.next_fetch_at for row in jobs_result.all()}
-    out = []
-    for t in trackers:
-        d = TrackerOut.model_validate(t).model_dump()
-        next_check = next_check_by_url.get(t.url)
-        if next_check is None and t.last_checked_at is not None:
-            next_check = t.last_checked_at + timedelta(minutes=t.check_interval)
-        d["next_check_at"] = next_check
-        out.append(d)
-    return out
+def _build_out(tracker: Tracker) -> dict:
+    d = TrackerOut.model_validate(tracker).model_dump()
+    if tracker.last_checked_at is not None:
+        d["next_check_at"] = tracker.last_checked_at + timedelta(minutes=tracker.check_interval)
+    return d
 
 
 @router.get("", response_model=List[TrackerOut])
@@ -44,8 +32,7 @@ async def list_trackers(
     result = await db.execute(
         select(Tracker).where(Tracker.user_id == current_user.id)
     )
-    trackers = list(result.scalars().all())
-    return await _attach_next_check_at(trackers, db)
+    return [_build_out(t) for t in result.scalars().all()]
 
 
 @router.post("", response_model=TrackerOut, status_code=status.HTTP_201_CREATED)
@@ -68,11 +55,7 @@ async def create_tracker(
     db.add(tracker)
     await db.commit()
     await db.refresh(tracker)
-    try:
-        ensure_url_job.delay(tracker.url, tracker.check_interval)
-    except Exception:
-        pass  # Redis not available — worker will pick up job when it starts
-    return tracker
+    return _build_out(tracker)
 
 
 @router.get("/{tracker_id}", response_model=TrackerOut)
@@ -82,7 +65,7 @@ async def get_tracker(
     db: AsyncSession = Depends(get_db),
 ) -> TrackerOut:
     tracker = await _get_owned_tracker(tracker_id, current_user, db)
-    return (await _attach_next_check_at([tracker], db))[0]
+    return _build_out(tracker)
 
 
 @router.patch("/{tracker_id}", response_model=TrackerOut)
@@ -97,7 +80,7 @@ async def update_tracker(
         setattr(tracker, field, value)
     await db.commit()
     await db.refresh(tracker)
-    return tracker
+    return _build_out(tracker)
 
 
 @router.delete("/{tracker_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -119,10 +102,10 @@ async def get_current_price(
 ) -> TrackerOut:
     tracker = await _get_owned_tracker(tracker_id, current_user, db)
     try:
-        scrape_url.delay(tracker.url)
+        scrape_tracker.delay(str(tracker.id))
     except Exception:
-        pass  # Redis not available in dev — scrape runs via scheduled worker
-    return (await _attach_next_check_at([tracker], db))[0]
+        pass
+    return _build_out(tracker)
 
 
 @router.get("/{tracker_id}/history", response_model=List[PriceSnapshotOut])

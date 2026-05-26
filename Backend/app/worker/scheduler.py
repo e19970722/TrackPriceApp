@@ -1,10 +1,10 @@
 import asyncio
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import select
 
 from app.database import AsyncSessionLocal
-from app.models.url_job import UrlJob
+from app.models.tracker import Tracker
 from app.worker.celery_app import celery
 
 
@@ -17,16 +17,15 @@ async def _dispatch() -> None:
     now = datetime.now(timezone.utc)
     async with AsyncSessionLocal() as db:
         result = await db.execute(
-            select(UrlJob).where(
-                UrlJob.next_fetch_at <= now,
-                UrlJob.fetch_status != "in_progress",
+            select(Tracker).where(
+                Tracker.status == "active",
+                Tracker.last_checked_at + (Tracker.check_interval * timedelta(minutes=1)) <= now,
             )
         )
-        due_jobs = result.scalars().all()
+        due_trackers = result.scalars().all()
 
-        for job in due_jobs:
-            job.fetch_status = "in_progress"
-            from app.worker.scraper import scrape_url  # noqa: PLC0415
-            scrape_url.delay(job.url)
+        for tracker in due_trackers:
+            from app.worker.scraper import scrape_tracker  # noqa: PLC0415
+            scrape_tracker.delay(str(tracker.id))
 
         await db.commit()

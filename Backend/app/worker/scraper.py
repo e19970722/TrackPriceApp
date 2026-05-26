@@ -1,16 +1,10 @@
-"""
-Playwright scraping worker.
-
-Fetches a page via headless Chromium, replays the recorded user interactions
-(variant selections + price element tap), then fans the result out to every
-active Tracker watching that URL.
-"""
 import asyncio
 import logging
 import re
 from datetime import datetime, timezone
 from decimal import Decimal, InvalidOperation
 from typing import Optional
+from uuid import UUID
 
 from playwright.async_api import async_playwright
 from sqlalchemy import select
@@ -20,7 +14,6 @@ from app.config import settings
 from app.database import AsyncSessionLocal
 from app.models.price_snapshot import PriceSnapshot
 from app.models.tracker import Tracker
-from app.models.url_job import UrlJob
 from app.models.user import User
 from app.worker.celery_app import celery
 
@@ -59,15 +52,40 @@ async def _scrape_tracker(tracker: Tracker) -> tuple[Optional[str], Optional[Dec
             "password": settings.PROXY_PASS,
         }
 
+    browser_args["args"] = list(browser_args.get("args", [])) + [
+        "--disable-blink-features=AutomationControlled",
+        "--no-sandbox",
+        "--disable-dev-shm-usage",
+        "--no-first-run",
+    ]
+
     async with async_playwright() as p:
         browser = await p.chromium.launch(**browser_args)
-        page = await browser.new_page()
+        context = await browser.new_context(
+            user_agent=(
+                "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) "
+                "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 "
+                "Mobile/15E148 Safari/604.1"
+            ),
+            viewport={"width": 390, "height": 844},
+            device_scale_factor=3,
+            is_mobile=True,
+            has_touch=True,
+            extra_http_headers={
+                "Accept-Language": "zh-TW,zh;q=0.9,en;q=0.8",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            },
+            ignore_https_errors=True,
+        )
+        page = await context.new_page()
         try:
-            await page.goto(tracker.url, wait_until="domcontentloaded", timeout=30000)
-            # Give JS-rendered content a moment to settle after DOM is ready
+            try:
+                await page.goto(tracker.url, wait_until="domcontentloaded", timeout=60000)
+            except Exception as nav_err:
+                logger.warning("Navigation warning for %s: %s", tracker.url, nav_err)
+                await page.wait_for_timeout(3000)
             await page.wait_for_timeout(2000)
 
-            # Replay all steps except the final price element tap
             for step in interactions[:-1]:
                 if step.get("type") == "click":
                     locator = step.get("locator", "")
@@ -77,7 +95,6 @@ async def _scrape_tracker(tracker: Tracker) -> tuple[Optional[str], Optional[Dec
                     except Exception:
                         logger.warning("Interaction replay click failed: %s", locator)
 
-            # Final step is the price element
             price_step = interactions[-1]
             locator = price_step.get("locator", "")
             try:
@@ -89,69 +106,49 @@ async def _scrape_tracker(tracker: Tracker) -> tuple[Optional[str], Optional[Dec
                 logger.warning("Price element not found: %s", locator)
                 return None, None
         finally:
+            await context.close()
             await browser.close()
 
 
-async def _process_tracker(tracker: Tracker, now: datetime, session) -> None:
-    raw_text, price = await _scrape_tracker(tracker)
-
-    if price is not None:
-        snapshot = PriceSnapshot(
-            tracker_id=tracker.id,
-            price=price,
-            raw_text=raw_text,
-        )
-        session.add(snapshot)
-
-        tracker.last_price = price
-        tracker.last_checked_at = now
-        tracker.last_successful_fetch_at = now
-        tracker.failure_count = 0
-        tracker.first_failure_at = None
-
-        if should_alert(tracker, price, now):
-            apns_token = await _get_device_token(session, tracker.user_id)
-            if apns_token:
-                from app.push_sender import send_price_alert
-                await send_price_alert(apns_token, tracker, price)
-            tracker.last_notified_at = now
-            tracker.last_notified_price = price
-    else:
-        tracker.last_checked_at = now
-        tracker.failure_count = (tracker.failure_count or 0) + 1
-        if tracker.failure_count == 1:
-            tracker.first_failure_at = now
-
-
-async def _fetch_and_process(url: str) -> None:
+async def _process(tracker_id: UUID) -> None:
     now = datetime.now(tz=timezone.utc)
 
     async with AsyncSessionLocal() as session:
-        trackers_result = await session.execute(
-            select(Tracker).where(Tracker.url == url, Tracker.status == "active")
-        )
-        trackers = trackers_result.scalars().all()
+        result = await session.execute(select(Tracker).where(Tracker.id == tracker_id))
+        tracker = result.scalar_one_or_none()
+        if tracker is None:
+            logger.warning("scrape_tracker: tracker %s not found", tracker_id)
+            return
 
-        for tracker in trackers:
-            await _process_tracker(tracker, now, session)
+        raw_text, price = await _scrape_tracker(tracker)
 
-        url_job_result = await session.execute(select(UrlJob).where(UrlJob.url == url))
-        url_job = url_job_result.scalar_one_or_none()
-        if url_job is not None:
-            url_job.last_fetched_at = now
-            url_job.fetch_status = "done"
+        if price is not None:
+            session.add(PriceSnapshot(tracker_id=tracker.id, price=price, raw_text=raw_text))
+            tracker.last_price = price
+            tracker.last_checked_at = now
+            tracker.last_successful_fetch_at = now
+            tracker.failure_count = 0
+            tracker.first_failure_at = None
+
+            if should_alert(tracker, price, now):
+                apns_token = await _get_device_token(session, tracker.user_id)
+                if apns_token:
+                    from app.push_sender import send_price_alert
+                    await send_price_alert(apns_token, tracker, price)
+                tracker.last_notified_at = now
+                tracker.last_notified_price = price
+        else:
+            tracker.last_checked_at = now
+            tracker.failure_count = (tracker.failure_count or 0) + 1
+            if tracker.failure_count == 1:
+                tracker.first_failure_at = now
 
         await session.commit()
 
 
-# ---------------------------------------------------------------------------
-# Celery task
-# ---------------------------------------------------------------------------
-
-@celery.task(name="app.worker.scraper.scrape_url")
-def scrape_url(url: str) -> None:
-    """Replay recorded interactions for every active Tracker on *url* and evaluate alerts."""
+@celery.task(name="app.worker.scraper.scrape_tracker")
+def scrape_tracker(tracker_id: str) -> None:
     try:
-        asyncio.run(_fetch_and_process(url))
+        asyncio.run(_process(UUID(tracker_id)))
     except Exception:
-        logger.exception("scrape_url failed for %s", url)
+        logger.exception("scrape_tracker failed for %s", tracker_id)
