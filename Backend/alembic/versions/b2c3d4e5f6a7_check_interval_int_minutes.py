@@ -14,6 +14,7 @@ depends_on = None
 
 
 def upgrade() -> None:
+    op.execute("ALTER TABLE trackers ALTER COLUMN check_interval DROP DEFAULT")
     op.execute("""
         ALTER TABLE trackers
         ALTER COLUMN check_interval TYPE INTEGER
@@ -23,10 +24,11 @@ def upgrade() -> None:
             ELSE 1440
         END
     """)
-    op.alter_column("trackers", "check_interval", server_default="180")
+    op.execute("ALTER TABLE trackers ALTER COLUMN check_interval SET DEFAULT 180")
 
 
 def downgrade() -> None:
+    op.execute("ALTER TABLE trackers ALTER COLUMN check_interval DROP DEFAULT")
     op.execute("""
         ALTER TABLE trackers
         ALTER COLUMN check_interval TYPE VARCHAR(10)
@@ -36,4 +38,4 @@ def downgrade() -> None:
             ELSE 'daily'
         END
     """)
-    op.alter_column("trackers", "check_interval", server_default="3h")
+    op.execute("ALTER TABLE trackers ALTER COLUMN check_interval SET DEFAULT '3h'")
