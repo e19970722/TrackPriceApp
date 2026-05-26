@@ -4,17 +4,21 @@
   window.__interactions = [];
 
   function buildLocator(el) {
-    if (el.id) return '#' + el.id;
+    if (el.id) return '#' + CSS.escape(el.id);
     for (const attr of el.attributes) {
       if (attr.name.startsWith('data-') && attr.value && !attr.value.includes(' ') && attr.value.length < 64) {
         return '[' + attr.name + '="' + attr.value + '"]';
       }
     }
-    const seg = el.tagName.toLowerCase();
+    const tag = el.tagName.toLowerCase();
+    if (el.classList.length > 0) {
+      const classes = Array.from(el.classList).map(c => '.' + CSS.escape(c)).join('');
+      return tag + classes;
+    }
     const parent = el.parentElement;
-    if (!parent || parent.tagName === 'BODY' || parent.tagName === 'HTML') return seg;
-    const parentSeg = parent.id ? '#' + parent.id : parent.tagName.toLowerCase();
-    return parentSeg + ' > ' + seg;
+    if (!parent || parent.tagName === 'BODY' || parent.tagName === 'HTML') return tag;
+    const parentSeg = parent.id ? '#' + CSS.escape(parent.id) : parent.tagName.toLowerCase();
+    return parentSeg + ' > ' + tag;
   }
 
   document.addEventListener('click', function(e) {
