@@ -1,3 +1,3 @@
-from app.worker.scraper import scrape_url
+from app.worker.scraper import scrape_tracker
 
-__all__ = ["scrape_url"]
+__all__ = ["scrape_tracker"]
