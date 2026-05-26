@@ -38,6 +38,29 @@ public struct TrackerDetailView: View {
 
     private var headerCard: some View {
         VStack(alignment: .leading, spacing: 8) {
+            if let imageUrl = store.tracker.itemImageUrl, let url = URL(string: imageUrl) {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(maxWidth: .infinity, maxHeight: 160)
+                            .clipped()
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    default:
+                        EmptyView()
+                    }
+                }
+            }
+
+            if let itemName = store.tracker.itemName {
+                Text(itemName)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(2)
+            }
+
             HStack(alignment: .firstTextBaseline) {
                 if let lastPrice = store.tracker.lastPrice {
                     Text("\(store.tracker.currencySymbol)\(String(format: "%.2f", lastPrice))")

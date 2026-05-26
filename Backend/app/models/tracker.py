@@ -27,6 +27,8 @@ class Tracker(Base):
     target_direction: Mapped[str] = mapped_column(String(10))  # "below" | "above"
     check_interval: Mapped[int] = mapped_column(Integer, default=180)
     status: Mapped[str] = mapped_column(String(10), default="active")
+    item_name: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    item_image_url: Mapped[Optional[str]] = mapped_column(String(2048), nullable=True)
     last_price: Mapped[Optional[float]] = mapped_column(Numeric(14, 2), nullable=True)
     last_checked_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True), nullable=True

@@ -8,6 +8,8 @@ public struct Tracker: Codable, Identifiable, Equatable {
     public var targetPrice: Double
     public var targetDirection: TargetDirection
     public var status: TrackerStatus
+    public var itemName: String?
+    public var itemImageUrl: String?
     public var lastPrice: Double?
     public var lastCheckedAt: Date?
     public var checkInterval: Int
