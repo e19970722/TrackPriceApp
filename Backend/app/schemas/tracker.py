@@ -35,6 +35,7 @@ class TrackerOut(BaseModel):
     target_direction: str
     check_interval: int
     status: str
+    interactions: list[dict] = []
     last_price: Optional[float] = None
     last_checked_at: Optional[datetime] = None
     next_checked_at: Optional[datetime] = None
