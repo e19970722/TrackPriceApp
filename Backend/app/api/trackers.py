@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import List
 from uuid import UUID
 
@@ -59,6 +60,7 @@ async def create_tracker(
         target_price=body.target_price,
         target_direction=body.target_direction,
         last_price=body.confirmed_price,
+        last_checked_at=datetime.now(timezone.utc),
     )
     db.add(tracker)
     await db.commit()

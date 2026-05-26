@@ -24,7 +24,7 @@ async def _ensure(url: str, check_interval: str) -> None:
         if job is None:
             job = UrlJob(
                 url=url,
-                next_fetch_at=now,
+                next_fetch_at=now + delta,
                 fetch_status="pending",
             )
             db.add(job)
