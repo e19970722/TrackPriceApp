@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import List
 from uuid import UUID
 
@@ -28,7 +28,10 @@ async def _attach_next_check_at(trackers: list[Tracker], db: AsyncSession) -> li
     out = []
     for t in trackers:
         d = TrackerOut.model_validate(t).model_dump()
-        d["next_check_at"] = next_check_by_url.get(t.url)
+        next_check = next_check_by_url.get(t.url)
+        if next_check is None and t.last_checked_at is not None:
+            next_check = t.last_checked_at + timedelta(minutes=t.check_interval)
+        d["next_check_at"] = next_check
         out.append(d)
     return out
 
