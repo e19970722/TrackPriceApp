@@ -89,23 +89,52 @@ private struct TrackerRowView: View {
     let tracker: Tracker
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(tracker.name)
-                .font(.headline)
-            if let lastPrice = tracker.lastPrice {
-                Text("\(tracker.currencySymbol)\(String(format: "%.2f", lastPrice))")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+        HStack(spacing: 12) {
+            if let imageUrl = tracker.itemImageUrl, let url = URL(string: imageUrl) {
+                AsyncImage(url: url) { phase in
+                    if case .success(let image) = phase {
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 48, height: 48)
+                            .clipped()
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    } else {
+                        placeholderThumbnail
+                    }
+                }
+            } else {
+                placeholderThumbnail
             }
-            HStack {
-                Image(systemName: tracker.targetDirection == .below ? "arrow.down" : "arrow.up")
-                    .font(.caption)
-                Text("Target: \(tracker.currencySymbol)\(String(format: "%.2f", tracker.targetPrice))")
-                    .font(.caption)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(tracker.name)
+                    .font(.headline)
+                if let lastPrice = tracker.lastPrice {
+                    Text("\(tracker.currencySymbol)\(String(format: "%.2f", lastPrice))")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                HStack {
+                    Image(systemName: tracker.targetDirection == .below ? "arrow.down" : "arrow.up")
+                        .font(.caption)
+                    Text("Target: \(tracker.currencySymbol)\(String(format: "%.2f", tracker.targetPrice))")
+                        .font(.caption)
+                }
+                .foregroundStyle(.tertiary)
             }
-            .foregroundStyle(.tertiary)
         }
         .padding(.vertical, 2)
+    }
+
+    private var placeholderThumbnail: some View {
+        RoundedRectangle(cornerRadius: 8)
+            .fill(Color(.systemGray5))
+            .frame(width: 48, height: 48)
+            .overlay(
+                Image(systemName: "tag")
+                    .foregroundStyle(.secondary)
+            )
     }
 }
 
