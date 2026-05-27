@@ -1,3 +1,4 @@
+import Foundation
 import SwiftUI
 
 /// A pill badge that reflects a tracker's target direction (below / above).
