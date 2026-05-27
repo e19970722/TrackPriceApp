@@ -1,5 +1,8 @@
 import Foundation
 
+public enum TrackerStatus: String, Codable, Equatable { case active, paused, broken }
+public enum TargetDirection: String, Codable, Equatable { case below, above }
+
 public struct Tracker: Codable, Identifiable, Equatable {
     public let id: UUID
     public var name: String
@@ -15,7 +18,4 @@ public struct Tracker: Codable, Identifiable, Equatable {
     public var checkInterval: Int
     public var nextCheckedAt: Date?
     public var createdAt: Date
-
-    public enum TargetDirection: String, Codable, Equatable { case below, above }
-    public enum TrackerStatus: String, Codable, Equatable { case active, paused, broken }
 }

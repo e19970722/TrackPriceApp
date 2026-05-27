@@ -3,9 +3,9 @@ import SwiftUI
 
 /// A pill badge that reflects a tracker's active / paused / broken status.
 public struct StatusBadge: View {
-    let status: Tracker.TrackerStatus
+    let status: TrackerStatus
 
-    public init(status: Tracker.TrackerStatus) {
+    public init(status: TrackerStatus) {
         self.status = status
     }
 

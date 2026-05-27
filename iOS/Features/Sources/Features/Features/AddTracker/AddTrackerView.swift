@@ -341,8 +341,8 @@ extension TargetSetupView {
     private var directionSection: some View {
         Section("Alert me when price is") {
             Picker("Direction", selection: $store.targetDirection) {
-                Text("Below target").tag(Tracker.TargetDirection.below)
-                Text("Above target").tag(Tracker.TargetDirection.above)
+                Text("Below target").tag(TargetDirection.below)
+                Text("Above target").tag(TargetDirection.above)
             }
             .pickerStyle(.segmented)
             .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))

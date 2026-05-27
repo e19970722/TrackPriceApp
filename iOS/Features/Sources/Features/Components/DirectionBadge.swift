@@ -3,9 +3,9 @@ import SwiftUI
 
 /// A pill badge that reflects a tracker's target direction (below / above).
 public struct DirectionBadge: View {
-    let direction: Tracker.TargetDirection
+    let direction: TargetDirection
 
-    public init(direction: Tracker.TargetDirection) {
+    public init(direction: TargetDirection) {
         self.direction = direction
     }
 
