@@ -4,6 +4,8 @@ Orchestrates: fetch via Playwright, persist snapshot, evaluate alert,
 dispatch push notification.  No HTTP concerns; receives and returns
 domain objects only.
 """
+from __future__ import annotations
+
 import logging
 from datetime import datetime, timezone
 from uuid import UUID

@@ -3,6 +3,8 @@
 Wraps repository calls and enforces ownership checks.  Raises
 domain-level ValueError so the API layer can convert to HTTP 404/403.
 """
+from __future__ import annotations
+
 from datetime import timedelta
 from uuid import UUID
 

@@ -1,4 +1,6 @@
 """SQLAlchemy queries for the Tracker model."""
+from __future__ import annotations
+
 from datetime import datetime, timezone
 from uuid import UUID
 

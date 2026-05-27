@@ -1,4 +1,6 @@
 """SQLAlchemy queries for the PriceSnapshot model."""
+from __future__ import annotations
+
 from decimal import Decimal
 from uuid import UUID
 
