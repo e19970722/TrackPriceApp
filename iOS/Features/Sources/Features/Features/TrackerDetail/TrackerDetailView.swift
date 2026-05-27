@@ -9,14 +9,16 @@ public struct TrackerDetailView: View {
         self.store = store
     }
 
+    // MARK: - Body
+
     public var body: some View {
         WithPerceptionTracking {
             NavigationStack {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 20) {
-                        headerCard
-                        chartSection
-                        statsGrid
+                        headerCardView
+                        priceChartSection
+                        detailStatsSection
                     }
                     .padding()
                 }
@@ -24,207 +26,207 @@ public struct TrackerDetailView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .confirmationAction) {
-                        Button("Done") {
-                            store.send(.dismiss)
-                        }
+                        dismissButton
                     }
                 }
             }
             .onAppear { store.send(.onAppear) }
         }
     }
+}
 
-    // MARK: - Header card
+// MARK: - Subviews
 
-    private var headerCard: some View {
+extension TrackerDetailView {
+
+    private var dismissButton: some View {
+        Button("Done") {
+            store.send(.dismiss)
+        }
+    }
+
+    private var headerCardView: some View {
         VStack(alignment: .leading, spacing: 8) {
-            if let imageUrl = store.tracker.itemImageUrl, let url = URL(string: imageUrl) {
-                AsyncImage(url: url) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(maxWidth: .infinity, maxHeight: 160)
-                            .clipped()
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                    default:
-                        EmptyView()
-                    }
-                }
-            }
-
-            if let itemName = store.tracker.itemName {
-                Text(itemName)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(2)
-            }
-
-            HStack(alignment: .firstTextBaseline) {
-                if let lastPrice = store.tracker.lastPrice {
-                    Text("\(store.tracker.currencySymbol)\(String(format: "%.2f", lastPrice))")
-                        .font(.system(size: 40, weight: .bold, design: .rounded))
-                } else {
-                    Text("—")
-                        .font(.system(size: 40, weight: .bold, design: .rounded))
-                        .foregroundStyle(.secondary)
-                }
-                Spacer()
-                statusBadge
-            }
-
-            HStack(spacing: 8) {
-                directionBadge
-                Text("Target: \(store.tracker.currencySymbol)\(String(format: "%.2f", store.tracker.targetPrice))")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
+            headerHeroImageView
+            itemNameLabel
+            priceRowView
+            targetRowView
         }
         .padding()
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
     }
 
-    private var directionBadge: some View {
-        HStack(spacing: 4) {
-            Image(systemName: store.tracker.targetDirection == .below ? "arrow.down" : "arrow.up")
-            Text(store.tracker.targetDirection == .below ? "Below" : "Above")
-        }
-        .font(.caption.weight(.semibold))
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(
-            store.tracker.targetDirection == .below ? Color.green.opacity(0.15) : Color.orange.opacity(0.15),
-            in: Capsule()
-        )
-        .foregroundStyle(store.tracker.targetDirection == .below ? .green : .orange)
-    }
-
-    private var statusBadge: some View {
-        let (color, label): (Color, String) = {
-            switch store.tracker.status {
-            case .active:  return (.green, "Active")
-            case .paused:  return (.orange, "Paused")
-            case .broken:  return (.red, "Broken")
+    @ViewBuilder
+    private var headerHeroImageView: some View {
+        if let imageUrl = store.tracker.itemImageUrl, let url = URL(string: imageUrl) {
+            AsyncImage(url: url) { phase in
+                switch phase {
+                case .success(let image):
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(maxWidth: .infinity, maxHeight: 160)
+                        .clipped()
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                default:
+                    EmptyView()
+                }
             }
-        }()
-        return Text(label)
-            .font(.caption.weight(.semibold))
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(color.opacity(0.15), in: Capsule())
-            .foregroundStyle(color)
+        }
     }
 
-    // MARK: - Chart section
+    @ViewBuilder
+    private var itemNameLabel: some View {
+        if let itemName = store.tracker.itemName {
+            Text(itemName)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+        }
+    }
 
-    private var chartSection: some View {
+    private var priceRowView: some View {
+        HStack(alignment: .firstTextBaseline) {
+            currentPriceLabel
+            Spacer()
+            StatusBadge(status: store.tracker.status)
+        }
+    }
+
+    private var currentPriceLabel: some View {
+        Group {
+            if let lastPrice = store.tracker.lastPrice {
+                Text("\(store.tracker.currencySymbol)\(String(format: "%.2f", lastPrice))")
+            } else {
+                Text("—")
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .font(.system(size: 40, weight: .bold, design: .rounded))
+    }
+
+    private var targetRowView: some View {
+        HStack(spacing: 8) {
+            DirectionBadge(direction: store.tracker.targetDirection)
+            Text("Target: \(store.tracker.currencySymbol)\(String(format: "%.2f", store.tracker.targetPrice))")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var priceChartSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Price History")
                 .font(.headline)
 
-            if store.isLoadingHistory {
-                ProgressView()
-                    .frame(maxWidth: .infinity, minHeight: 180)
-            } else if store.history.isEmpty {
-                VStack(spacing: 8) {
-                    Image(systemName: "chart.line.uptrend.xyaxis")
-                        .font(.system(size: 36))
-                        .foregroundStyle(.secondary)
-                    Text("No price history yet")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity, minHeight: 180)
-            } else {
-                if #available(iOS 16.0, *) {
-                    Chart {
-                        ForEach(store.history) { snapshot in
-                            LineMark(
-                                x: .value("Date", snapshot.scrapedAt),
-                                y: .value("Price", snapshot.price)
-                            )
-                            .foregroundStyle(Color.accentColor)
-                            .interpolationMethod(.catmullRom)
-
-                            AreaMark(
-                                x: .value("Date", snapshot.scrapedAt),
-                                y: .value("Price", snapshot.price)
-                            )
-                            .foregroundStyle(Color.accentColor.opacity(0.1))
-                            .interpolationMethod(.catmullRom)
-                        }
-
-                        RuleMark(y: .value("Target", store.tracker.targetPrice))
-                            .foregroundStyle(.red.opacity(0.7))
-                            .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
-                            .annotation(position: .trailing, alignment: .center) {
-                                Text("Target")
-                                    .font(.caption2)
-                                    .foregroundStyle(.red.opacity(0.7))
-                            }
-                    }
-                    .frame(height: 200)
-                    .chartXAxis {
-                        AxisMarks(values: .automatic(desiredCount: 4)) { _ in
-                            AxisGridLine()
-                            AxisValueLabel(format: .dateTime.month(.abbreviated).day())
-                        }
-                    }
-                    .chartYAxis {
-                        AxisMarks { value in
-                            AxisGridLine()
-                            AxisValueLabel {
-                                if let price = value.as(Double.self) {
-                                    Text("\(store.tracker.currencySymbol)\(String(format: "%.0f", price))")
-                                        .font(.caption2)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            chartContentView
         }
         .padding()
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
     }
 
-    // MARK: - Stats grid
+    @ViewBuilder
+    private var chartContentView: some View {
+        if store.isLoadingHistory {
+            ProgressView()
+                .frame(maxWidth: .infinity, minHeight: 180)
+        } else if store.history.isEmpty {
+            emptyChartView
+        } else {
+            priceLineChart
+        }
+    }
 
-    private var statsGrid: some View {
+    private var emptyChartView: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "chart.line.uptrend.xyaxis")
+                .font(.system(size: 36))
+                .foregroundStyle(.secondary)
+            Text("No price history yet")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, minHeight: 180)
+    }
+
+    @ViewBuilder
+    private var priceLineChart: some View {
+        if #available(iOS 16.0, *) {
+            Chart {
+                ForEach(store.history) { snapshot in
+                    LineMark(
+                        x: .value("Date", snapshot.scrapedAt),
+                        y: .value("Price", snapshot.price)
+                    )
+                    .foregroundStyle(Color.accentColor)
+                    .interpolationMethod(.catmullRom)
+
+                    AreaMark(
+                        x: .value("Date", snapshot.scrapedAt),
+                        y: .value("Price", snapshot.price)
+                    )
+                    .foregroundStyle(Color.accentColor.opacity(0.1))
+                    .interpolationMethod(.catmullRom)
+                }
+
+                RuleMark(y: .value("Target", store.tracker.targetPrice))
+                    .foregroundStyle(.red.opacity(0.7))
+                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
+                    .annotation(position: .trailing, alignment: .center) {
+                        Text("Target")
+                            .font(.caption2)
+                            .foregroundStyle(.red.opacity(0.7))
+                    }
+            }
+            .frame(height: 200)
+            .chartXAxis {
+                AxisMarks(values: .automatic(desiredCount: 4)) { _ in
+                    AxisGridLine()
+                    AxisValueLabel(format: .dateTime.month(.abbreviated).day())
+                }
+            }
+            .chartYAxis {
+                AxisMarks { value in
+                    AxisGridLine()
+                    AxisValueLabel {
+                        if let price = value.as(Double.self) {
+                            Text("\(store.tracker.currencySymbol)\(String(format: "%.0f", price))")
+                                .font(.caption2)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private var detailStatsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Details")
                 .font(.headline)
 
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                statCell(title: "URL", value: store.tracker.url, truncate: true)
-                statCell(title: "Created", value: formattedDate(store.tracker.createdAt))
-                if let lastChecked = store.tracker.lastCheckedAt {
-                    statCell(title: "Last Checked", value: formattedDate(lastChecked))
-                } else {
-                    statCell(title: "Last Checked", value: "Never")
-                }
-                statCell(title: "Next Check", value: nextCheckLabel(store.tracker.nextCheckedAt))
-            }
+            statsGridView
         }
         .padding()
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
     }
 
-    private func statCell(title: String, value: String, truncate: Bool = false) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            Text(value)
-                .font(.caption.weight(.medium))
-                .lineLimit(truncate ? 2 : nil)
-                .truncationMode(.middle)
+    private var statsGridView: some View {
+        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+            StatCell(title: "URL", value: store.tracker.url, truncate: true)
+            StatCell(title: "Created", value: formattedDate(store.tracker.createdAt))
+            if let lastChecked = store.tracker.lastCheckedAt {
+                StatCell(title: "Last Checked", value: formattedDate(lastChecked))
+            } else {
+                StatCell(title: "Last Checked", value: "Never")
+            }
+            StatCell(title: "Next Check", value: nextCheckLabel(store.tracker.nextCheckedAt))
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(10)
-        .background(Color(.systemBackground), in: RoundedRectangle(cornerRadius: 8))
     }
+}
+
+// MARK: - Helpers
+
+extension TrackerDetailView {
 
     private func formattedDate(_ date: Date) -> String {
         let formatter = DateFormatter()
