@@ -1,10 +1,8 @@
 import asyncio
-from datetime import datetime, timedelta, timezone
-
-from sqlalchemy import select
+from datetime import datetime, timezone
 
 from app.database import AsyncSessionLocal
-from app.models.tracker import Tracker
+from app.repositories import tracker_repo
 from app.worker.celery_app import celery
 
 
@@ -16,16 +14,11 @@ def dispatch_due_scrapes() -> None:
 async def _dispatch() -> None:
     now = datetime.now(timezone.utc)
     async with AsyncSessionLocal() as db:
-        result = await db.execute(
-            select(Tracker).where(
-                Tracker.status == "active",
-                Tracker.last_checked_at + (Tracker.check_interval * timedelta(minutes=1)) <= now,
-            )
-        )
-        due_trackers = result.scalars().all()
+        due_trackers = await tracker_repo.get_due_trackers(db, now)
 
         for tracker in due_trackers:
             from app.worker.scraper import scrape_tracker  # noqa: PLC0415
+
             scrape_tracker.delay(str(tracker.id))
 
         await db.commit()
