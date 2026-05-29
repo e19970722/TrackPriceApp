@@ -12,7 +12,30 @@
       "Bash(cp /Users/yenlin/Documents/AiProjects/TrackPriceApp/issue.md /Users/yenlin/Documents/AiProjects/TrackPriceApp/.claude/commands/issue.md)",
       "Bash(git push *)",
       "Bash(xcode-select -p)",
-      "Bash(swift --version)"
+      "Bash(swift --version)",
+      "mcp__ide__getDiagnostics",
+      "Bash(curl -s -X POST http://127.0.0.1:8000/dev/token)",
+      "mcp__plugin_figma_figma__use_figma",
+      "mcp__plugin_figma_figma__get_screenshot",
+      "mcp__plugin_figma_figma__get_metadata",
+      "Read(//Users/yenlin/.claude/plugins/cache/ui-ux-pro-max-skill/ui-ux-pro-max/2.5.0/.claude/skills/ui-ux-pro-max/**)",
+      "Bash(python3 scripts/search.py \"price tracker fintech iOS native mobile app\" --design-system -f markdown)",
+      "Bash(python3 scripts/search.py \"dark fintech crypto trading\" --domain style -n 3)",
+      "Bash(python3 scripts/search.py \"glassmorphism frosted glass premium\" --domain style -n 3)",
+      "Bash(python3 scripts/search.py \"minimal clean light ios\" --domain style -n 3)",
+      "mcp__plugin_figma_figma__get_design_context",
+      "WebFetch(domain:api.anthropic.com)",
+      "Bash(cp \"/Users/yenlin/.claude/projects/-Users-yenlin-Documents-AiProjects-TrackPriceApp/0d78f7bd-af20-4c66-a181-2d3fdf616f5e/tool-results/webfetch-1780038593103-wb7tig.bin\" /tmp/ripe-ds.html.gz)",
+      "Bash(gunzip -c /tmp/ripe-ds.html.gz)",
+      "Read(//tmp/**)",
+      "Bash(mkdir -p /tmp/ripe-ds-bundle)",
+      "Bash(tar -xf /tmp/ripe-ds.html.gz -C /tmp/ripe-ds-bundle)",
+      "Bash(tar -xzf \"/Users/yenlin/.claude/projects/-Users-yenlin-Documents-AiProjects-TrackPriceApp/0d78f7bd-af20-4c66-a181-2d3fdf616f5e/tool-results/webfetch-1780038593103-wb7tig.bin\" -C /tmp/ripe-ds-bundle)",
+      "Bash(curl -L -o PlusJakartaSans-Regular.ttf \"https://github.com/tokotype/PlusJakartaSans/raw/main/fonts/ttf/PlusJakartaSans-Regular.ttf\")",
+      "Bash(curl -L -o PlusJakartaSans-Medium.ttf \"https://github.com/tokotype/PlusJakartaSans/raw/main/fonts/ttf/PlusJakartaSans-Medium.ttf\")",
+      "Bash(curl -L -o PlusJakartaSans-SemiBold.ttf \"https://github.com/tokotype/PlusJakartaSans/raw/main/fonts/ttf/PlusJakartaSans-SemiBold.ttf\")",
+      "Bash(curl -L -o PlusJakartaSans-Bold.ttf \"https://github.com/tokotype/PlusJakartaSans/raw/main/fonts/ttf/PlusJakartaSans-Bold.ttf\")",
+      "Bash(curl -L -o PlusJakartaSans-ExtraBold.ttf \"https://github.com/tokotype/PlusJakartaSans/raw/main/fonts/ttf/PlusJakartaSans-ExtraBold.ttf\")"
     ]
   }
 }
