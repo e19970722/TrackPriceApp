@@ -1,8 +1,8 @@
 import traceback
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, Request  # pyright: ignore[reportMissingImports]
+from fastapi.responses import JSONResponse  # pyright: ignore[reportMissingImports]
 
 from app.api.router import router
 from app.config import settings

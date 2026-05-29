@@ -61,6 +61,36 @@ Never call `URLSession` or `UserDefaults` directly from a reducer or view — al
 - Provide `.testValue` for all `DependencyKey` implementations
 - UI tests only for critical flows (sign-in, add tracker); unit-test everything else
 
+**View structure and readability**
+- `body` must only reference named subviews — never write layout or styling details (fonts, colors, padding, Text literals, etc.) directly inside `body`. It should read like an outline of the screen:
+  ```swift
+  // ✅ Good
+  var body: some View {
+      VStack(alignment: .leading, spacing: 24) {
+          titleView
+          allCategoriesView
+          suggestFollowView
+      }
+  }
+  // ❌ Bad — implementation details inside body
+  var body: some View {
+      VStack {
+          Text("Title").font(.headline).padding(.leading, 16)
+          ...
+      }
+  }
+  ```
+- Every distinct UI section goes in its own `private var` computed property in an `extension` of the view, not inline in `body`
+- Naming: use a type-reflecting suffix — `private var headerView: some View`, `private var confirmButton: some View`, `private var priceLabel: some View`. Never a generic name like `private var content`
+- Padding and frame modifiers belong inside the computed property that owns the element, not scattered in `body`
+- Use `// MARK: -` only for major sections: `// MARK: - Body`, `// MARK: - Subviews`, `// MARK: - Helpers`
+
+**Reusable components**
+- Before building a new UI element, scan other view files for something similar
+- If after evaluating it serves two or more views without awkward parameterisation, extract it to its own file at `iOS/Features/Sources/Features/Components/<ComponentName>.swift`
+- Extracted components must expose a clean, convenient initialiser — callers should not need to know internal layout details
+- If it only makes sense in one feature, keep it as a private extension on that view; don't over-extract
+
 **Xcode project hygiene**
 - No storyboards or XIBs — SwiftUI only
 - One Swift file per type

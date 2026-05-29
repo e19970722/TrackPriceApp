@@ -2,14 +2,30 @@
 
 ## Overview
 
-A native iOS price tracker that lets users monitor prices on any webpage. The user picks the price element directly inside a WebView; the backend watches it on a schedule and sends a push notification when the price crosses a user-defined threshold.
+A native iOS app with two core features:
+
+1. **Price Tracker** — monitor prices on any webpage. The user picks the price element directly inside a WebView; the backend watches it on a schedule and sends a push notification when the price crosses a user-defined threshold.
+2. **Expiry Tracker** — track expiry dates for any physical or digital item (food, medicine, cosmetics, coupons, subscriptions). The app reminds the user before an item expires, with a per-item configurable lead time.
 
 ---
 
-## Core User Flow
+## Tab Navigation
+
+The app has four top-level tabs:
+
+| Tab | Icon | Purpose |
+|---|---|---|
+| **Home** | house | Trending items + expiry reminders |
+| **Expiry** | calendar.badge.clock | User's expiry-tracked items |
+| **Price Track** | tag | User's price-tracked items |
+| **Profile** | person.circle | Settings, account, notifications |
+
+---
+
+## Core User Flow — Price Tracker
 
 1. User opens the app and signs in (Apple or Google).
-2. User taps **Add Tracker** and enters a URL.
+2. User taps **+** in the Price Track tab and enters a URL.
 3. App opens a **WKWebView** browser — user navigates freely until the right page/state is showing.
 4. User **long-presses** anywhere to activate *Selection Mode* (a floating "Selection Mode" banner appears; all link navigation is intercepted).
 5. User taps the price element — it gets highlighted with a CSS overlay.
@@ -20,6 +36,31 @@ A native iOS price tracker that lets users monitor prices on any webpage. The us
 7. User sets a tracker name (defaults to page `<title>`), a **target price**, and direction (**below** or **above**).
 8. If the current price already meets the target: show a warning dialog — *"Current price ($X) already meets your target of $Y. Save anyway?"*
 9. Tracker is saved; background checking begins.
+
+---
+
+## Core User Flow — Expiry Tracker
+
+1. User taps **+** in the Expiry tab.
+2. User enters: item name, expiry date, category (optional), and reminder lead time (e.g. "3 days before").
+3. Item is saved. The app schedules a local notification for `expiry_date − lead_time`.
+4. On the Home tab, items expiring within the next 7 days appear in the **Expiring Soon** section.
+5. User can edit or delete items from the Expiry tab list.
+
+---
+
+## Home Tab
+
+### Trending Section
+- Shows the **top 3 URLs** currently tracked by the most users across the entire app.
+- Items contribute anonymously — no user identity is ever shown or stored against a trending entry.
+- Each trending card shows: **item name**, **item image** (OG image), **current price**.
+- Tapping a trending card deep-links to the Add Tracker flow pre-filled with that URL.
+
+### Expiring Soon Section
+- Shows items from the user's Expiry tab that expire within the next **7 days**, sorted by soonest first.
+- Tapping an item opens the Expiry item detail/edit sheet.
+- If no items are expiring soon, the section is hidden.
 
 ---
 
@@ -36,15 +77,18 @@ A native iOS price tracker that lets users monitor prices on any webpage. The us
 
 ### Screens
 
-| Screen | Purpose |
-|---|---|
-| **Tracker List** | All trackers with current price, target, status badge, last-checked time |
-| **Tracker Detail** | Full info: current/target price, price history chart, last-checked time, edit/delete |
-| **Add Tracker — URL Entry** | URL input with paste and QR options |
-| **Add Tracker — WebView Browser** | Full browser with long-press selection mode |
-| **Add Tracker — Confirm Element** | Bottom sheet: raw text, editable parsed price, currency |
-| **Add Tracker — Set Target** | Target price input, direction toggle (below / above), tracker name |
-| **Settings** | Notification preferences, account info, sign out |
+| Screen | Tab | Purpose |
+|---|---|---|
+| **Home** | Home | Trending top 3 + expiring soon section |
+| **Expiry List** | Expiry | All expiry-tracked items; add/edit/delete |
+| **Expiry Item Detail** | Expiry | Edit name, date, lead time; delete |
+| **Price Track List** | Price Track | All price trackers with current price, target, status badge |
+| **Tracker Detail** | Price Track | Current/target price, price history chart, stats; edit/delete |
+| **Add Tracker — URL Entry** | Price Track | URL input with paste and QR options |
+| **Add Tracker — WebView Browser** | Price Track | Full browser with long-press selection mode |
+| **Add Tracker — Confirm Element** | Price Track | Bottom sheet: raw text, editable parsed price, currency |
+| **Add Tracker — Set Target** | Price Track | Target price input, direction toggle, tracker name |
+| **Profile** | Profile | Notification preferences, account info, sign out |
 
 ### WebView Element Picker (`ElementPicker.js`)
 
@@ -129,6 +173,19 @@ The user sees the parsed value and can correct it before saving. The corrected v
 | `last_notified_price` | numeric nullable | For re-notify logic |
 | `created_at` | timestamptz | |
 
+#### `expiry_items`
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | UUID PK | |
+| `user_id` | UUID FK | |
+| `name` | text | User-set item name |
+| `category` | text nullable | e.g. "Food", "Medicine", "Coupon" |
+| `expiry_date` | date | The expiry date |
+| `remind_days_before` | int | Lead time in days; default 3 |
+| `notified_at` | timestamptz nullable | When the expiry reminder was sent |
+| `created_at` | timestamptz | |
+
 #### `price_snapshots`
 
 | Column | Type | Notes |
@@ -203,6 +260,7 @@ To reduce the chance of IP blocks, the worker enforces a minimum gap of **10 sec
 | Price below target | `"[Name] is now $X — your target is under $Y. Tap to view."` |
 | Price above target | `"[Name] is now $X — your target is over $Y. Tap to view."` |
 | Tracker broken (3-day failure) | `"[Name] — couldn't fetch price. Tap to provide a new URL or re-select."` |
+| Expiry reminder | `"[Name] expires in [N] day(s). Don't forget to use it!"` |
 
 - Max **1 alert push per tracker per 24 hours** (tracker-broken pushes are separate and not throttled the same way).
 - User can mute a specific tracker's notifications from the Tracker Detail screen (stored as a flag on the tracker).
