@@ -59,7 +59,7 @@ extension AppView {
     private var authenticatedView: some View {
         WithPerceptionTracking {
             TabView {
-                HomeView()
+                HomeView(store: Store(initialState: HomeFeature.State()) { HomeFeature() })
                     .tabItem { Label("Home", systemImage: "house") }
                 TrackerListView(store: Store(initialState: TrackerListFeature.State()) { TrackerListFeature() })
                     .tabItem { Label("Tracks", systemImage: "tag") }
