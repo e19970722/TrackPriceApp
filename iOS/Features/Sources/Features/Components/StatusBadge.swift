@@ -12,6 +12,15 @@ public struct StatusBadge: View {
     // MARK: - Body
 
     public var body: some View {
+        badgePillView
+    }
+}
+
+// MARK: - Subviews
+
+extension StatusBadge {
+
+    private var badgePillView: some View {
         Text(label)
             .font(.caption.weight(.semibold))
             .padding(.horizontal, 8)
@@ -19,8 +28,11 @@ public struct StatusBadge: View {
             .background(badgeColor.opacity(0.15), in: Capsule())
             .foregroundStyle(badgeColor)
     }
+}
 
-    // MARK: - Helpers
+// MARK: - Helpers
+
+extension StatusBadge {
 
     private var label: String {
         switch status {

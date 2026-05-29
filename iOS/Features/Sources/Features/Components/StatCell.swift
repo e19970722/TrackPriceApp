@@ -15,18 +15,35 @@ public struct StatCell: View {
     // MARK: - Body
 
     public var body: some View {
+        cellContainerView
+    }
+}
+
+// MARK: - Subviews
+
+extension StatCell {
+
+    private var cellContainerView: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            Text(value)
-                .font(.caption.weight(.medium))
-                .lineLimit(truncate ? 2 : nil)
-                .truncationMode(.middle)
+            titleLabel
+            valueLabel
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(10)
         .background(Color(.systemBackground), in: RoundedRectangle(cornerRadius: 8))
+    }
+
+    private var titleLabel: some View {
+        Text(title)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+    }
+
+    private var valueLabel: some View {
+        Text(value)
+            .font(.caption.weight(.medium))
+            .lineLimit(truncate ? 2 : nil)
+            .truncationMode(.middle)
     }
 }
 

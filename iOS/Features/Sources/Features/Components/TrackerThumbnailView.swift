@@ -12,25 +12,41 @@ public struct TrackerThumbnailView: View {
     // MARK: - Body
 
     public var body: some View {
+        thumbnailView
+    }
+}
+
+// MARK: - Subviews
+
+extension TrackerThumbnailView {
+
+    @ViewBuilder
+    private var thumbnailView: some View {
         if let imageUrl, let url = URL(string: imageUrl) {
-            AsyncImage(url: url) { phase in
-                if case .success(let image) = phase {
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 48, height: 48)
-                        .clipped()
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                } else {
-                    placeholderView
-                }
-            }
+            asyncImageView(url: url)
         } else {
             placeholderView
         }
     }
 
-    // MARK: - Subviews
+    private func asyncImageView(url: URL) -> some View {
+        AsyncImage(url: url) { phase in
+            if case .success(let image) = phase {
+                loadedImageView(image)
+            } else {
+                placeholderView
+            }
+        }
+    }
+
+    private func loadedImageView(_ image: Image) -> some View {
+        image
+            .resizable()
+            .aspectRatio(contentMode: .fill)
+            .frame(width: 48, height: 48)
+            .clipped()
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
 
     private var placeholderView: some View {
         RoundedRectangle(cornerRadius: 8)
