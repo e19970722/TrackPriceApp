@@ -44,7 +44,7 @@ public struct AddTrackerFeature {
         // Target setup fields
         public var trackerName: String = ""
         public var targetPriceInput: String = ""
-        public var targetDirection: Tracker.TargetDirection = .below
+        public var targetDirection: TargetDirection = .below
 
         // Creation status
         public var isCreating: Bool = false

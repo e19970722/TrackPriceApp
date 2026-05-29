@@ -27,11 +27,11 @@ public struct CreateTrackerRequest: Codable {
     public let currencySymbol: String
     public let confirmedPrice: Double
     public let targetPrice: Double
-    public let targetDirection: Tracker.TargetDirection
+    public let targetDirection: TargetDirection
 
     public init(url: String, name: String, interactions: [InteractionStep],
                 currencySymbol: String, confirmedPrice: Double,
-                targetPrice: Double, targetDirection: Tracker.TargetDirection) {
+                targetPrice: Double, targetDirection: TargetDirection) {
         self.url = url; self.name = name; self.interactions = interactions
         self.currencySymbol = currencySymbol; self.confirmedPrice = confirmedPrice
         self.targetPrice = targetPrice; self.targetDirection = targetDirection
@@ -41,11 +41,11 @@ public struct CreateTrackerRequest: Codable {
 public struct UpdateTrackerRequest: Codable {
     public var name: String?
     public var targetPrice: Double?
-    public var targetDirection: Tracker.TargetDirection?
+    public var targetDirection: TargetDirection?
     public var muteNotifications: Bool?
 
     public init(name: String? = nil, targetPrice: Double? = nil,
-                targetDirection: Tracker.TargetDirection? = nil,
+                targetDirection: TargetDirection? = nil,
                 muteNotifications: Bool? = nil) {
         self.name = name; self.targetPrice = targetPrice
         self.targetDirection = targetDirection; self.muteNotifications = muteNotifications
