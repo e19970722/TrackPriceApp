@@ -9,7 +9,7 @@ public struct AppFeature {
     public struct State: Equatable {
         public var authStatus: AuthStatus = .unauthenticated
         public var auth: AuthFeature.State = AuthFeature.State()
-        @Presents public var settings: SettingsFeature.State?
+        public var settings: SettingsFeature.State = SettingsFeature.State()
         public init() {}
     }
 
@@ -17,8 +17,7 @@ public struct AppFeature {
         case checkAuthStatus
         case setAuthStatus(AuthStatus)
         case auth(AuthFeature.Action)
-        case settings(PresentationAction<SettingsFeature.Action>)
-        case settingsButtonTapped
+        case settings(SettingsFeature.Action)
         case notificationsRequested
         case notificationPermissionResponse(Bool)
         case deviceTokenReceived(String)
@@ -34,6 +33,10 @@ public struct AppFeature {
     public var body: some ReducerOf<Self> {
         Scope(state: \.auth, action: \.auth) {
             AuthFeature()
+        }
+
+        Scope(state: \.settings, action: \.settings) {
+            SettingsFeature()
         }
 
         Reduce { state, action in
@@ -69,12 +72,7 @@ public struct AppFeature {
             case .auth:
                 return .none
 
-            case .settingsButtonTapped:
-                state.settings = SettingsFeature.State()
-                return .none
-
-            case .settings(.presented(.delegate(.signedOut))):
-                state.settings = nil
+            case .settings(.delegate(.signedOut)):
                 state.authStatus = .unauthenticated
                 return .none
 
@@ -101,9 +99,6 @@ public struct AppFeature {
                     try? await apiClient.updateDeviceToken(token)
                 }
             }
-        }
-        .ifLet(\.$settings, action: \.settings) {
-            SettingsFeature()
         }
     }
 }

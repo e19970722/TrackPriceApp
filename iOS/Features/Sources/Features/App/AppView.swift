@@ -58,19 +58,17 @@ extension AppView {
     @ViewBuilder
     private var authenticatedView: some View {
         WithPerceptionTracking {
-            TrackerListView(store: Store(initialState: TrackerListFeature.State()) { TrackerListFeature() })
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Button {
-                            store.send(.settingsButtonTapped)
-                        } label: {
-                            Image(systemName: "gearshape")
-                        }
-                    }
-                }
-                .sheet(item: $store.scope(state: \.settings, action: \.settings)) { settingsStore in
-                    SettingsView(store: settingsStore)
-                }
+            TabView {
+                HomeView()
+                    .tabItem { Label("Home", systemImage: "house") }
+                TrackerListView(store: Store(initialState: TrackerListFeature.State()) { TrackerListFeature() })
+                    .tabItem { Label("Tracks", systemImage: "tag") }
+                SettingsView(store: store.scope(state: \.settings, action: \.settings))
+                    .tabItem { Label("Profile", systemImage: "person") }
+            }
+            .tint(Color(.ripeAccent))
+            .toolbarBackground(.ultraThinMaterial, for: .tabBar)
+            .toolbarBackground(.visible, for: .tabBar)
         }
     }
 }
