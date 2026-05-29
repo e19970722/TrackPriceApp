@@ -24,7 +24,10 @@ let package = Package(
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "GoogleSignIn", package: "GoogleSignIn-iOS"),
             ],
-            resources: [.process("Sources/Features/Resources")]
+            resources: [
+                .process("Resources/RipeColors.xcassets"),
+                .copy("Resources/Fonts"),
+            ]
         ),
         .testTarget(
             name: "FeaturesTests",
