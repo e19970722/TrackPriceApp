@@ -97,7 +97,7 @@ extension SettingsView {
                         isLast: false
                     )
                     settingsRow(
-                        icon: "storefront",
+                        icon: "bag",
                         iconColor: Color(.ripeWarn),
                         title: "Preferred stores",
                         value: "3",
