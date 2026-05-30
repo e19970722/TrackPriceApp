@@ -11,13 +11,12 @@ A native iOS app with two core features:
 
 ## Tab Navigation
 
-The app has four top-level tabs:
+The app has three top-level tabs:
 
 | Tab | Icon | Purpose |
 |---|---|---|
-| **Home** | house | Trending items + expiry reminders |
-| **Expiry** | calendar.badge.clock | User's expiry-tracked items |
-| **Price Track** | tag | User's price-tracked items |
+| **Home** | house | Trending tracks + expiry reminders + price target hits |
+| **Tracks** | tag | All tracked items (expiry dates and prices), with segmented control |
 | **Profile** | person.circle | Settings, account, notifications |
 
 ---
@@ -25,7 +24,7 @@ The app has four top-level tabs:
 ## Core User Flow — Price Tracker
 
 1. User opens the app and signs in (Apple or Google).
-2. User taps **+** in the Price Track tab and enters a URL.
+2. User taps **+** in the Tracks tab (with "Prices" segment active) and enters a URL.
 3. App opens a **WKWebView** browser — user navigates freely until the right page/state is showing.
 4. User **long-presses** anywhere to activate *Selection Mode* (a floating "Selection Mode" banner appears; all link navigation is intercepted).
 5. User taps the price element — it gets highlighted with a CSS overlay.
@@ -41,26 +40,33 @@ The app has four top-level tabs:
 
 ## Core User Flow — Expiry Tracker
 
-1. User taps **+** in the Expiry tab.
+1. User taps **+** in the Tracks tab (with "Expire Dates" segment active).
 2. User enters: item name, expiry date, category (optional), and reminder lead time (e.g. "3 days before").
 3. Item is saved. The app schedules a local notification for `expiry_date − lead_time`.
 4. On the Home tab, items expiring within the next 7 days appear in the **Expiring Soon** section.
-5. User can edit or delete items from the Expiry tab list.
+5. User can edit or delete items from the Tracks tab (Expire Dates segment).
 
 ---
 
 ## Home Tab
 
-### Trending Section
-- Shows the **top 3 URLs** currently tracked by the most users across the entire app.
+### On Trend Tracks Section
+- Shows the **top 10 URLs** currently tracked by the most users across the entire app.
+- Displayed as a horizontal scrollable rail of avatar-style thumbnails, each showing the item name and a price-change delta badge (e.g. −11%, +6%) with directional arrow.
 - Items contribute anonymously — no user identity is ever shown or stored against a trending entry.
-- Each trending card shows: **item name**, **item image** (OG image), **current price**.
-- Tapping a trending card deep-links to the Add Tracker flow pre-filled with that URL.
+- Tapping a trending item deep-links to the Add Tracker flow pre-filled with that URL.
 
-### Expiring Soon Section
-- Shows items from the user's Expiry tab that expire within the next **7 days**, sorted by soonest first.
-- Tapping an item opens the Expiry item detail/edit sheet.
+### Expire Soon Section
+- Shows items from the user's Tracks (Expire Dates) that expire within the next **7 days**, sorted by soonest first.
+- Each card shows: thumbnail, item name, quantity/location meta, and a days-remaining chip (warn tone if ≤ 3 days).
+- Tapping an item opens the expiry item detail/edit sheet.
 - If no items are expiring soon, the section is hidden.
+
+### Price Reach Targets Section
+- Shows price trackers where the current price has hit (or crossed) the user's target.
+- Displayed as a highlighted hero card with: item name, store, current price (large), previous price (struck through), delta badge, and a **Shop now** CTA that opens the tracked URL.
+- Shows "target was $X" footer.
+- If no trackers have hit their target, the section is hidden.
 
 ---
 
@@ -79,16 +85,16 @@ The app has four top-level tabs:
 
 | Screen | Tab | Purpose |
 |---|---|---|
-| **Home** | Home | Trending top 3 + expiring soon section |
-| **Expiry List** | Expiry | All expiry-tracked items; add/edit/delete |
-| **Expiry Item Detail** | Expiry | Edit name, date, lead time; delete |
-| **Price Track List** | Price Track | All price trackers with current price, target, status badge |
-| **Tracker Detail** | Price Track | Current/target price, price history chart, stats; edit/delete |
-| **Add Tracker — URL Entry** | Price Track | URL input with paste and QR options |
-| **Add Tracker — WebView Browser** | Price Track | Full browser with long-press selection mode |
-| **Add Tracker — Confirm Element** | Price Track | Bottom sheet: raw text, editable parsed price, currency |
-| **Add Tracker — Set Target** | Price Track | Target price input, direction toggle, tracker name |
-| **Profile** | Profile | Notification preferences, account info, sign out |
+| **Home** | Home | On Trend Tracks rail + Expire Soon cards + Price Reach Targets hero |
+| **Tracks List** | Tracks | Segmented control (Expire Dates / Prices), search, all tracked items with urgency bars; FAB to add |
+| **Expiry Item Detail** | Tracks | Edit name, date, lead time; delete |
+| **Tracker Detail** | Tracks | Current/target price, price history chart, stats; edit/delete |
+| **Add Expiry Item** | Tracks | Item name, expiry date, category, reminder lead time |
+| **Add Tracker — URL Entry** | Tracks | URL input with paste and QR options |
+| **Add Tracker — WebView Browser** | Tracks | Full browser with long-press selection mode |
+| **Add Tracker — Confirm Element** | Tracks | Bottom sheet: raw text, editable parsed price, currency |
+| **Add Tracker — Set Target** | Tracks | Target price input, direction toggle, tracker name |
+| **Profile** | Profile | Account info, notification preferences (price drops, expiring soon, running low, weekly digest), sign out |
 
 ### WebView Element Picker (`ElementPicker.js`)
 
@@ -264,6 +270,11 @@ To reduce the chance of IP blocks, the worker enforces a minimum gap of **10 sec
 
 - Max **1 alert push per tracker per 24 hours** (tracker-broken pushes are separate and not throttled the same way).
 - User can mute a specific tracker's notifications from the Tracker Detail screen (stored as a flag on the tracker).
+- Notification categories (all toggleable from the Profile tab):
+  - **Price drops** — when a price tracker hits its target
+  - **Expiring soon** — configurable lead time before an expiry date
+  - **Running low** — when quantity reaches a reorder point (future)
+  - **Weekly digest** — Sunday summary of all tracks (future)
 
 ---
 

@@ -228,7 +228,7 @@ extension HomeView {
 
     private var priceTargetStoreRow: some View {
         HStack(spacing: 4) {
-            Image(systemName: "storefront")
+            Image(systemName: "bag")
                 .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(Color(.ripeInk2))
             Text("Trader Joe's · 500 ml")
