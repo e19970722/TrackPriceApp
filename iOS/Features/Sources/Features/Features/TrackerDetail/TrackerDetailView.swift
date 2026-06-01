@@ -4,6 +4,7 @@ import SwiftUI
 
 public struct TrackerDetailView: View {
     @Perception.Bindable var store: StoreOf<TrackerDetailFeature>
+    @Environment(\.openURL) private var openURL
 
     public init(store: StoreOf<TrackerDetailFeature>) {
         self.store = store
@@ -19,6 +20,7 @@ public struct TrackerDetailView: View {
                         headerCardView
                         priceChartSection
                         detailStatsSection
+                        shopNowButton
                     }
                     .padding()
                 }
@@ -197,6 +199,23 @@ extension TrackerDetailView {
                 }
             }
         }
+    }
+
+    private var shopNowButton: some View {
+        Button {
+            if let url = URL(string: store.tracker.url) {
+                openURL(url)
+            }
+        } label: {
+            Text("Shop Now")
+                .font(.headline)
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(Color.accentColor)
+                .clipShape(RoundedRectangle(cornerRadius: 14))
+        }
+        .buttonStyle(.plain)
     }
 
     private var detailStatsSection: some View {
