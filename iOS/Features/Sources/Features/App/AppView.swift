@@ -60,15 +60,19 @@ extension AppView {
         WithPerceptionTracking {
             TabView {
                 HomeView(store: Store(initialState: HomeFeature.State()) { HomeFeature() })
+                    .toolbarBackground(Color(.ripeSurface), for: .tabBar)
+                    .toolbarBackground(.visible, for: .tabBar)
                     .tabItem { Label("Home", systemImage: "house") }
                 TrackerListView(store: Store(initialState: TrackerListFeature.State()) { TrackerListFeature() })
+                    .toolbarBackground(Color(.ripeSurface), for: .tabBar)
+                    .toolbarBackground(.visible, for: .tabBar)
                     .tabItem { Label("Tracks", systemImage: "tag") }
                 SettingsView(store: store.scope(state: \.settings, action: \.settings))
+                    .toolbarBackground(Color(.ripeSurface), for: .tabBar)
+                    .toolbarBackground(.visible, for: .tabBar)
                     .tabItem { Label("Profile", systemImage: "person") }
             }
             .tint(Color(.ripeAccent))
-            .toolbarBackground(.ultraThinMaterial, for: .tabBar)
-            .toolbarBackground(.visible, for: .tabBar)
         }
     }
 }
