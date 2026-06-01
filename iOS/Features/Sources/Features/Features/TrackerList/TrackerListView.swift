@@ -15,25 +15,9 @@ public struct TrackerListView: View {
     public var body: some View {
         WithPerceptionTracking {
             ZStack {
-                Color(.ripeBg)
-                    .ignoresSafeArea()
-                ScrollView {
-                    VStack(spacing: 0) {
-                        headerView
-                        segmentedControlView
-                            .padding(.horizontal, RipeSpacing.s5)
-                            .padding(.top, RipeSpacing.s3)
-                        searchBarView
-                            .padding(.horizontal, RipeSpacing.s5)
-                            .padding(.top, RipeSpacing.s3)
-                        segmentContentView
-                            .padding(.top, RipeSpacing.s4)
-                            .padding(.bottom, 100)
-                    }
-                }
-                .overlay(alignment: .bottomTrailing) {
-                    fabButton
-                }
+                Color(.ripeBg).ignoresSafeArea()
+                contentList
+                    .overlay(alignment: .bottomTrailing) { fabButton }
             }
             .sheet(item: $store.scope(state: \.addTracker, action: \.addTracker)) { addStore in
                 AddTrackerView(store: addStore)
@@ -49,6 +33,38 @@ public struct TrackerListView: View {
 // MARK: - Subviews
 
 extension TrackerListView {
+
+    private var contentList: some View {
+        List {
+            headerView
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+            segmentedControlView
+                .padding(.horizontal, RipeSpacing.s5)
+                .padding(.top, RipeSpacing.s3)
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+            searchBarView
+                .padding(.horizontal, RipeSpacing.s5)
+                .padding(.top, RipeSpacing.s3)
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+            if selectedSegment == 1 {
+                pricesContent
+            } else {
+                expireDatesContent
+            }
+            Color.clear.frame(height: 80)
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+        }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+    }
 
     private var headerView: some View {
         HStack {
@@ -131,46 +147,63 @@ extension TrackerListView {
     }
 
     @ViewBuilder
-    private var segmentContentView: some View {
-        if selectedSegment == 1 {
-            pricesSegmentView
+    private var pricesContent: some View {
+        if store.isLoading {
+            loadingView
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+        } else if let error = store.errorMessage {
+            errorView(message: error)
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+        } else if filteredTrackers.isEmpty {
+            emptyStateView
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
         } else {
-            expireDatesSegmentView
+            ForEach(filteredTrackers) { tracker in
+                trackerRow(tracker)
+            }
         }
     }
 
     @ViewBuilder
-    private var pricesSegmentView: some View {
-        if store.isLoading {
-            loadingView
-        } else if let error = store.errorMessage {
-            errorView(message: error)
-        } else if store.trackers.isEmpty {
-            emptyStateView
-        } else {
-            pricesListView
+    private var expireDatesContent: some View {
+        ForEach(expireMockItems, id: \.name) { item in
+            expireDateCard(item)
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+                .listRowInsets(EdgeInsets(
+                    top: RipeSpacing.s1,
+                    leading: RipeSpacing.s5,
+                    bottom: RipeSpacing.s1,
+                    trailing: RipeSpacing.s5
+                ))
         }
     }
 
-    private var pricesListView: some View {
-        VStack(spacing: RipeSpacing.s3) {
-            ForEach(filteredTrackers) { tracker in
-                Button {
-                    store.send(.trackerRowTapped(tracker))
-                } label: {
-                    trackerPriceCard(tracker)
-                }
-                .buttonStyle(.plain)
-                .contextMenu {
-                    Button(role: .destructive) {
-                        store.send(.deleteTrackerById(tracker.id))
-                    } label: {
-                        Label("Delete", systemImage: "trash")
-                    }
-                }
+    private func trackerRow(_ tracker: Tracker) -> some View {
+        Button {
+            store.send(.trackerRowTapped(tracker))
+        } label: {
+            trackerPriceCard(tracker)
+        }
+        .buttonStyle(.plain)
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            Button(role: .destructive) {
+                store.send(.deleteTrackerById(tracker.id))
+            } label: {
+                Label("Delete", systemImage: "trash")
             }
         }
-        .padding(.horizontal, RipeSpacing.s5)
+        .listRowBackground(Color.clear)
+        .listRowSeparator(.hidden)
+        .listRowInsets(EdgeInsets(
+            top: RipeSpacing.s1,
+            leading: RipeSpacing.s5,
+            bottom: RipeSpacing.s1,
+            trailing: RipeSpacing.s5
+        ))
     }
 
     private func trackerPriceCard(_ tracker: Tracker) -> some View {
@@ -205,7 +238,7 @@ extension TrackerListView {
     private func trackerPriceColumn(_ tracker: Tracker) -> some View {
         VStack(alignment: .trailing, spacing: RipeSpacing.s1) {
             if let lastPrice = tracker.lastPrice {
-                Text("\(tracker.currencySymbol)\(String(format: "%.2f", lastPrice))")
+                Text("$\(String(format: "%.2f", lastPrice))")
                     .font(RipeFont.num(17))
                     .foregroundStyle(Color(.ripeInk))
             } else {
@@ -215,15 +248,6 @@ extension TrackerListView {
             }
             DirectionBadge(direction: tracker.targetDirection)
         }
-    }
-
-    private var expireDatesSegmentView: some View {
-        VStack(spacing: RipeSpacing.s3) {
-            ForEach(expireMockItems, id: \.name) { item in
-                expireDateCard(item)
-            }
-        }
-        .padding(.horizontal, RipeSpacing.s5)
     }
 
     private func expireDateCard(_ item: ExpireItem) -> some View {
@@ -343,7 +367,7 @@ extension TrackerListView {
     private func trackerSubtitle(_ tracker: Tracker) -> String {
         let priceText: String
         if let lastPrice = tracker.lastPrice {
-            priceText = "\(tracker.currencySymbol)\(String(format: "%.2f", lastPrice))"
+            priceText = "$\(String(format: "%.2f", lastPrice))"
         } else {
             priceText = "No data"
         }
