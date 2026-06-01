@@ -161,6 +161,13 @@ extension TrackerListView {
                     trackerPriceCard(tracker)
                 }
                 .buttonStyle(.plain)
+                .contextMenu {
+                    Button(role: .destructive) {
+                        store.send(.deleteTrackerById(tracker.id))
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                }
             }
         }
         .padding(.horizontal, RipeSpacing.s5)
