@@ -95,7 +95,10 @@ enum ElementPickerScript {
       currencySymbol: parseCurrency(text)
     };
     window.__interactions.push(finalStep);
-    const payload = { interactions: window.__interactions };
+    const ogImage = document.querySelector('meta[property="og:image"]')?.content
+      || document.querySelector('meta[name="og:image"]')?.content
+      || null;
+    const payload = { interactions: window.__interactions, itemImageUrl: ogImage };
     window.webkit.messageHandlers.elementPicked.postMessage(JSON.stringify(payload));
     if (highlighted) highlighted.style.outline = '';
     window.__pickerActive = false;

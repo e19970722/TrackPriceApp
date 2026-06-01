@@ -14,6 +14,7 @@ class TrackerCreate(BaseModel):
     confirmed_price: Decimal
     target_price: Decimal
     target_direction: str  # "below" | "above"
+    item_image_url: Optional[str] = None
 
 
 class TrackerUpdate(BaseModel):

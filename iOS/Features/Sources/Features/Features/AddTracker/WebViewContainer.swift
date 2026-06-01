@@ -100,16 +100,19 @@ public struct WebViewContainer: UIViewRepresentable {
                   let payload = try? JSONDecoder().decode(ElementPickerPayload.self, from: data)
             else { return }
 
-            let info = ElementInfo(interactions: payload.interactions.map { step in
-                InteractionStep(
-                    type: step.type,
-                    locator: step.locator,
-                    role: step.role,
-                    rawText: step.rawText,
-                    currentPrice: step.currentPrice,
-                    currencySymbol: step.currencySymbol
-                )
-            })
+            let info = ElementInfo(
+                interactions: payload.interactions.map { step in
+                    InteractionStep(
+                        type: step.type,
+                        locator: step.locator,
+                        role: step.role,
+                        rawText: step.rawText,
+                        currentPrice: step.currentPrice,
+                        currencySymbol: step.currencySymbol
+                    )
+                },
+                itemImageUrl: payload.itemImageUrl
+            )
             DispatchQueue.main.async {
                 self.onElementPicked(info)
             }
@@ -157,4 +160,5 @@ private struct InteractionStepPayload: Decodable {
 
 private struct ElementPickerPayload: Decodable {
     let interactions: [InteractionStepPayload]
+    let itemImageUrl: String?
 }

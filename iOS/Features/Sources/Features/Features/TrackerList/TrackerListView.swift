@@ -4,6 +4,7 @@ import SwiftUI
 public struct TrackerListView: View {
     @Perception.Bindable var store: StoreOf<TrackerListFeature>
     @State private var selectedSegment: Int = 1
+    @State private var searchText: String = ""
 
     public init(store: StoreOf<TrackerListFeature>) {
         self.store = store
@@ -104,12 +105,23 @@ extension TrackerListView {
         HStack(spacing: RipeSpacing.s2) {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(Color(.ripeInk3))
-            Text("Search tracks\u{2026}")
+            TextField("Search tracks\u{2026}", text: $searchText)
                 .font(RipeFont.body(14.5))
-                .foregroundStyle(Color(.ripeInk3))
-            Spacer()
-            Image(systemName: "line.3.horizontal.decrease")
-                .foregroundStyle(Color(.ripeInk2))
+                .foregroundStyle(Color(.ripeInk))
+                .tint(Color(.ripeAccent))
+            Spacer(minLength: 0)
+            if !searchText.isEmpty {
+                Button {
+                    searchText = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(Color(.ripeInk3))
+                }
+                .buttonStyle(.plain)
+            } else {
+                Image(systemName: "line.3.horizontal.decrease")
+                    .foregroundStyle(Color(.ripeInk2))
+            }
         }
         .padding(.horizontal, RipeSpacing.s4)
         .padding(.vertical, RipeSpacing.s3)
@@ -142,7 +154,7 @@ extension TrackerListView {
 
     private var pricesListView: some View {
         VStack(spacing: RipeSpacing.s3) {
-            ForEach(store.trackers) { tracker in
+            ForEach(filteredTrackers) { tracker in
                 Button {
                     store.send(.trackerRowTapped(tracker))
                 } label: {
@@ -307,6 +319,11 @@ extension TrackerListView {
 // MARK: - Helpers
 
 extension TrackerListView {
+
+    private var filteredTrackers: [Tracker] {
+        guard !searchText.isEmpty else { return store.trackers }
+        return store.trackers.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+    }
 
     private func trackerHasDealHit(_ tracker: Tracker) -> Bool {
         guard let lastPrice = tracker.lastPrice else { return false }

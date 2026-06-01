@@ -5,9 +5,11 @@ import Foundation
 
 public struct ElementInfo: Equatable {
     public var interactions: [InteractionStep]
+    public var itemImageUrl: String?
 
-    public init(interactions: [InteractionStep]) {
+    public init(interactions: [InteractionStep], itemImageUrl: String? = nil) {
         self.interactions = interactions
+        self.itemImageUrl = itemImageUrl
     }
 
     public var rawText: String? {
@@ -113,7 +115,7 @@ public struct AddTrackerFeature {
 
             case .confirmationConfirmed:
                 guard case let .confirmation(info) = state.step else { return .none }
-                state.trackerName = state.currentURL?.host ?? ""
+                state.trackerName = ""
                 state.targetPriceInput = info.currentPrice.map { String($0) } ?? ""
                 state.step = .targetSetup(info)
                 return .none

@@ -41,6 +41,7 @@ async def create_tracker(db: AsyncSession, user_id: UUID, body: TrackerCreate) -
         target_direction=body.target_direction,
         last_price=body.confirmed_price,
         last_checked_at=datetime.now(timezone.utc),
+        item_image_url=body.item_image_url,
     )
     db.add(tracker)
     await db.commit()

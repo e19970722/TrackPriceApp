@@ -371,7 +371,8 @@ extension TargetSetupView {
                     currencySymbol: info.currencySymbol,
                     confirmedPrice: info.currentPrice ?? targetPrice,
                     targetPrice: targetPrice,
-                    targetDirection: store.targetDirection
+                    targetDirection: store.targetDirection,
+                    itemImageUrl: info.itemImageUrl
                 )
                 store.send(.targetSetupSubmitted(request))
             } label: {
