@@ -365,13 +365,14 @@ extension TargetSetupView {
                 let request = CreateTrackerRequest(
                     url: currentURL.absoluteString,
                     name: store.trackerName.isEmpty
-                        ? (currentURL.host ?? "Tracker")
+                        ? (info.pageTitle ?? currentURL.host ?? "Tracker")
                         : store.trackerName,
                     interactions: info.interactions,
                     currencySymbol: info.currencySymbol,
                     confirmedPrice: info.currentPrice ?? targetPrice,
                     targetPrice: targetPrice,
-                    targetDirection: store.targetDirection
+                    targetDirection: store.targetDirection,
+                    itemImageUrl: info.itemImageUrl
                 )
                 store.send(.targetSetupSubmitted(request))
             } label: {

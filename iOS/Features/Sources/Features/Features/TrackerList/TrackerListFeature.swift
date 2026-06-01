@@ -22,6 +22,7 @@ public struct TrackerListFeature {
         case trackerRowTapped(Tracker)
         case trackerDetail(PresentationAction<TrackerDetailFeature.Action>)
         case deleteTracker(IndexSet)
+        case deleteTrackerById(UUID)
         case trackerDeleted(UUID)
     }
 
@@ -82,6 +83,13 @@ public struct TrackerListFeature {
                         try? await apiClient.deleteTracker(id)
                         await send(.trackerDeleted(id))
                     }
+                }
+
+            case let .deleteTrackerById(id):
+                state.trackers.removeAll { $0.id == id }
+                return .run { send in
+                    try? await apiClient.deleteTracker(id)
+                    await send(.trackerDeleted(id))
                 }
 
             case .trackerDeleted:

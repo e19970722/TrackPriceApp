@@ -28,13 +28,16 @@ public struct CreateTrackerRequest: Codable {
     public let confirmedPrice: Double
     public let targetPrice: Double
     public let targetDirection: TargetDirection
+    public let itemImageUrl: String?
 
     public init(url: String, name: String, interactions: [InteractionStep],
                 currencySymbol: String, confirmedPrice: Double,
-                targetPrice: Double, targetDirection: TargetDirection) {
+                targetPrice: Double, targetDirection: TargetDirection,
+                itemImageUrl: String? = nil) {
         self.url = url; self.name = name; self.interactions = interactions
         self.currencySymbol = currencySymbol; self.confirmedPrice = confirmedPrice
         self.targetPrice = targetPrice; self.targetDirection = targetDirection
+        self.itemImageUrl = itemImageUrl
     }
 }
 
