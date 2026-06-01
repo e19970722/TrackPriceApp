@@ -111,7 +111,8 @@ public struct WebViewContainer: UIViewRepresentable {
                         currencySymbol: step.currencySymbol
                     )
                 },
-                itemImageUrl: payload.itemImageUrl
+                itemImageUrl: payload.itemImageUrl,
+                pageTitle: payload.pageTitle
             )
             DispatchQueue.main.async {
                 self.onElementPicked(info)
@@ -161,4 +162,5 @@ private struct InteractionStepPayload: Decodable {
 private struct ElementPickerPayload: Decodable {
     let interactions: [InteractionStepPayload]
     let itemImageUrl: String?
+    let pageTitle: String?
 }

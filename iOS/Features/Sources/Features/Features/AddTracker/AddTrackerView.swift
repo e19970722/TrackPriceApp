@@ -365,7 +365,7 @@ extension TargetSetupView {
                 let request = CreateTrackerRequest(
                     url: currentURL.absoluteString,
                     name: store.trackerName.isEmpty
-                        ? (currentURL.host ?? "Tracker")
+                        ? (info.pageTitle ?? currentURL.host ?? "Tracker")
                         : store.trackerName,
                     interactions: info.interactions,
                     currencySymbol: info.currencySymbol,

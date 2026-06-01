@@ -98,7 +98,11 @@ enum ElementPickerScript {
     const ogImage = document.querySelector('meta[property="og:image"]')?.content
       || document.querySelector('meta[name="og:image"]')?.content
       || null;
-    const payload = { interactions: window.__interactions, itemImageUrl: ogImage };
+    const pageTitle = document.querySelector('meta[property="og:title"]')?.content
+      || document.querySelector('meta[name="og:title"]')?.content
+      || document.title
+      || null;
+    const payload = { interactions: window.__interactions, itemImageUrl: ogImage, pageTitle: pageTitle };
     window.webkit.messageHandlers.elementPicked.postMessage(JSON.stringify(payload));
     if (highlighted) highlighted.style.outline = '';
     window.__pickerActive = false;
