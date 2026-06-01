@@ -237,15 +237,9 @@ extension TrackerListView {
 
     private func trackerPriceColumn(_ tracker: Tracker) -> some View {
         VStack(alignment: .trailing, spacing: RipeSpacing.s1) {
-            if let lastPrice = tracker.lastPrice {
-                Text("$\(String(format: "%.2f", lastPrice))")
-                    .font(RipeFont.num(17))
-                    .foregroundStyle(Color(.ripeInk))
-            } else {
-                Text("—")
-                    .font(RipeFont.num(17))
-                    .foregroundStyle(Color(.ripeInk3))
-            }
+            Text("$\(String(format: "%.2f", tracker.targetPrice))")
+                .font(RipeFont.num(17))
+                .foregroundStyle(Color(.ripeInk))
             DirectionBadge(direction: tracker.targetDirection)
         }
     }
@@ -365,14 +359,7 @@ extension TrackerListView {
     }
 
     private func trackerSubtitle(_ tracker: Tracker) -> String {
-        let priceText: String
-        if let lastPrice = tracker.lastPrice {
-            priceText = "$\(String(format: "%.2f", lastPrice))"
-        } else {
-            priceText = "No data"
-        }
-        let domain = URL(string: tracker.url)?.host ?? tracker.url
-        return "\(priceText) \u{00B7} \(domain)"
+        URL(string: tracker.url)?.host ?? tracker.url
     }
 }
 
