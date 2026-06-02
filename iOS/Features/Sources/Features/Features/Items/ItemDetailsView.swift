@@ -143,7 +143,7 @@ extension ItemDetailsView {
 
     private var decrementButton: some View {
         Button {
-            store.send(.set(\.quantity, String(max(1, quantityCount - 1))))
+            store.send(.decrementQuantity)
         } label: {
             Image(systemName: "minus")
                 .font(.system(size: 16, weight: .semibold))
@@ -165,7 +165,7 @@ extension ItemDetailsView {
 
     private var incrementButton: some View {
         Button {
-            store.send(.set(\.quantity, String(quantityCount + 1)))
+            store.send(.incrementQuantity)
         } label: {
             Image(systemName: "plus")
                 .font(.system(size: 16, weight: .semibold))

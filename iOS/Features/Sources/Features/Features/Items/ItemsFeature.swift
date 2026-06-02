@@ -178,6 +178,8 @@ public struct AddItemFeature {
         case datePickerPresented(Bool)
         case bestBeforeDateChanged(Date)
         case remindDaysBeforeChanged(Int)
+        case incrementQuantity
+        case decrementQuantity
         case saveItemTapped
         case itemSaved(Item)
         case saveFailed(String)
@@ -240,6 +242,16 @@ public struct AddItemFeature {
 
             case let .remindDaysBeforeChanged(days):
                 state.remindDaysBefore = days
+                return .none
+
+            case .incrementQuantity:
+                let current = Int(state.quantity) ?? 1
+                state.quantity = String(current + 1)
+                return .none
+
+            case .decrementQuantity:
+                let current = Int(state.quantity) ?? 1
+                state.quantity = String(max(1, current - 1))
                 return .none
 
             case .saveItemTapped:
