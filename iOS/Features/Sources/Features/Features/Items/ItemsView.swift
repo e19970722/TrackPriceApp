@@ -3,9 +3,13 @@ import SwiftUI
 
 public struct ItemsView: View {
     @Perception.Bindable var store: StoreOf<ItemsFeature>
+    private let showsHeader: Bool
+    private let showsFab: Bool
 
-    public init(store: StoreOf<ItemsFeature>) {
+    public init(store: StoreOf<ItemsFeature>, showsHeader: Bool = true, showsFab: Bool = true) {
         self.store = store
+        self.showsHeader = showsHeader
+        self.showsFab = showsFab
     }
 
     // MARK: - Body
@@ -15,7 +19,7 @@ public struct ItemsView: View {
             ZStack {
                 Color(.ripeBg).ignoresSafeArea()
                 contentList
-                    .overlay(alignment: .bottomTrailing) { fabButton }
+                    .overlay(alignment: .bottomTrailing) { optionalFab }
             }
             .sheet(item: $store.scope(state: \.addItem, action: \.addItem)) { addStore in
                 AddItemFlowView(store: addStore)
@@ -34,10 +38,7 @@ extension ItemsView {
 
     private var contentList: some View {
         List {
-            headerView
-                .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
+            if showsHeader { headerRow }
             itemsContent
             Color.clear.frame(height: 80)
                 .listRowInsets(EdgeInsets())
@@ -48,7 +49,7 @@ extension ItemsView {
         .scrollContentBackground(.hidden)
     }
 
-    private var headerView: some View {
+    private var headerRow: some View {
         HStack {
             Text("Items")
                 .font(RipeFont.display(26))
@@ -57,6 +58,14 @@ extension ItemsView {
         }
         .padding(.horizontal, RipeSpacing.s5)
         .padding(.top, RipeSpacing.s5)
+        .listRowInsets(EdgeInsets())
+        .listRowBackground(Color.clear)
+        .listRowSeparator(.hidden)
+    }
+
+    @ViewBuilder
+    private var optionalFab: some View {
+        if showsFab { fabButton }
     }
 
     @ViewBuilder

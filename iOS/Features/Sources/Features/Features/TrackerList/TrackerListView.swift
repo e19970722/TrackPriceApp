@@ -13,10 +13,13 @@ public struct TrackerListView: View {
 
     public var body: some View {
         WithPerceptionTracking {
-            ZStack {
+            ZStack(alignment: .bottomTrailing) {
                 Color(.ripeBg).ignoresSafeArea()
-                trackersSegmentContent
-                    .overlay(alignment: .bottomTrailing) { fabButton }
+                VStack(spacing: 0) {
+                    persistentHeader
+                    segmentContent
+                }
+                fabButton
             }
             .sheet(item: $store.scope(state: \.addTracker, action: \.addTracker)) { addStore in
                 AddTrackerView(store: addStore)
@@ -29,45 +32,24 @@ public struct TrackerListView: View {
     }
 }
 
-// MARK: - Subviews
+// MARK: - Persistent header
 
 extension TrackerListView {
 
-    @ViewBuilder
-    private var trackersSegmentContent: some View {
-        if store.selectedSegment == .trackers {
-            trackerListView
-        } else {
-            ItemsView(store: store.scope(state: \.items, action: \.items))
-        }
-    }
-
-    private var trackerListView: some View {
-        List {
+    private var persistentHeader: some View {
+        VStack(spacing: 0) {
             headerView
-                .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-            segmentedPickerView
+                .padding(.horizontal, RipeSpacing.s5)
+                .padding(.top, RipeSpacing.s5)
+            segmentPillView
                 .padding(.horizontal, RipeSpacing.s5)
                 .padding(.top, RipeSpacing.s3)
-                .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
             searchBarView
                 .padding(.horizontal, RipeSpacing.s5)
-                .padding(.top, RipeSpacing.s3)
-                .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-            pricesContent
-            Color.clear.frame(height: 80)
-                .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
+                .padding(.top, RipeSpacing.s2)
+                .padding(.bottom, RipeSpacing.s3)
         }
-        .listStyle(.plain)
-        .scrollContentBackground(.hidden)
+        .background(Color(.ripeBg))
     }
 
     private var headerView: some View {
@@ -77,16 +59,50 @@ extension TrackerListView {
                 .foregroundStyle(Color(.ripeInk))
             Spacer()
         }
-        .padding(.horizontal, RipeSpacing.s5)
-        .padding(.top, RipeSpacing.s5)
     }
 
-    private var segmentedPickerView: some View {
-        Picker("", selection: $store.selectedSegment.sending(\.segmentChanged)) {
-            Text("Prices").tag(TrackerListFeature.Segment.trackers)
-            Text("Expire Dates").tag(TrackerListFeature.Segment.items)
+    private var segmentPillView: some View {
+        HStack(spacing: RipeSpacing.s1) {
+            segmentPillButton(label: "Expire Dates", systemImage: "clock", segment: .items)
+            segmentPillButton(label: "Prices", systemImage: "tag", segment: .trackers)
         }
-        .pickerStyle(.segmented)
+        .padding(RipeSpacing.s1)
+        .background(Color(.ripeSurface2))
+        .clipShape(Capsule())
+    }
+
+    private func segmentPillButton(
+        label: String,
+        systemImage: String,
+        segment: TrackerListFeature.Segment
+    ) -> some View {
+        let active = store.selectedSegment == segment
+        return Button {
+            store.send(.segmentChanged(segment))
+        } label: {
+            HStack(spacing: 7) {
+                Image(systemName: systemImage)
+                    .font(.system(size: 15, weight: .semibold))
+                Text(label)
+                    .font(RipeFont.heading(14))
+            }
+            .foregroundStyle(active ? Color(.ripeInk) : Color(.ripeInk3))
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 10)
+            .background { selectedPillBackground(active: active) }
+            .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        .animation(.easeInOut(duration: 0.18), value: store.selectedSegment)
+    }
+
+    @ViewBuilder
+    private func selectedPillBackground(active: Bool) -> some View {
+        if active {
+            Capsule()
+                .fill(Color(.ripeSurface))
+                .ripeShadow(.soft)
+        }
     }
 
     private var searchBarView: some View {
@@ -117,6 +133,36 @@ extension TrackerListView {
         .clipShape(Capsule())
         .ripeShadow(.soft)
     }
+}
+
+// MARK: - Segment content
+
+extension TrackerListView {
+
+    @ViewBuilder
+    private var segmentContent: some View {
+        if store.selectedSegment == .trackers {
+            trackerListOnly
+        } else {
+            ItemsView(
+                store: store.scope(state: \.items, action: \.items),
+                showsHeader: false,
+                showsFab: false
+            )
+        }
+    }
+
+    private var trackerListOnly: some View {
+        List {
+            pricesContent
+            Color.clear.frame(height: 80)
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+        }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+    }
 
     @ViewBuilder
     private var pricesContent: some View {
@@ -138,6 +184,11 @@ extension TrackerListView {
             }
         }
     }
+}
+
+// MARK: - Tracker rows
+
+extension TrackerListView {
 
     private func trackerRow(_ tracker: Tracker) -> some View {
         Button {
@@ -200,6 +251,11 @@ extension TrackerListView {
             DirectionBadge(direction: tracker.targetDirection)
         }
     }
+}
+
+// MARK: - State views
+
+extension TrackerListView {
 
     private var loadingView: some View {
         ProgressView("Loading trackers\u{2026}")
