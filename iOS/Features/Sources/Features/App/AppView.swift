@@ -67,6 +67,10 @@ extension AppView {
                     .toolbarBackground(Color(.ripeSurface), for: .tabBar)
                     .toolbarBackground(.visible, for: .tabBar)
                     .tabItem { Label("Tracks", systemImage: "tag") }
+                ItemsView(store: Store(initialState: ItemsFeature.State()) { ItemsFeature() })
+                    .toolbarBackground(Color(.ripeSurface), for: .tabBar)
+                    .toolbarBackground(.visible, for: .tabBar)
+                    .tabItem { Label("Items", systemImage: "refrigerator") }
                 SettingsView(store: store.scope(state: \.settings, action: \.settings))
                     .toolbarBackground(Color(.ripeSurface), for: .tabBar)
                     .toolbarBackground(.visible, for: .tabBar)
