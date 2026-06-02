@@ -71,14 +71,16 @@ extension ItemDetailsView {
     private var storedInCard: some View {
         VStack(alignment: .leading, spacing: RipeSpacing.s2) {
             fieldSectionLabel("Stored in")
-            locationPresetRow
-            othersWithTextField
+            locationButtonRow
+            if store.location == .custom {
+                customLocationTextField
+            }
         }
     }
 
-    private var locationPresetRow: some View {
+    private var locationButtonRow: some View {
         HStack(spacing: RipeSpacing.s2) {
-            ForEach([ItemLocation.fridge, .pantry, .freezer], id: \.self) { loc in
+            ForEach([ItemLocation.fridge, .pantry, .freezer, .custom], id: \.self) { loc in
                 locationButton(loc)
             }
         }
@@ -86,43 +88,17 @@ extension ItemDetailsView {
 
     private func locationButton(_ loc: ItemLocation) -> some View {
         let isSelected = store.location == loc
+        let image = loc == .custom ? "pencil" : loc.systemImage
+        let label = loc == .custom ? "Others" : loc.displayName
         return Button {
             store.send(.set(\.location, loc))
+            if loc == .custom { focusedField = .customLocation }
         } label: {
-            HStack(spacing: 6) {
-                Image(systemName: loc.systemImage)
+            VStack(spacing: 4) {
+                Image(systemName: image)
                     .font(.system(size: 15, weight: .semibold))
-                Text(loc.displayName)
-                    .font(RipeFont.heading(14))
-            }
-            .foregroundStyle(isSelected ? Color(.ripeAccentInk) : Color(.ripeInk3))
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
-            .background(isSelected ? Color(.ripeAccent) : Color(.ripeSurface2))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-        }
-        .buttonStyle(.plain)
-        .animation(.easeInOut(duration: 0.15), value: store.location)
-    }
-
-    private var othersWithTextField: some View {
-        HStack(spacing: RipeSpacing.s2) {
-            othersButton
-            customLocationTextField
-        }
-    }
-
-    private var othersButton: some View {
-        let isSelected = store.location == .custom
-        return Button {
-            store.send(.set(\.location, .custom))
-            focusedField = .customLocation
-        } label: {
-            HStack(spacing: 6) {
-                Image(systemName: "pencil")
-                    .font(.system(size: 15, weight: .semibold))
-                Text("Others")
-                    .font(RipeFont.heading(14))
+                Text(label)
+                    .font(RipeFont.heading(13))
             }
             .foregroundStyle(isSelected ? Color(.ripeAccentInk) : Color(.ripeInk3))
             .frame(maxWidth: .infinity)
@@ -142,11 +118,8 @@ extension ItemDetailsView {
             .tint(Color(.ripeAccent))
             .padding(.horizontal, RipeSpacing.s3)
             .padding(.vertical, 12)
-            .frame(maxWidth: .infinity)
             .background(Color(.ripeSurface2))
             .clipShape(RoundedRectangle(cornerRadius: 12))
-            .disabled(store.location != .custom)
-            .opacity(store.location == .custom ? 1 : 0.4)
     }
 
     // MARK: Quantity
