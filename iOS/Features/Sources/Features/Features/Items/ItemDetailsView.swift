@@ -153,6 +153,7 @@ extension ItemDetailsView {
                 .clipShape(Circle())
         }
         .buttonStyle(.plain)
+        .contentShape(Rectangle())
         .disabled(quantityCount <= 1)
     }
 
@@ -175,6 +176,7 @@ extension ItemDetailsView {
                 .clipShape(Circle())
         }
         .buttonStyle(.plain)
+        .contentShape(Rectangle())
     }
 
     // MARK: Best-before date
@@ -182,22 +184,25 @@ extension ItemDetailsView {
     private var bestBefforeDateCard: some View {
         VStack(alignment: .leading, spacing: RipeSpacing.s2) {
             fieldSectionLabel("Best-before date")
-            RipeCard {
-                HStack {
-                    Text(formattedDate(store.bestBeforeDate))
-                        .font(RipeFont.body(15))
-                        .foregroundStyle(Color(.ripeInk))
-                    Spacer()
-                    if store.isDateFromScan {
-                        scannedChip
+            Button {
+                store.send(.datePickerPresented(true))
+            } label: {
+                RipeCard {
+                    HStack {
+                        Text(formattedDate(store.bestBeforeDate))
+                            .font(RipeFont.body(15))
+                            .foregroundStyle(Color(.ripeInk))
+                        Spacer()
+                        if store.isDateFromScan {
+                            scannedChip
+                        }
+                        Image(systemName: "calendar")
+                            .foregroundStyle(Color(.ripeInk3))
                     }
-                    Image(systemName: "calendar")
-                        .foregroundStyle(Color(.ripeInk3))
                 }
             }
-            .onTapGesture {
-                store.send(.datePickerPresented(true))
-            }
+            .buttonStyle(.plain)
+            .contentShape(Rectangle())
         }
     }
 
