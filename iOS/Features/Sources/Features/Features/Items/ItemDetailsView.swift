@@ -66,14 +66,13 @@ extension ItemDetailsView {
 
     // MARK: Stored in
 
+    // MARK: Stored in
+
     private var storedInCard: some View {
         VStack(alignment: .leading, spacing: RipeSpacing.s2) {
             fieldSectionLabel("Stored in")
             locationPresetRow
-            othersButton
-            if store.location == .custom {
-                customLocationTextField
-            }
+            othersWithTextField
         }
     }
 
@@ -90,9 +89,9 @@ extension ItemDetailsView {
         return Button {
             store.send(.set(\.location, loc))
         } label: {
-            HStack(spacing: 7) {
+            HStack(spacing: 6) {
                 Image(systemName: loc.systemImage)
-                    .font(.system(size: 17, weight: .semibold))
+                    .font(.system(size: 15, weight: .semibold))
                 Text(loc.displayName)
                     .font(RipeFont.heading(14))
             }
@@ -106,15 +105,22 @@ extension ItemDetailsView {
         .animation(.easeInOut(duration: 0.15), value: store.location)
     }
 
+    private var othersWithTextField: some View {
+        HStack(spacing: RipeSpacing.s2) {
+            othersButton
+            customLocationTextField
+        }
+    }
+
     private var othersButton: some View {
         let isSelected = store.location == .custom
         return Button {
             store.send(.set(\.location, .custom))
             focusedField = .customLocation
         } label: {
-            HStack(spacing: 7) {
+            HStack(spacing: 6) {
                 Image(systemName: "pencil")
-                    .font(.system(size: 17, weight: .semibold))
+                    .font(.system(size: 15, weight: .semibold))
                 Text("Others")
                     .font(RipeFont.heading(14))
             }
@@ -129,14 +135,18 @@ extension ItemDetailsView {
     }
 
     private var customLocationTextField: some View {
-        RipeCard {
-            TextField("Type a custom spot", text: $store.locationCustom)
-                .font(RipeFont.body(15))
-                .foregroundStyle(Color(.ripeInk))
-                .focused($focusedField, equals: .customLocation)
-                .tint(Color(.ripeAccent))
-        }
-        .onAppear { focusedField = .customLocation }
+        TextField("Custom spot", text: $store.locationCustom)
+            .font(RipeFont.body(14))
+            .foregroundStyle(Color(.ripeInk))
+            .focused($focusedField, equals: .customLocation)
+            .tint(Color(.ripeAccent))
+            .padding(.horizontal, RipeSpacing.s3)
+            .padding(.vertical, 12)
+            .frame(maxWidth: .infinity)
+            .background(Color(.ripeSurface2))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .disabled(store.location != .custom)
+            .opacity(store.location == .custom ? 1 : 0.4)
     }
 
     // MARK: Quantity
