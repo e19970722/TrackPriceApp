@@ -5,7 +5,7 @@ public struct ItemDetailsView: View {
     @Perception.Bindable var store: StoreOf<AddItemFeature>
     @FocusState private var focusedField: Field?
 
-    enum Field: Hashable { case name, quantity, customLocation }
+    enum Field: Hashable { case name, customLocation }
 
     public init(store: StoreOf<AddItemFeature>) {
         self.store = store
@@ -69,20 +69,23 @@ extension ItemDetailsView {
     private var storedInCard: some View {
         VStack(alignment: .leading, spacing: RipeSpacing.s2) {
             fieldSectionLabel("Stored in")
-            locationPresetPicker
-            othersRow
-        }
-    }
-
-    private var locationPresetPicker: some View {
-        HStack(spacing: RipeSpacing.s2) {
-            ForEach([ItemLocation.fridge, .pantry, .freezer], id: \.self) { loc in
-                locationPresetButton(loc)
+            locationPresetRow
+            othersButton
+            if store.location == .custom {
+                customLocationTextField
             }
         }
     }
 
-    private func locationPresetButton(_ loc: ItemLocation) -> some View {
+    private var locationPresetRow: some View {
+        HStack(spacing: RipeSpacing.s2) {
+            ForEach([ItemLocation.fridge, .pantry, .freezer], id: \.self) { loc in
+                locationButton(loc)
+            }
+        }
+    }
+
+    private func locationButton(_ loc: ItemLocation) -> some View {
         let isSelected = store.location == loc
         return Button {
             store.send(.set(\.location, loc))
@@ -98,59 +101,97 @@ extension ItemDetailsView {
             .padding(.vertical, 12)
             .background(isSelected ? Color(.ripeAccent) : Color(.ripeSurface2))
             .clipShape(RoundedRectangle(cornerRadius: 12))
-            .ripeShadow(isSelected ? .soft : RipeShadow(color: .clear, radius: 0, x: 0, y: 0))
         }
         .buttonStyle(.plain)
         .animation(.easeInOut(duration: 0.15), value: store.location)
     }
 
-    private var othersRow: some View {
-        Button {
+    private var othersButton: some View {
+        let isSelected = store.location == .custom
+        return Button {
             store.send(.set(\.location, .custom))
             focusedField = .customLocation
         } label: {
-            othersRowContent
+            HStack(spacing: 7) {
+                Image(systemName: "pencil")
+                    .font(.system(size: 17, weight: .semibold))
+                Text("Others")
+                    .font(RipeFont.heading(14))
+            }
+            .foregroundStyle(isSelected ? Color(.ripeAccentInk) : Color(.ripeInk3))
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .background(isSelected ? Color(.ripeAccent) : Color(.ripeSurface2))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(.plain)
+        .animation(.easeInOut(duration: 0.15), value: store.location)
     }
 
-    @ViewBuilder
-    private var othersRowContent: some View {
-        HStack(spacing: 9) {
-            Image(systemName: "pencil")
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(Color(.ripeInk3))
-            if store.location == .custom {
-                TextField("Type a custom spot", text: $store.locationCustom)
-                    .font(RipeFont.body(14))
-                    .foregroundStyle(Color(.ripeInk))
-                    .focused($focusedField, equals: .customLocation)
-                    .tint(Color(.ripeAccent))
-            } else {
-                Text("Others — type a custom spot")
-                    .font(RipeFont.body(14))
-                    .foregroundStyle(Color(.ripeInk3))
-                Spacer(minLength: 0)
-            }
+    private var customLocationTextField: some View {
+        RipeCard {
+            TextField("Type a custom spot", text: $store.locationCustom)
+                .font(RipeFont.body(15))
+                .foregroundStyle(Color(.ripeInk))
+                .focused($focusedField, equals: .customLocation)
+                .tint(Color(.ripeAccent))
         }
-        .padding(.horizontal, RipeSpacing.s4)
-        .padding(.vertical, 12)
-        .background(Color(.ripeSurface2))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .onAppear { focusedField = .customLocation }
     }
 
     // MARK: Quantity
+
+    private var quantityCount: Int { Int(store.quantity) ?? 1 }
 
     private var quantityFieldCard: some View {
         VStack(alignment: .leading, spacing: RipeSpacing.s2) {
             fieldSectionLabel("Quantity")
             RipeCard {
-                TextField("e.g. 2 cups", text: $store.quantity)
-                    .font(RipeFont.body(15))
-                    .foregroundStyle(Color(.ripeInk))
-                    .focused($focusedField, equals: .quantity)
+                HStack {
+                    decrementButton
+                    Spacer(minLength: 0)
+                    quantityLabel
+                    Spacer(minLength: 0)
+                    incrementButton
+                }
             }
         }
+    }
+
+    private var decrementButton: some View {
+        Button {
+            store.send(.set(\.quantity, String(max(1, quantityCount - 1))))
+        } label: {
+            Image(systemName: "minus")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(quantityCount <= 1 ? Color(.ripeInk3) : Color(.ripeInk))
+                .frame(width: 40, height: 40)
+                .background(Color(.ripeSurface2))
+                .clipShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .disabled(quantityCount <= 1)
+    }
+
+    private var quantityLabel: some View {
+        Text("\(quantityCount)")
+            .font(RipeFont.num(22))
+            .foregroundStyle(Color(.ripeInk))
+            .monospacedDigit()
+    }
+
+    private var incrementButton: some View {
+        Button {
+            store.send(.set(\.quantity, String(quantityCount + 1)))
+        } label: {
+            Image(systemName: "plus")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(Color(.ripeAccentInk))
+                .frame(width: 40, height: 40)
+                .background(Color(.ripeAccent))
+                .clipShape(Circle())
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: Best-before date
@@ -232,8 +273,9 @@ extension ItemDetailsView {
     private var scanAgainButton: some View {
         RipeButton(
             title: "Scan again",
-            variant: .ghost,
+            variant: .outline,
             size: .lg,
+            systemImage: "arrow.clockwise",
             fullWidth: true,
             action: { store.send(.scanAgainTapped) }
         )
