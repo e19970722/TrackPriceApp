@@ -69,58 +69,74 @@ extension ItemDetailsView {
     private var storedInCard: some View {
         VStack(alignment: .leading, spacing: RipeSpacing.s2) {
             fieldSectionLabel("Stored in")
-            locationSegmentedPicker
-            if store.location == .custom {
-                customLocationFieldCard
+            locationPresetPicker
+            othersRow
+        }
+    }
+
+    private var locationPresetPicker: some View {
+        HStack(spacing: RipeSpacing.s2) {
+            ForEach([ItemLocation.fridge, .pantry, .freezer], id: \.self) { loc in
+                locationPresetButton(loc)
             }
         }
     }
 
-    private var locationSegmentedPicker: some View {
-        HStack(spacing: 0) {
-            ForEach(ItemLocation.allCases, id: \.self) { loc in
-                locationSegmentButton(loc)
-            }
-        }
-        .padding(RipeSpacing.s1)
-        .background(Color(.ripeSurface2))
-        .clipShape(Capsule())
-    }
-
-    private func locationSegmentButton(_ loc: ItemLocation) -> some View {
+    private func locationPresetButton(_ loc: ItemLocation) -> some View {
         let isSelected = store.location == loc
         return Button {
             store.send(.set(\.location, loc))
         } label: {
-            VStack(spacing: 2) {
+            HStack(spacing: 7) {
                 Image(systemName: loc.systemImage)
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.system(size: 17, weight: .semibold))
                 Text(loc.displayName)
-                    .font(RipeFont.caption(11))
+                    .font(RipeFont.heading(14))
             }
-            .foregroundStyle(isSelected ? Color(.ripeInk) : Color(.ripeInk3))
+            .foregroundStyle(isSelected ? Color(.ripeAccentInk) : Color(.ripeInk3))
             .frame(maxWidth: .infinity)
-            .padding(.vertical, RipeSpacing.s2)
-            .background(
-                Group {
-                    if isSelected {
-                        Capsule().fill(Color(.ripeSurface)).ripeShadow(.soft)
-                    } else {
-                        Capsule().fill(Color.clear)
-                    }
-                }
-            )
+            .padding(.vertical, 12)
+            .background(isSelected ? Color(.ripeAccent) : Color(.ripeSurface2))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .ripeShadow(isSelected ? .soft : RipeShadow(color: .clear, radius: 0, x: 0, y: 0))
+        }
+        .buttonStyle(.plain)
+        .animation(.easeInOut(duration: 0.15), value: store.location)
+    }
+
+    private var othersRow: some View {
+        Button {
+            store.send(.set(\.location, .custom))
+            focusedField = .customLocation
+        } label: {
+            othersRowContent
         }
         .buttonStyle(.plain)
     }
 
-    private var customLocationFieldCard: some View {
-        RipeCard {
-            TextField("Custom location", text: $store.locationCustom)
-                .font(RipeFont.body(15))
-                .foregroundStyle(Color(.ripeInk))
-                .focused($focusedField, equals: .customLocation)
+    @ViewBuilder
+    private var othersRowContent: some View {
+        HStack(spacing: 9) {
+            Image(systemName: "pencil")
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(Color(.ripeInk3))
+            if store.location == .custom {
+                TextField("Type a custom spot", text: $store.locationCustom)
+                    .font(RipeFont.body(14))
+                    .foregroundStyle(Color(.ripeInk))
+                    .focused($focusedField, equals: .customLocation)
+                    .tint(Color(.ripeAccent))
+            } else {
+                Text("Others — type a custom spot")
+                    .font(RipeFont.body(14))
+                    .foregroundStyle(Color(.ripeInk3))
+                Spacer(minLength: 0)
+            }
         }
+        .padding(.horizontal, RipeSpacing.s4)
+        .padding(.vertical, 12)
+        .background(Color(.ripeSurface2))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
     // MARK: Quantity
