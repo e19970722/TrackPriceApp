@@ -162,6 +162,24 @@ extension APIClient {
             },
             fetchPriceHistory: { id in
                 try await apiRequest("GET", path: "/trackers/\(id)/history", token: keychain.loadToken(), as: [PriceSnapshot].self)
+            },
+            fetchItems: {
+                try await apiRequest("GET", path: "/items", token: keychain.loadToken(), as: [Item].self)
+            },
+            fetchItem: { id in
+                try await apiRequest("GET", path: "/items/\(id)", token: keychain.loadToken(), as: Item.self)
+            },
+            createItem: { itemIn in
+                try await apiRequest("POST", path: "/items", body: itemIn, token: keychain.loadToken(), as: Item.self)
+            },
+            updateItem: { id, itemIn in
+                try await apiRequest("PATCH", path: "/items/\(id)", body: itemIn, token: keychain.loadToken(), as: Item.self)
+            },
+            deleteItem: { id in
+                try await apiRequestVoid("DELETE", path: "/items/\(id)", token: keychain.loadToken())
+            },
+            markItemUsed: { id in
+                try await apiRequestVoid("POST", path: "/items/\(id)/mark-used", token: keychain.loadToken())
             }
         )
     }
@@ -175,7 +193,13 @@ extension APIClient {
             createTracker: { _ in fatalError("not implemented in mock") },
             updateTracker: { _, _ in fatalError("not implemented in mock") },
             deleteTracker: { _ in },
-            fetchPriceHistory: { _ in [] }
+            fetchPriceHistory: { _ in [] },
+            fetchItems: { [] },
+            fetchItem: { _ in fatalError("not implemented in mock") },
+            createItem: { _ in fatalError("not implemented in mock") },
+            updateItem: { _, _ in fatalError("not implemented in mock") },
+            deleteItem: { _ in },
+            markItemUsed: { _ in }
         )
     }
 }
