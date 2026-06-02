@@ -78,7 +78,7 @@ extension SettingsView {
     }
 
     private var accountSectionView: some View {
-        VStack(alignment: .leading, spacing: RipeSpacing.s3) {
+        VStack(alignment: .leading, spacing: RipeSpacing.s2) {
             SectionLabel(title: "Account")
             RipeCard(padding: 0) {
                 VStack(spacing: 0) {
@@ -116,7 +116,7 @@ extension SettingsView {
     }
 
     private var notificationsSectionView: some View {
-        VStack(alignment: .leading, spacing: RipeSpacing.s3) {
+        VStack(alignment: .leading, spacing: RipeSpacing.s2) {
             SectionLabel(title: "Notifications")
             RipeCard(padding: 0) {
                 VStack(spacing: 0) {
@@ -158,7 +158,7 @@ extension SettingsView {
     }
 
     private var aboutSectionView: some View {
-        VStack(alignment: .leading, spacing: RipeSpacing.s3) {
+        VStack(alignment: .leading, spacing: RipeSpacing.s2) {
             SectionLabel(title: "About")
             RipeCard(padding: 0) {
                 VStack(spacing: 0) {

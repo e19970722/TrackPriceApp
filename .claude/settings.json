@@ -31,7 +31,9 @@
       "Bash(ls *)",
       "Bash(echo *)",
       "Bash(source *)",
-      "Bash(which *)"
+      "Bash(which *)",
+      "Write(*)",
+      "Edit(*)"
     ]
   }
 }
