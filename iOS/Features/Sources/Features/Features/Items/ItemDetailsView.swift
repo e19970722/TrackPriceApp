@@ -4,6 +4,7 @@ import SwiftUI
 public struct ItemDetailsView: View {
     @Perception.Bindable var store: StoreOf<AddItemFeature>
     @FocusState private var focusedField: Field?
+    @State private var draftBestBeforeDate = Date()
 
     enum Field: Hashable { case name, customLocation }
 
@@ -188,27 +189,30 @@ extension ItemDetailsView {
     // MARK: Best-before date
 
     private var bestBefforeDateCard: some View {
-        VStack(alignment: .leading, spacing: RipeSpacing.s2) {
-            fieldSectionLabel("Best-before date")
-            Button {
-                store.send(.datePickerPresented(true))
-            } label: {
-                RipeCard {
-                    HStack {
-                        Text(formattedDate(store.bestBeforeDate))
-                            .font(RipeFont.body(15))
-                            .foregroundStyle(Color(.ripeInk))
-                        Spacer()
-                        if store.isDateFromScan {
-                            scannedChip
+        WithPerceptionTracking {
+            VStack(alignment: .leading, spacing: RipeSpacing.s2) {
+                fieldSectionLabel("Best-before date")
+                Button {
+                    draftBestBeforeDate = store.bestBeforeDate
+                    store.send(.datePickerPresented(true))
+                } label: {
+                    RipeCard {
+                        HStack {
+                            Text(formattedDate(store.bestBeforeDate))
+                                .font(RipeFont.body(15))
+                                .foregroundStyle(Color(.ripeInk))
+                            Spacer()
+                            if store.isDateFromScan {
+                                scannedChip
+                            }
+                            Image(systemName: "calendar")
+                                .foregroundStyle(Color(.ripeInk3))
                         }
-                        Image(systemName: "calendar")
-                            .foregroundStyle(Color(.ripeInk3))
                     }
                 }
+                .buttonStyle(.plain)
+                .contentShape(Rectangle())
             }
-            .buttonStyle(.plain)
-            .contentShape(Rectangle())
         }
     }
 
@@ -219,29 +223,34 @@ extension ItemDetailsView {
     // MARK: Date picker sheet
 
     private var datePickerSheet: some View {
-        NavigationStack {
-            VStack {
-                DatePicker(
-                    "Best-before date",
-                    selection: Binding(
-                        get: { store.bestBeforeDate },
-                        set: { store.send(.bestBeforeDateChanged($0)) }
-                    ),
-                    displayedComponents: .date
-                )
-                .datePickerStyle(.graphical)
-                .tint(Color(.ripeAccent))
-                .padding(RipeSpacing.s5)
-            }
-            .navigationTitle("Select date")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { store.send(.datePickerPresented(false)) }
+        WithPerceptionTracking {
+            NavigationStack {
+                VStack {
+                    DatePicker(
+                        "Best-before date",
+                        selection: $draftBestBeforeDate,
+                        displayedComponents: .date
+                    )
+                    .datePickerStyle(.graphical)
+                    .tint(Color(.ripeAccent))
+                    .padding(RipeSpacing.s5)
+                }
+                .navigationTitle("Select date")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Done") {
+                            store.send(.bestBeforeDateChanged(draftBestBeforeDate))
+                            store.send(.datePickerPresented(false))
+                        }
+                    }
                 }
             }
+            .presentationDetents([.medium])
+            .onAppear {
+                draftBestBeforeDate = store.bestBeforeDate
+            }
         }
-        .presentationDetents([.medium])
     }
 
     // MARK: Action buttons

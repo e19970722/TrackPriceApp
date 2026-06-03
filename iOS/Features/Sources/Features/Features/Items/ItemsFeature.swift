@@ -137,7 +137,7 @@ public struct AddItemFeature {
         public var quantity: String = ""
         public var location: ItemLocation = .fridge
         public var locationCustom: String = ""
-        public var bestBeforeDate: Date = Date().addingTimeInterval(7 * 86400)
+        public var bestBeforeDate: Date = Date()
         public var isDateFromScan: Bool = false
         public var isDatePickerPresented: Bool = false
 
@@ -152,7 +152,7 @@ public struct AddItemFeature {
             quantity: String = "",
             location: ItemLocation = .fridge,
             locationCustom: String = "",
-            bestBeforeDate: Date = Date().addingTimeInterval(7 * 86400),
+            bestBeforeDate: Date = Date(),
             isDateFromScan: Bool = false,
             remindDaysBefore: Int = 3,
             remindOnDay: Bool = false

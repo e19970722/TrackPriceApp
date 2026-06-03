@@ -205,6 +205,21 @@ final class AddItemFeatureTests: XCTestCase {
         }
     }
 
+    func testBestBeforeDateChangedUpdatesStateAndClearsScanFlag() async {
+        let newDate = Date(timeIntervalSinceReferenceDate: 4_000_000)
+        var initial = AddItemFeature.State(isDateFromScan: true)
+        initial.step = .itemDetails(scannedDate: Date(), ocrString: "BB")
+
+        let store = TestStore(initialState: initial) {
+            AddItemFeature()
+        }
+
+        await store.send(.bestBeforeDateChanged(newDate)) {
+            $0.bestBeforeDate = newDate
+            $0.isDateFromScan = false
+        }
+    }
+
     func testSaveItemCallsAPIAndAdvancesToSaved() async {
         let bestBefore = Date(timeIntervalSinceReferenceDate: 3_000_000)
         let savedItem = Item(
@@ -266,7 +281,7 @@ final class AddItemFeatureTests: XCTestCase {
         let store = TestStore(initialState: initial) {
             AddItemFeature()
         }
-        // bestBeforeDate is set to Date().addingTimeInterval(7*86400) inside the reducer.
+        // bestBeforeDate is set to Date() inside the reducer.
         // Use non-exhaustive mode to assert only the stable parts of the reset.
         store.exhaustivity = .off
         await store.send(.addAnotherTapped)
@@ -327,7 +342,7 @@ final class ItemsFeatureTests: XCTestCase {
         let store = TestStore(initialState: ItemsFeature.State()) {
             ItemsFeature()
         }
-        // AddItemFeature.State() captures a Date() for bestBeforeDate inside the reducer.
+        // AddItemFeature.State() captures Date() for bestBeforeDate inside the reducer.
         // Use non-exhaustive mode and assert that addItem becomes non-nil.
         store.exhaustivity = .off
         await store.send(.addItemButtonTapped)
