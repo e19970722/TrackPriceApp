@@ -91,6 +91,11 @@ Never call `URLSession` or `UserDefaults` directly from a reducer or view — al
 - Extracted components must expose a clean, convenient initialiser — callers should not need to know internal layout details
 - If it only makes sense in one feature, keep it as a private extension on that view; don't over-extract
 
+**WithPerceptionTracking**
+- Tracking is scoped strictly to the closure it wraps — it does not propagate to child view bodies or `@ViewBuilder` closures evaluated by another struct
+- Every computed property that reads `store` state must wrap its own content in `WithPerceptionTracking`; never rely on a parent's wrapper
+- Generic UI components (e.g. `RipeCard`) must never add `WithPerceptionTracking` — that responsibility belongs to the caller
+
 **Xcode project hygiene**
 - No storyboards or XIBs — SwiftUI only
 - One Swift file per type

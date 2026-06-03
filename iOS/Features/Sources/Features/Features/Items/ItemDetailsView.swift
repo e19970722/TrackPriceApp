@@ -142,41 +142,47 @@ extension ItemDetailsView {
     }
 
     private var decrementButton: some View {
-        Button {
-            store.send(.decrementQuantity)
-        } label: {
-            Image(systemName: "minus")
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(quantityCount <= 1 ? Color(.ripeInk3) : Color(.ripeInk))
+        WithPerceptionTracking {
+            Button {
+                store.send(.decrementQuantity)
+            } label: {
+                ZStack {
+                    Circle().fill(Color(.ripeSurface2))
+                    Image(systemName: "minus")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(quantityCount <= 1 ? Color(.ripeInk3) : Color(.ripeInk))
+                }
                 .frame(width: 40, height: 40)
-                .background(Color(.ripeSurface2))
-                .clipShape(Circle())
+                .contentShape(Circle())
+            }
+            .buttonStyle(.plain)
+            .disabled(quantityCount <= 1)
         }
-        .buttonStyle(.plain)
-        .contentShape(Rectangle())
-        .disabled(quantityCount <= 1)
     }
 
     private var quantityLabel: some View {
-        Text("\(quantityCount)")
-            .font(RipeFont.num(22))
-            .foregroundStyle(Color(.ripeInk))
-            .monospacedDigit()
+        WithPerceptionTracking {
+            Text("\(quantityCount)")
+                .font(RipeFont.num(22))
+                .foregroundStyle(Color(.ripeInk))
+                .monospacedDigit()
+        }
     }
 
     private var incrementButton: some View {
         Button {
             store.send(.incrementQuantity)
         } label: {
-            Image(systemName: "plus")
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(Color(.ripeAccentInk))
-                .frame(width: 40, height: 40)
-                .background(Color(.ripeAccent))
-                .clipShape(Circle())
+            ZStack {
+                Circle().fill(Color(.ripeAccent))
+                Image(systemName: "plus")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(Color(.ripeAccentInk))
+            }
+            .frame(width: 40, height: 40)
+            .contentShape(Circle())
         }
         .buttonStyle(.plain)
-        .contentShape(Rectangle())
     }
 
     // MARK: Best-before date
