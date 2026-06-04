@@ -2,6 +2,7 @@ import SwiftUI
 
 public enum RipeRadius {
     public static let card: CGFloat    = 24
+    public static let sm: CGFloat      = 14
     public static let control: CGFloat = 14
     public static let pill: CGFloat    = 999
     public static let xs: CGFloat      = 10
