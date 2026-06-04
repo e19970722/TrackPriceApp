@@ -4,6 +4,7 @@ import SwiftUI
 public struct ReminderView: View {
     @Perception.Bindable var store: StoreOf<AddItemFeature>
     let draftItem: Item
+    private let milestoneMarks: [Int] = [1, 3, 7, 30, 60]
 
     public init(store: StoreOf<AddItemFeature>, draftItem: Item) {
         self.store = store
@@ -30,12 +31,15 @@ extension ReminderView {
 
     private var scrollContent: some View {
         ScrollView {
-            VStack(spacing: RipeSpacing.s5) {
+            VStack(alignment: .leading, spacing: RipeSpacing.s5) {
                 itemSummaryCard
-                reminderDaysCard
+                remindSectionLabel
+                daysReadoutView
+                sliderSection
                 reminderBannerView
                 alsoAlertOnDayRow
                 saveButton
+                backButton
             }
             .padding(.horizontal, RipeSpacing.s5)
             .padding(.top, RipeSpacing.s5)
@@ -60,18 +64,18 @@ extension ReminderView {
         MonoThumbnail(
             label: draftItem.name,
             categoryColor: Color(.ripeAccent),
-            size: 50
+            size: 46
         )
     }
 
     private var itemSummaryTextStack: some View {
         VStack(alignment: .leading, spacing: RipeSpacing.s1) {
             Text(draftItem.name)
-                .font(RipeFont.heading(16))
+                .font(RipeFont.heading(15))
                 .foregroundStyle(Color(.ripeInk))
                 .lineLimit(1)
             Text("Best before \(shortDate(draftItem.bestBeforeDate))")
-                .font(RipeFont.caption(13))
+                .font(RipeFont.caption(12))
                 .foregroundStyle(Color(.ripeInk2))
         }
     }
@@ -82,46 +86,67 @@ extension ReminderView {
         return RipeChip(label: "\(days)d left", tone: tone)
     }
 
-    // MARK: Days-before slider card
+    // MARK: Section label (no card)
 
-    private var reminderDaysCard: some View {
-        RipeCard {
-            VStack(spacing: RipeSpacing.s5) {
-                daysReadoutView
-                discreteSliderView
-                sliderTickLabels
+    private var remindSectionLabel: some View {
+        Text("Remind me before it expires")
+            .font(.system(size: 13, weight: .bold))
+            .foregroundStyle(Color(.ripeInk2))
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 2)
+    }
+
+    // MARK: Days readout (no card — accent color per design)
+
+    private var daysReadoutView: some View {
+        WithPerceptionTracking {
+            HStack(alignment: .firstTextBaseline, spacing: RipeSpacing.s2) {
+                Text("\(store.remindDaysBefore)")
+                    .font(RipeFont.display(44))
+                    .foregroundStyle(Color(.ripeAccent))
+                    .monospacedDigit()
+                Text("days before")
+                    .font(RipeFont.body(18))
+                    .foregroundStyle(Color(.ripeInk2))
+                    .padding(.bottom, 4)
+            }
+            .padding(.horizontal, 2)
+        }
+    }
+
+    // MARK: Slider + milestone labels (no card)
+
+    private var sliderSection: some View {
+        WithPerceptionTracking {
+            VStack(spacing: RipeSpacing.s2) {
+                Slider(value: sliderBinding, in: 1...60, step: 1)
+                    .tint(Color(.ripeAccent))
+                sliderMilestoneLabels
             }
         }
     }
 
-    private var daysReadoutView: some View {
-        HStack(alignment: .firstTextBaseline, spacing: RipeSpacing.s1) {
-            Text("\(store.remindDaysBefore)")
-                .font(RipeFont.display(60))
-                .foregroundStyle(Color(.ripeInk))
-            Text("days before")
-                .font(RipeFont.body(18))
-                .foregroundStyle(Color(.ripeInk2))
-                .padding(.bottom, 6)
-        }
-        .frame(maxWidth: .infinity, alignment: .center)
-    }
-
-    private var discreteSliderView: some View {
-        DiscreteSlider(
-            stops: reminderStops,
-            selected: store.remindDaysBefore,
-            onChanged: { store.send(.remindDaysBeforeChanged($0)) }
-        )
-    }
-
-    private var sliderTickLabels: some View {
-        HStack {
-            ForEach(reminderStops, id: \.self) { stop in
-                Text("\(stop)")
-                    .font(RipeFont.caption(11))
-                    .foregroundStyle(stop == store.remindDaysBefore ? Color(.ripeAccent) : Color(.ripeInk3))
-                    .frame(maxWidth: .infinity)
+    private var sliderMilestoneLabels: some View {
+        WithPerceptionTracking {
+            HStack {
+                ForEach(milestoneMarks, id: \.self) { mark in
+                    let isActive = mark == store.remindDaysBefore
+                    Group {
+                        if mark == milestoneMarks.first {
+                            Text("\(mark)")
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        } else if mark == milestoneMarks.last {
+                            Text("\(mark)")
+                                .frame(maxWidth: .infinity, alignment: .trailing)
+                        } else {
+                            Text("\(mark)")
+                                .frame(maxWidth: .infinity, alignment: .center)
+                        }
+                    }
+                    .font(.system(size: 12, weight: isActive ? .bold : .semibold))
+                    .foregroundStyle(isActive ? Color(.ripeAccent) : Color(.ripeInk3))
+                    .monospacedDigit()
+                }
             }
         }
     }
@@ -129,52 +154,80 @@ extension ReminderView {
     // MARK: Banner
 
     private var reminderBannerView: some View {
-        HStack(spacing: RipeSpacing.s3) {
-            Image(systemName: "bell.fill")
-                .font(.system(size: 16))
-                .foregroundStyle(Color(.ripeAccent))
-            Text(reminderBannerText)
-                .font(RipeFont.body(14))
-                .foregroundStyle(Color(.ripeInk))
+        WithPerceptionTracking {
+            HStack(spacing: RipeSpacing.s3) {
+                Image(systemName: isReminderInPast ? "exclamationmark.triangle.fill" : "bell.fill")
+                    .font(.system(size: 16))
+                    .foregroundStyle(isReminderInPast ? Color(.ripeWarn) : Color(.ripeAccent))
+                Text(isReminderInPast ? reminderPastHintText : reminderBannerText)
+                    .font(RipeFont.body(14))
+                    .foregroundStyle(Color(.ripeInk))
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(RipeSpacing.s4)
+            .background(isReminderInPast ? Color(.ripeWarnSoft) : Color(.ripeAccentSoft))
+            .clipShape(RoundedRectangle(cornerRadius: RipeRadius.control, style: .continuous))
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(RipeSpacing.s4)
-        .background(Color(.ripeAccentSoft))
-        .clipShape(RoundedRectangle(cornerRadius: RipeRadius.control, style: .continuous))
     }
 
-    // MARK: Also-alert-on-day toggle
+    // MARK: Also-alert-on-day toggle (with green calendar icon per design)
 
     private var alsoAlertOnDayRow: some View {
-        RipeCard {
-            HStack {
-                VStack(alignment: .leading, spacing: RipeSpacing.s1) {
-                    Text("Also alert on the day")
-                        .font(RipeFont.body(15))
-                        .foregroundStyle(Color(.ripeInk))
-                    Text("Morning of \(shortDate(draftItem.bestBeforeDate))")
-                        .font(RipeFont.caption(13))
-                        .foregroundStyle(Color(.ripeInk2))
+        WithPerceptionTracking {
+            RipeCard {
+                HStack(spacing: 13) {
+                    calendarCheckIcon
+                    VStack(alignment: .leading, spacing: RipeSpacing.s1) {
+                        Text("Also alert on the day")
+                            .font(RipeFont.body(15))
+                            .foregroundStyle(Color(.ripeInk))
+                        Text("Morning of \(shortDate(draftItem.bestBeforeDate))")
+                            .font(RipeFont.caption(12))
+                            .foregroundStyle(Color(.ripeInk2))
+                    }
+                    Spacer()
+                    Toggle("", isOn: $store.remindOnDay)
+                        .labelsHidden()
+                        .tint(Color(.ripeAccent))
                 }
-                Spacer()
-                Toggle("", isOn: $store.remindOnDay)
-                    .labelsHidden()
-                    .tint(Color(.ripeAccent))
             }
         }
+    }
+
+    private var calendarCheckIcon: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(Color(.ripeGood).opacity(0.1))
+            Image(systemName: "calendar.badge.checkmark")
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(Color(.ripeGood))
+        }
+        .frame(width: 36, height: 36)
     }
 
     // MARK: Save button
 
     private var saveButton: some View {
+        WithPerceptionTracking {
+            RipeButton(
+                title: store.isSaving ? "Saving\u{2026}" : "Save item",
+                variant: .primary,
+                size: .lg,
+                fullWidth: true,
+                action: { store.send(.saveItemTapped) }
+            )
+            .disabled(store.isSaving || isReminderInPast)
+        }
+    }
+
+    private var backButton: some View {
         RipeButton(
-            title: store.isSaving ? "Saving\u{2026}" : "Save item",
-            variant: .primary,
+            title: "Back",
+            variant: .outline,
             size: .lg,
             fullWidth: true,
-            action: { store.send(.saveItemTapped) }
+            action: { store.send(.backTapped) }
         )
-        .disabled(store.isSaving)
     }
 }
 
@@ -182,44 +235,40 @@ extension ReminderView {
 
 extension ReminderView {
 
-    private var reminderStops: [Int] { [1, 3, 7, 30, 60] }
+
+    private var sliderBinding: Binding<Double> {
+        Binding(
+            get: { Double(store.remindDaysBefore) },
+            set: { store.send(.remindDaysBeforeChanged(Int($0.rounded()))) }
+        )
+    }
+
+    private var computedRemindOn: Date {
+        Calendar.current.date(
+            byAdding: .day,
+            value: -store.remindDaysBefore,
+            to: draftItem.bestBeforeDate
+        ) ?? draftItem.bestBeforeDate
+    }
+
+    private var isReminderInPast: Bool {
+        computedRemindOn < Calendar.current.startOfDay(for: .now)
+    }
 
     private var reminderBannerText: String {
-        let onDate = shortDate(draftItem.remindOn)
+        let onDate = shortDate(computedRemindOn)
         let days = store.remindDaysBefore
         return "We'll remind you on \(onDate) — \(days) day\(days == 1 ? "" : "s") before it expires."
+    }
+
+    private var reminderPastHintText: String {
+        "\(shortDate(computedRemindOn)) has already passed — choose fewer days before expiry."
     }
 
     private func shortDate(_ date: Date) -> String {
         let df = DateFormatter()
         df.dateStyle = .medium
         return df.string(from: date)
-    }
-}
-
-// MARK: - DiscreteSlider
-
-private struct DiscreteSlider: View {
-    let stops: [Int]
-    let selected: Int
-    let onChanged: (Int) -> Void
-
-    private var normalised: Double {
-        guard let idx = stops.firstIndex(of: selected) else { return 0 }
-        return Double(idx) / Double(stops.count - 1)
-    }
-
-    var body: some View {
-        Slider(
-            value: Binding(
-                get: { normalised },
-                set: { raw in
-                    let idx = Int((raw * Double(stops.count - 1)).rounded())
-                    onChanged(stops[max(0, min(idx, stops.count - 1))])
-                }
-            )
-        )
-        .tint(Color(.ripeAccent))
     }
 }
 

@@ -13,6 +13,8 @@ public struct ItemDetailFeature {
         public var isDeleting: Bool = false
         public var isMarkingUsed: Bool = false
         public var isEditingReminder: Bool = false
+        public var isEditing: Bool = false
+        public var isSavingEdit: Bool = false
 
         public init(item: Item) {
             self.item = item
@@ -31,6 +33,11 @@ public struct ItemDetailFeature {
         case reminderUpdated(Item)
         case reminderEditDismissed
         case delegate(Delegate)
+        case dismissTapped
+        case editButtonTapped
+        case cancelEditTapped
+        case saveEditTapped(ItemIn)
+        case editSaved(Item)
     }
 
     public enum Delegate {
@@ -95,6 +102,35 @@ public struct ItemDetailFeature {
             case .operationFailed:
                 state.isDeleting = false
                 state.isMarkingUsed = false
+                state.isSavingEdit = false
+                return .none
+
+            case .dismissTapped:
+                return .run { _ in await dismiss() }
+
+            case .editButtonTapped:
+                state.isEditing = true
+                return .none
+
+            case .cancelEditTapped:
+                state.isEditing = false
+                return .none
+
+            case let .saveEditTapped(input):
+                state.isSavingEdit = true
+                return .run { [id = state.item.id] send in
+                    do {
+                        let updated = try await apiClient.updateItem(id, input)
+                        await send(.editSaved(updated))
+                    } catch {
+                        await send(.operationFailed(error.localizedDescription))
+                    }
+                }
+
+            case let .editSaved(updated):
+                state.item = updated
+                state.isEditing = false
+                state.isSavingEdit = false
                 return .none
 
             case let .reminderUpdated(updatedItem):
@@ -180,6 +216,7 @@ public struct AddItemFeature {
         case remindDaysBeforeChanged(Int)
         case incrementQuantity
         case decrementQuantity
+        case backTapped
         case saveItemTapped
         case itemSaved(Item)
         case saveFailed(String)
@@ -254,6 +291,20 @@ public struct AddItemFeature {
                 state.quantity = String(max(1, current - 1))
                 return .none
 
+            case .backTapped:
+                switch state.step {
+                case .itemDetails:
+                    state.step = state.isDateFromScan ? .scanLabel : .chooseMethod
+                case .reminder:
+                    state.step = .itemDetails(
+                        scannedDate: state.isDateFromScan ? state.bestBeforeDate : nil,
+                        ocrString: nil
+                    )
+                default:
+                    break
+                }
+                return .none
+
             case .saveItemTapped:
                 state.isSaving = true
                 state.saveError = nil
@@ -262,7 +313,7 @@ public struct AddItemFeature {
                     quantity: state.quantity.isEmpty ? nil : state.quantity,
                     location: state.location,
                     locationCustom: state.locationCustom.isEmpty ? nil : state.locationCustom,
-                    bestBeforeDate: state.bestBeforeDate,
+                    bestBeforeDate: state.bestBeforeDate.dateOnly,
                     remindDaysBefore: state.remindDaysBefore,
                     remindOnDay: state.remindOnDay
                 )
@@ -368,6 +419,11 @@ public struct ItemsFeature {
                 return .none
 
             case .addItem(.presented(.itemSaved)):
+                return .send(.fetchItems)
+
+            case let .addItem(.presented(.viewItemTapped(item))):
+                state.addItem = nil
+                state.selectedItem = ItemDetailFeature.State(item: item)
                 return .send(.fetchItems)
 
             case .addItem:

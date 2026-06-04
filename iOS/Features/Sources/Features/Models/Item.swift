@@ -99,7 +99,7 @@ public struct ItemIn: Codable, Equatable, Sendable {
     public var quantity: String?
     public var location: ItemLocation
     public var locationCustom: String?
-    public var bestBeforeDate: Date
+    public var bestBeforeDate: String
     public var remindDaysBefore: Int
     public var remindOnDay: Bool
 
@@ -108,7 +108,7 @@ public struct ItemIn: Codable, Equatable, Sendable {
         quantity: String? = nil,
         location: ItemLocation = .fridge,
         locationCustom: String? = nil,
-        bestBeforeDate: Date,
+        bestBeforeDate: String,
         remindDaysBefore: Int = 3,
         remindOnDay: Bool = false
     ) {
@@ -119,5 +119,14 @@ public struct ItemIn: Codable, Equatable, Sendable {
         self.bestBeforeDate = bestBeforeDate
         self.remindDaysBefore = remindDaysBefore
         self.remindOnDay = remindOnDay
+    }
+}
+
+extension Date {
+    var dateOnly: String {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        f.timeZone = TimeZone(identifier: "UTC")
+        return f.string(from: self)
     }
 }

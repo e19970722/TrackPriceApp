@@ -25,6 +25,7 @@ public struct ChooseMethodView: View {
                     }
                 }
             }
+            .tint(Color(.ripeInk2))
         }
     }
 }
@@ -60,22 +61,20 @@ extension ChooseMethodView {
             Circle()
                 .fill(Color(.ripeAccentSoft))
                 .frame(width: 120, height: 120)
-            Image(systemName: "seal.fill")
-                .font(.system(size: 56, weight: .regular))
-                .foregroundStyle(Color(.ripeAccent).opacity(0.3))
-            Image(systemName: "viewfinder")
-                .font(.system(size: 36, weight: .thin))
+            Image(systemName: "refrigerator.fill")
+                .font(.system(size: 52, weight: .regular))
                 .foregroundStyle(Color(.ripeAccent))
         }
     }
 
     private var heroTextStack: some View {
         VStack(spacing: RipeSpacing.s2) {
-            Text("Track what's in your fridge")
+            Text(L10n.Expiry.firstPageTitle)
                 .font(RipeFont.heading(18))
                 .foregroundStyle(Color(.ripeInk))
                 .multilineTextAlignment(.center)
-            Text("Scan a label and we'll read the best-before date — then nudge you before it turns.")
+            
+            Text(L10n.Expiry.firstPageDesc)
                 .font(RipeFont.caption(13.5))
                 .foregroundStyle(Color(.ripeInk2))
                 .multilineTextAlignment(.center)
@@ -92,24 +91,30 @@ extension ChooseMethodView {
 
     private var scanLabelButton: some View {
         RipeButton(
-            title: "Scan the label",
+            title: L10n.Expiry.scanTheLabel,
             variant: .primary,
             size: .lg,
             systemImage: "camera",
             fullWidth: true,
+            cornerRadius: RipeRadius.card,
             action: { store.send(.scanLabelTapped) }
         )
     }
 
     private var enterManuallyButton: some View {
-        RipeButton(
-            title: "Enter it myself",
-            variant: .ghost,
-            size: .lg,
-            systemImage: "pencil",
-            fullWidth: true,
-            action: { store.send(.enterManuallyTapped) }
-        )
+        Button(action: { store.send(.enterManuallyTapped) }) {
+            HStack(spacing: RipeSpacing.s2) {
+                Image(systemName: "pencil")
+                    .font(.system(size: 17, weight: .semibold))
+                Text("Enter it myself")
+                    .font(RipeFont.label(17))
+                    .fontWeight(.semibold)
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 54)
+            .foregroundStyle(Color(.ripeInk3))
+        }
+        .buttonStyle(.plain)
     }
 
     private var cancelButton: some View {

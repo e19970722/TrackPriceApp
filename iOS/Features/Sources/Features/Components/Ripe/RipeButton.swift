@@ -16,6 +16,10 @@ public enum RipeButtonSize {
 }
 
 /// A pill-shaped button following the Ripe design system.
+///
+/// By default the button uses a `Capsule` (full-pill) background. Pass a non-nil `cornerRadius`
+/// to use a `RoundedRectangle` instead — useful when the design calls for a specific radius
+/// (e.g. `RipeRadius.card` for large CTA blocks).
 public struct RipeButton: View {
     let title: String
     var variant: RipeButtonVariant
@@ -23,6 +27,7 @@ public struct RipeButton: View {
     var systemImage: String?
     var trailingSystemImage: String?
     var fullWidth: Bool
+    var cornerRadius: CGFloat?
     var action: () -> Void
 
     public init(
@@ -32,6 +37,7 @@ public struct RipeButton: View {
         systemImage: String? = nil,
         trailingSystemImage: String? = nil,
         fullWidth: Bool = false,
+        cornerRadius: CGFloat? = nil,
         action: @escaping () -> Void
     ) {
         self.title = title
@@ -40,6 +46,7 @@ public struct RipeButton: View {
         self.systemImage = systemImage
         self.trailingSystemImage = trailingSystemImage
         self.fullWidth = fullWidth
+        self.cornerRadius = cornerRadius
         self.action = action
     }
 
@@ -93,17 +100,29 @@ extension RipeButton {
             .font(.system(size: iconSize, weight: .semibold))
     }
 
+    @ViewBuilder
     private var buttonBackgroundView: some View {
-        Capsule()
-            .fill(backgroundColor)
-            .ripeShadow(backgroundShadow)
+        if let r = cornerRadius {
+            RoundedRectangle(cornerRadius: r, style: .continuous)
+                .fill(backgroundColor)
+                .ripeShadow(backgroundShadow)
+        } else {
+            Capsule()
+                .fill(backgroundColor)
+                .ripeShadow(backgroundShadow)
+        }
     }
 
     @ViewBuilder
     private var outlineStrokeView: some View {
         if variant == .outline {
-            Capsule()
-                .strokeBorder(Color(.ripeLine), lineWidth: 1.5)
+            if let r = cornerRadius {
+                RoundedRectangle(cornerRadius: r, style: .continuous)
+                    .strokeBorder(Color(.ripeLine), lineWidth: 1.5)
+            } else {
+                Capsule()
+                    .strokeBorder(Color(.ripeLine), lineWidth: 1.5)
+            }
         }
     }
 

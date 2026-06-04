@@ -21,7 +21,7 @@ public struct ItemsView: View {
                 contentList
                     .overlay(alignment: .bottomTrailing) { optionalFab }
             }
-            .sheet(item: $store.scope(state: \.addItem, action: \.addItem)) { addStore in
+            .fullScreenCover(item: $store.scope(state: \.addItem, action: \.addItem)) { addStore in
                 AddItemFlowView(store: addStore)
             }
             .sheet(item: $store.scope(state: \.selectedItem, action: \.selectedItem)) { detailStore in

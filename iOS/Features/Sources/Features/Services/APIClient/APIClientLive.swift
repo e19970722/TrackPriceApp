@@ -21,10 +21,15 @@ extension JSONDecoder {
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         let formatterNoFraction = ISO8601DateFormatter()
         formatterNoFraction.formatOptions = [.withInternetDateTime]
+        // Python `date` fields are serialized as plain "yyyy-MM-dd" strings
+        let plainDateFormatter = DateFormatter()
+        plainDateFormatter.dateFormat = "yyyy-MM-dd"
+        plainDateFormatter.timeZone = TimeZone(identifier: "UTC")
         d.dateDecodingStrategy = .custom { decoder in
             let string = try decoder.singleValueContainer().decode(String.self)
             if let date = formatter.date(from: string) { return date }
             if let date = formatterNoFraction.date(from: string) { return date }
+            if let date = plainDateFormatter.date(from: string) { return date }
             throw DecodingError.dataCorrupted(.init(codingPath: decoder.codingPath, debugDescription: "Invalid date: \(string)"))
         }
         return d

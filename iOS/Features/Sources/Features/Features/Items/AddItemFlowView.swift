@@ -43,7 +43,11 @@ extension AddItemFlowView {
                 ItemDetailsView(store: store)
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
-                            Button("Cancel") { store.send(.dismiss) }
+                            Button(action: { store.send(.backTapped) }) {
+                                Image(systemName: "chevron.left")
+                                    .fontWeight(.semibold)
+                            }
+                            .tint(Color(.ripeInk))
                         }
                     }
             }
@@ -53,7 +57,11 @@ extension AddItemFlowView {
                 ReminderView(store: store, draftItem: draft)
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
-                            Button("Cancel") { store.send(.dismiss) }
+                            Button(action: { store.send(.backTapped) }) {
+                                Image(systemName: "chevron.left")
+                                    .fontWeight(.semibold)
+                            }
+                            .tint(Color(.ripeInk))
                         }
                     }
             }
