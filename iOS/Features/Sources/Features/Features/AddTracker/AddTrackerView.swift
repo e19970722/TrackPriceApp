@@ -46,7 +46,7 @@ extension AddTrackerView {
     }
 
     private var cancelButton: some View {
-        Button("Cancel") { store.send(.dismiss) }
+        Button(L10n.Common.cancel) { store.send(.dismiss) }
     }
 }
 
@@ -55,10 +55,10 @@ extension AddTrackerView {
 extension AddTrackerView {
     private var navigationTitle: String {
         switch store.step {
-        case .urlEntry:      "Add Tracker"
-        case .webView:       "Browse"
-        case .confirmation:  "Confirm Element"
-        case .targetSetup:   "Set Target"
+        case .urlEntry: L10n.AddTracker.navTitleAdd
+        case .webView: L10n.AddTracker.navTitleBrowse
+        case .confirmation: L10n.AddTracker.navTitleConfirm
+        case .targetSetup: L10n.AddTracker.navTitleSetTarget
         }
     }
 }
@@ -87,7 +87,7 @@ private struct URLEntryView: View {
 extension URLEntryView {
     private var urlInputSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Enter a product URL")
+            Text(L10n.AddTracker.urlPrompt)
                 .font(.headline)
             urlInputRow
         }
@@ -95,7 +95,7 @@ extension URLEntryView {
 
     private var urlInputRow: some View {
         HStack {
-            TextField("https://example.com/product", text: $store.urlInput.sending(\.urlInputChanged))
+            TextField(L10n.AddTracker.urlPlaceholder, text: $store.urlInput.sending(\.urlInputChanged))
                 .keyboardType(.URL)
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
@@ -107,7 +107,7 @@ extension URLEntryView {
     }
 
     private var goButton: some View {
-        Button("Go") {
+        Button(L10n.AddTracker.goButton) {
             store.send(.loadURL)
         }
         .buttonStyle(.borderedProminent)
@@ -122,7 +122,7 @@ extension URLEntryView {
                 }
             }
         } label: {
-            Label("Paste from clipboard", systemImage: "doc.on.clipboard")
+            Label(L10n.AddTracker.pasteFromClipboard, systemImage: "doc.on.clipboard")
                 .frame(maxWidth: .infinity)
         }
         .buttonStyle(.bordered)
@@ -213,7 +213,7 @@ private struct ConfirmationView: View {
 extension ConfirmationView {
     private var selectedElementCard: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Is this the right element?")
+            Text(L10n.AddTracker.confirmTitle)
                 .font(.headline)
             selectedTextSection
             parsedPriceRow
@@ -226,7 +226,7 @@ extension ConfirmationView {
 
     private var selectedTextSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Selected text")
+            Text(L10n.AddTracker.selectedText)
                 .font(.caption)
                 .foregroundStyle(.secondary)
             Text(info.rawText.map { $0.isEmpty ? "(no text)" : $0 } ?? "(no text)")
@@ -245,7 +245,7 @@ extension ConfirmationView {
                 HStack {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundStyle(.green)
-                    Text("Parsed price: \(info.currencySymbol)\(String(format: "%.2f", price))")
+                    Text(L10n.AddTracker.parsedPrice("\(info.currencySymbol)\(String(format: "%.2f", price))"))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
@@ -253,7 +253,7 @@ extension ConfirmationView {
                 HStack {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundStyle(.yellow)
-                    Text("No price detected — you can enter it manually")
+                    Text(L10n.AddTracker.noPriceDetected)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
@@ -272,7 +272,7 @@ extension ConfirmationView {
         Button {
             store.send(.confirmationConfirmed)
         } label: {
-            Label("Looks correct", systemImage: "checkmark")
+            Label(L10n.AddTracker.looksCorrect, systemImage: "checkmark")
                 .frame(maxWidth: .infinity)
         }
         .buttonStyle(.borderedProminent)
@@ -282,7 +282,7 @@ extension ConfirmationView {
         Button {
             store.send(.confirmationRejected)
         } label: {
-            Label("Re-select", systemImage: "arrow.uturn.backward")
+            Label(L10n.AddTracker.reSelect, systemImage: "arrow.uturn.backward")
                 .frame(maxWidth: .infinity)
         }
         .buttonStyle(.bordered)
@@ -335,8 +335,8 @@ extension TargetSetupView {
     private var directionSection: some View {
         Section("Alert me when price is") {
             Picker("Direction", selection: $store.targetDirection) {
-                Text("Below target").tag(TargetDirection.below)
-                Text("Above target").tag(TargetDirection.above)
+                Text(L10n.AddTracker.belowTarget).tag(TargetDirection.below)
+                Text(L10n.AddTracker.aboveTarget).tag(TargetDirection.above)
             }
             .pickerStyle(.segmented)
             .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
@@ -381,11 +381,11 @@ extension TargetSetupView {
             if store.isCreating {
                 HStack {
                     ProgressView()
-                    Text("Creating…")
+                    Text(L10n.AddTracker.creating)
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
             } else {
-                Text("Create Tracker")
+                Text(L10n.AddTracker.createTracker)
                     .frame(maxWidth: .infinity, alignment: .center)
             }
         }

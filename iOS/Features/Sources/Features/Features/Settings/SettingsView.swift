@@ -21,17 +21,17 @@ public struct SettingsView: View {
             scrollContentView
                 .background(Color(.ripeBg).ignoresSafeArea())
                 .confirmationDialog(
-                    "Sign out of TrackPrice?",
+                    L10n.Settings.signOutConfirmTitle,
                     isPresented: Binding(
                         get: { store.isSignOutConfirmationPresented },
                         set: { _ in store.send(.signOutCancelled) }
                     ),
                     titleVisibility: .visible
                 ) {
-                    Button("Sign Out", role: .destructive) {
+                    Button(L10n.Settings.signOutConfirmButton, role: .destructive) {
                         store.send(.signOutConfirmed)
                     }
-                    Button("Cancel", role: .cancel) {
+                    Button(L10n.Common.cancel, role: .cancel) {
                         store.send(.signOutCancelled)
                     }
                 }
@@ -78,34 +78,34 @@ extension SettingsView {
 
     private var accountSectionView: some View {
         VStack(alignment: .leading, spacing: RipeSpacing.s2) {
-            SectionLabel(title: "Account")
+            SectionLabel(title: L10n.Settings.sectionAccount)
             RipeCard(padding: 0) {
                 VStack(spacing: 0) {
                     settingsRow(
                         icon: "creditcard",
                         iconColor: Color(.ripeCat5),
-                        title: "Connected accounts",
+                        title: L10n.Settings.connectedAccounts,
                         value: "Apple · Google",
                         isLast: false
                     )
                     settingsRow(
                         icon: "dollarsign.circle",
                         iconColor: Color(.ripeGood),
-                        title: "Default currency",
+                        title: L10n.Settings.defaultCurrency,
                         value: "USD $",
                         isLast: false
                     )
                     settingsRow(
                         icon: "bag",
                         iconColor: Color(.ripeWarn),
-                        title: "Preferred stores",
+                        title: L10n.Settings.preferredStores,
                         value: "3",
                         isLast: false
                     )
                     settingsRow(
                         icon: "sparkles",
                         iconColor: Color(.ripeAccent),
-                        title: "Plan",
+                        title: L10n.Settings.plan,
                         value: "Free",
                         isLast: true
                     )
@@ -116,13 +116,13 @@ extension SettingsView {
 
     private var notificationsSectionView: some View {
         VStack(alignment: .leading, spacing: RipeSpacing.s2) {
-            SectionLabel(title: "Notifications")
+            SectionLabel(title: L10n.Settings.sectionNotifications)
             RipeCard(padding: 0) {
                 VStack(spacing: 0) {
                     notificationToggleRow(
                         icon: "tag",
                         iconColor: Color(.ripeCat1),
-                        title: "Price drops",
+                        title: L10n.Settings.priceDrops,
                         detail: "When a track hits target",
                         isOn: $priceDropsOn,
                         isLast: false
@@ -130,7 +130,7 @@ extension SettingsView {
                     notificationToggleRow(
                         icon: "clock",
                         iconColor: Color(.ripeWarn),
-                        title: "Expiring soon",
+                        title: L10n.Settings.expiringSoon,
                         detail: "3 days before",
                         isOn: $expiringSoonOn,
                         isLast: false
@@ -138,7 +138,7 @@ extension SettingsView {
                     notificationToggleRow(
                         icon: "shippingbox",
                         iconColor: Color(.ripeCat5),
-                        title: "Running low",
+                        title: L10n.Settings.runningLow,
                         detail: "At reorder point",
                         isOn: $runningLowOn,
                         isLast: false
@@ -146,7 +146,7 @@ extension SettingsView {
                     notificationToggleRow(
                         icon: "bell",
                         iconColor: Color(.ripeInk2),
-                        title: "Weekly digest",
+                        title: L10n.Settings.weeklyDigest,
                         detail: "Sunday summary",
                         isOn: $weeklyDigestOn,
                         isLast: true
@@ -158,20 +158,20 @@ extension SettingsView {
 
     private var aboutSectionView: some View {
         VStack(alignment: .leading, spacing: RipeSpacing.s2) {
-            SectionLabel(title: "About")
+            SectionLabel(title: L10n.Settings.sectionAbout)
             RipeCard(padding: 0) {
                 VStack(spacing: 0) {
                     settingsRow(
                         icon: "questionmark.circle",
                         iconColor: Color(.ripeInk2),
-                        title: "Help & feedback",
+                        title: L10n.Settings.helpAndFeedback,
                         value: nil,
                         isLast: false
                     )
                     settingsRow(
                         icon: "lock.shield",
                         iconColor: Color(.ripeInk2),
-                        title: "Privacy policy",
+                        title: L10n.Settings.privacyPolicy,
                         value: nil,
                         isLast: false
                     )
@@ -187,7 +187,7 @@ extension SettingsView {
         } label: {
             HStack(spacing: RipeSpacing.s3) {
                 iconTileView(systemName: "rectangle.portrait.and.arrow.right", color: Color(.ripeDanger))
-                Text("Sign out")
+                Text(L10n.Settings.signOutRow)
                     .font(RipeFont.body(15.5))
                     .foregroundStyle(Color(.ripeDanger))
                 Spacer()
