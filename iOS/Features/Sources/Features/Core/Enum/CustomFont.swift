@@ -19,13 +19,13 @@ public enum CustomFont {
 
     public var font: Font {
         switch self {
-        case .display: RipeFont.display()
-        case .title: RipeFont.title()
-        case .heading: RipeFont.heading()
-        case .body: RipeFont.body()
-        case .label: RipeFont.label()
-        case .caption: RipeFont.caption()
-        case .num: RipeFont.num()
+        case .display: CustomFont.display()
+        case .title: CustomFont.title()
+        case .heading: CustomFont.heading()
+        case .body: CustomFont.body()
+        case .label: CustomFont.label()
+        case .caption: CustomFont.caption()
+        case .num: CustomFont.num()
         }
     }
 
@@ -56,11 +56,47 @@ public enum CustomFont {
     }
 }
 
+// MARK: - Static Font Functions
+
+public extension CustomFont {
+    static func display(_ size: CGFloat = 30) -> Font {
+        .custom("PlusJakartaSans-ExtraBold", size: size)
+    }
+
+    static func title(_ size: CGFloat = 26) -> Font {
+        .custom("PlusJakartaSans-ExtraBold", size: size)
+    }
+
+    static func heading(_ size: CGFloat = 19) -> Font {
+        .custom("PlusJakartaSans-Bold", size: size)
+    }
+
+    static func body(_ size: CGFloat = 15) -> Font {
+        .custom("PlusJakartaSans-SemiBold", size: size)
+    }
+
+    static func label(_ size: CGFloat = 13) -> Font {
+        .custom("PlusJakartaSans-SemiBold", size: size)
+    }
+
+    static func caption(_ size: CGFloat = 12) -> Font {
+        .custom("PlusJakartaSans-Medium", size: size)
+    }
+
+    static func num(_ size: CGFloat = 17) -> Font {
+        .custom("PlusJakartaSans-Bold", size: size).monospacedDigit()
+    }
+}
+
 // MARK: - View Modifier
 
 public extension View {
     func customFont(_ font: CustomFont) -> some View {
         self.font(font.font)
+    }
+
+    func ripeDisplayTracking() -> some View {
+        tracking(-0.02 * 16) // approx -0.02em at base size
     }
 }
 
