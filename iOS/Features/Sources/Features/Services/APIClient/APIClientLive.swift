@@ -21,10 +21,15 @@ extension JSONDecoder {
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         let formatterNoFraction = ISO8601DateFormatter()
         formatterNoFraction.formatOptions = [.withInternetDateTime]
+        // Python `date` fields are serialized as plain "yyyy-MM-dd" strings
+        let plainDateFormatter = DateFormatter()
+        plainDateFormatter.dateFormat = "yyyy-MM-dd"
+        plainDateFormatter.timeZone = TimeZone(identifier: "UTC")
         d.dateDecodingStrategy = .custom { decoder in
             let string = try decoder.singleValueContainer().decode(String.self)
             if let date = formatter.date(from: string) { return date }
             if let date = formatterNoFraction.date(from: string) { return date }
+            if let date = plainDateFormatter.date(from: string) { return date }
             throw DecodingError.dataCorrupted(.init(codingPath: decoder.codingPath, debugDescription: "Invalid date: \(string)"))
         }
         return d
@@ -162,6 +167,24 @@ extension APIClient {
             },
             fetchPriceHistory: { id in
                 try await apiRequest("GET", path: "/trackers/\(id)/history", token: keychain.loadToken(), as: [PriceSnapshot].self)
+            },
+            fetchItems: {
+                try await apiRequest("GET", path: "/items", token: keychain.loadToken(), as: [Item].self)
+            },
+            fetchItem: { id in
+                try await apiRequest("GET", path: "/items/\(id)", token: keychain.loadToken(), as: Item.self)
+            },
+            createItem: { itemIn in
+                try await apiRequest("POST", path: "/items", body: itemIn, token: keychain.loadToken(), as: Item.self)
+            },
+            updateItem: { id, itemIn in
+                try await apiRequest("PATCH", path: "/items/\(id)", body: itemIn, token: keychain.loadToken(), as: Item.self)
+            },
+            deleteItem: { id in
+                try await apiRequestVoid("DELETE", path: "/items/\(id)", token: keychain.loadToken())
+            },
+            markItemUsed: { id in
+                try await apiRequestVoid("POST", path: "/items/\(id)/mark-used", token: keychain.loadToken())
             }
         )
     }
@@ -175,7 +198,13 @@ extension APIClient {
             createTracker: { _ in fatalError("not implemented in mock") },
             updateTracker: { _, _ in fatalError("not implemented in mock") },
             deleteTracker: { _ in },
-            fetchPriceHistory: { _ in [] }
+            fetchPriceHistory: { _ in [] },
+            fetchItems: { [] },
+            fetchItem: { _ in fatalError("not implemented in mock") },
+            createItem: { _ in fatalError("not implemented in mock") },
+            updateItem: { _, _ in fatalError("not implemented in mock") },
+            deleteItem: { _ in },
+            markItemUsed: { _ in }
         )
     }
 }

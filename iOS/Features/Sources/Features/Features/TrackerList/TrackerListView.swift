@@ -3,7 +3,6 @@ import SwiftUI
 
 public struct TrackerListView: View {
     @Perception.Bindable var store: StoreOf<TrackerListFeature>
-    @State private var selectedSegment: Int = 1
     @State private var searchText: String = ""
 
     public init(store: StoreOf<TrackerListFeature>) {
@@ -14,10 +13,13 @@ public struct TrackerListView: View {
 
     public var body: some View {
         WithPerceptionTracking {
-            ZStack {
+            ZStack(alignment: .bottomTrailing) {
                 Color(.ripeBg).ignoresSafeArea()
-                contentList
-                    .overlay(alignment: .bottomTrailing) { fabButton }
+                VStack(spacing: 0) {
+                    persistentHeader
+                    segmentContent
+                }
+                fabButton
             }
             .sheet(item: $store.scope(state: \.addTracker, action: \.addTracker)) { addStore in
                 AddTrackerView(store: addStore)
@@ -30,40 +32,24 @@ public struct TrackerListView: View {
     }
 }
 
-// MARK: - Subviews
+// MARK: - Persistent header
 
 extension TrackerListView {
 
-    private var contentList: some View {
-        List {
+    private var persistentHeader: some View {
+        VStack(spacing: 0) {
             headerView
-                .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-            segmentedControlView
+                .padding(.horizontal, RipeSpacing.s5)
+                .padding(.top, RipeSpacing.s5)
+            segmentPillView
                 .padding(.horizontal, RipeSpacing.s5)
                 .padding(.top, RipeSpacing.s3)
-                .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
             searchBarView
                 .padding(.horizontal, RipeSpacing.s5)
-                .padding(.top, RipeSpacing.s3)
-                .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-            if selectedSegment == 1 {
-                pricesContent
-            } else {
-                expireDatesContent
-            }
-            Color.clear.frame(height: 80)
-                .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
+                .padding(.top, RipeSpacing.s2)
+                .padding(.bottom, RipeSpacing.s3)
         }
-        .listStyle(.plain)
-        .scrollContentBackground(.hidden)
+        .background(Color(.ripeBg))
     }
 
     private var headerView: some View {
@@ -73,48 +59,50 @@ extension TrackerListView {
                 .foregroundStyle(Color(.ripeInk))
             Spacer()
         }
-        .padding(.horizontal, RipeSpacing.s5)
-        .padding(.top, RipeSpacing.s5)
     }
 
-    private var segmentedControlView: some View {
-        HStack(spacing: 0) {
-            segmentButton(title: "Expire Dates", icon: "clock", index: 0)
-            segmentButton(title: "Prices", icon: "tag", index: 1)
+    private var segmentPillView: some View {
+        HStack(spacing: RipeSpacing.s1) {
+            segmentPillButton(label: "Expire Dates", systemImage: "clock", segment: .items)
+            segmentPillButton(label: "Prices", systemImage: "tag", segment: .trackers)
         }
         .padding(RipeSpacing.s1)
         .background(Color(.ripeSurface2))
         .clipShape(Capsule())
     }
 
-    private func segmentButton(title: String, icon: String, index: Int) -> some View {
-        let isSelected = selectedSegment == index
+    private func segmentPillButton(
+        label: String,
+        systemImage: String,
+        segment: TrackerListFeature.Segment
+    ) -> some View {
+        let active = store.selectedSegment == segment
         return Button {
-            selectedSegment = index
+            store.send(.segmentChanged(segment))
         } label: {
-            HStack(spacing: RipeSpacing.s1) {
-                Image(systemName: icon)
-                    .font(RipeFont.body(14))
-                Text(title)
-                    .font(RipeFont.body(14))
+            HStack(spacing: 7) {
+                Image(systemName: systemImage)
+                    .font(.system(size: 15, weight: .semibold))
+                Text(label)
+                    .font(RipeFont.heading(14))
             }
-            .foregroundStyle(isSelected ? Color(.ripeInk) : Color(.ripeInk3))
+            .foregroundStyle(active ? Color(.ripeInk) : Color(.ripeInk3))
             .frame(maxWidth: .infinity)
-            .padding(.vertical, RipeSpacing.s2)
-            .background(
-                Group {
-                    if isSelected {
-                        Capsule()
-                            .fill(Color(.ripeSurface))
-                            .ripeShadow(.soft)
-                    } else {
-                        Capsule()
-                            .fill(Color.clear)
-                    }
-                }
-            )
+            .padding(.vertical, 10)
+            .background { selectedPillBackground(active: active) }
+            .clipShape(Capsule())
         }
         .buttonStyle(.plain)
+        .animation(.easeInOut(duration: 0.18), value: store.selectedSegment)
+    }
+
+    @ViewBuilder
+    private func selectedPillBackground(active: Bool) -> some View {
+        if active {
+            Capsule()
+                .fill(Color(.ripeSurface))
+                .ripeShadow(.soft)
+        }
     }
 
     private var searchBarView: some View {
@@ -145,6 +133,36 @@ extension TrackerListView {
         .clipShape(Capsule())
         .ripeShadow(.soft)
     }
+}
+
+// MARK: - Segment content
+
+extension TrackerListView {
+
+    @ViewBuilder
+    private var segmentContent: some View {
+        if store.selectedSegment == .trackers {
+            trackerListOnly
+        } else {
+            ItemsView(
+                store: store.scope(state: \.items, action: \.items),
+                showsHeader: false,
+                showsFab: false
+            )
+        }
+    }
+
+    private var trackerListOnly: some View {
+        List {
+            pricesContent
+            Color.clear.frame(height: 80)
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+        }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+    }
 
     @ViewBuilder
     private var pricesContent: some View {
@@ -166,21 +184,11 @@ extension TrackerListView {
             }
         }
     }
+}
 
-    @ViewBuilder
-    private var expireDatesContent: some View {
-        ForEach(expireMockItems, id: \.name) { item in
-            expireDateCard(item)
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets(
-                    top: RipeSpacing.s1,
-                    leading: RipeSpacing.s5,
-                    bottom: RipeSpacing.s1,
-                    trailing: RipeSpacing.s5
-                ))
-        }
-    }
+// MARK: - Tracker rows
+
+extension TrackerListView {
 
     private func trackerRow(_ tracker: Tracker) -> some View {
         Button {
@@ -243,42 +251,11 @@ extension TrackerListView {
             DirectionBadge(direction: tracker.targetDirection)
         }
     }
+}
 
-    private func expireDateCard(_ item: ExpireItem) -> some View {
-        RipeCard {
-            HStack(spacing: RipeSpacing.s3) {
-                MonoThumbnail(
-                    label: item.name,
-                    categoryColor: Color(.ripeCat2),
-                    size: 50,
-                    systemImage: "refrigerator"
-                )
-                expireInfoColumn(item)
-                Spacer(minLength: 0)
-                expireTrailingColumn(item)
-            }
-        }
-    }
+// MARK: - State views
 
-    private func expireInfoColumn(_ item: ExpireItem) -> some View {
-        VStack(alignment: .leading, spacing: RipeSpacing.s1) {
-            Text(item.name)
-                .font(RipeFont.heading(16))
-                .foregroundStyle(Color(.ripeInk))
-            Text(item.subtitle)
-                .font(RipeFont.caption(13))
-                .foregroundStyle(Color(.ripeInk3))
-        }
-    }
-
-    private func expireTrailingColumn(_ item: ExpireItem) -> some View {
-        VStack(alignment: .trailing, spacing: RipeSpacing.s1) {
-            Text("\(item.daysLeft)d")
-                .font(RipeFont.num(17))
-                .foregroundStyle(Color(.ripeInk))
-            UrgencyBar(daysLeft: item.daysLeft)
-        }
-    }
+extension TrackerListView {
 
     private var loadingView: some View {
         ProgressView("Loading trackers\u{2026}")
@@ -327,7 +304,11 @@ extension TrackerListView {
 
     private var fabButton: some View {
         Button {
-            store.send(.addTrackerButtonTapped)
+            if store.selectedSegment == .trackers {
+                store.send(.addTrackerButtonTapped)
+            } else {
+                store.send(.items(.addItemButtonTapped))
+            }
         } label: {
             Image(systemName: "plus")
                 .font(.system(size: 22, weight: .semibold))
@@ -360,25 +341,6 @@ extension TrackerListView {
 
     private func trackerSubtitle(_ tracker: Tracker) -> String {
         URL(string: tracker.url)?.host ?? tracker.url
-    }
-}
-
-// MARK: - Mock Data
-
-private struct ExpireItem {
-    let name: String
-    let subtitle: String
-    let daysLeft: Int
-}
-
-extension TrackerListView {
-
-    private var expireMockItems: [ExpireItem] {
-        [
-            ExpireItem(name: "Greek Yogurt", subtitle: "2 cups \u{00B7} Fridge", daysLeft: 2),
-            ExpireItem(name: "Eggs", subtitle: "6 left \u{00B7} Fridge", daysLeft: 3),
-            ExpireItem(name: "Almond Milk", subtitle: "1 L \u{00B7} Fridge", daysLeft: 6),
-        ]
     }
 }
 

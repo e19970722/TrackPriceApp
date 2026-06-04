@@ -3,6 +3,11 @@ import Foundation
 
 @Reducer
 public struct TrackerListFeature {
+
+    public enum Segment: Equatable {
+        case trackers, items
+    }
+
     @ObservableState
     public struct State: Equatable {
         public var trackers: [Tracker] = []
@@ -10,6 +15,8 @@ public struct TrackerListFeature {
         public var errorMessage: String?
         @Presents public var addTracker: AddTrackerFeature.State?
         @Presents public var selectedTracker: TrackerDetailFeature.State?
+        public var selectedSegment: Segment = .trackers
+        public var items: ItemsFeature.State = .init()
         public init() {}
     }
 
@@ -24,6 +31,8 @@ public struct TrackerListFeature {
         case deleteTracker(IndexSet)
         case deleteTrackerById(UUID)
         case trackerDeleted(UUID)
+        case segmentChanged(Segment)
+        case items(ItemsFeature.Action)
     }
 
     @Dependency(\.apiClient) var apiClient
@@ -31,6 +40,10 @@ public struct TrackerListFeature {
     public init() {}
 
     public var body: some ReducerOf<Self> {
+        Scope(state: \.items, action: \.items) {
+            ItemsFeature()
+        }
+
         Reduce { state, action in
             switch action {
             case .onAppear:
@@ -93,6 +106,13 @@ public struct TrackerListFeature {
                 }
 
             case .trackerDeleted:
+                return .none
+
+            case let .segmentChanged(segment):
+                state.selectedSegment = segment
+                return .none
+
+            case .items:
                 return .none
             }
         }

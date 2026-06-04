@@ -39,6 +39,27 @@ async def send_price_alert(device_token: str, tracker, new_price: Decimal) -> No
     await _send_apns(device_token, body, tracker_id=str(tracker.id))
 
 
+async def send_item_reminder(device_token: str, item, days_left: int) -> None:
+    """Send an advance expiry reminder push notification."""
+    if not device_token:
+        return
+    if days_left == 0:
+        body = f"{item.name} expires today!"
+    elif days_left == 1:
+        body = f"{item.name} expires tomorrow."
+    else:
+        body = f"{item.name} expires in {days_left} day{'s' if days_left != 1 else ''}."
+    await _send_apns(device_token, body, tracker_id=str(item.id))
+
+
+async def send_item_expiring_today(device_token: str, item) -> None:
+    """Send an 'expires today' push notification."""
+    if not device_token:
+        return
+    body = f"{item.name} expires today — use it up!"
+    await _send_apns(device_token, body, tracker_id=str(item.id))
+
+
 async def send_broken_alert(device_token: str, tracker) -> None:
     """Send a 'tracker broken' push notification to *device_token*."""
     if not device_token:

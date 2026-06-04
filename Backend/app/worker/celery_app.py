@@ -10,6 +10,7 @@ celery = Celery(
         "app.worker.scraper",
         "app.worker.scheduler",
         "app.worker.failure_handler",
+        "app.worker.item_reminder",
     ],
 )
 celery.conf.task_serializer = "json"
@@ -23,5 +24,10 @@ celery.conf.beat_schedule = {
     "check-broken-trackers": {
         "task": "app.worker.failure_handler.check_broken_trackers",
         "schedule": 3600.0,
+    },
+    "check-item-reminders": {
+        "task": "app.worker.item_reminder.check_item_reminders",
+        # Run once per day at 08:00 UTC.  Using crontab for clarity.
+        "schedule": 86400.0,
     },
 }

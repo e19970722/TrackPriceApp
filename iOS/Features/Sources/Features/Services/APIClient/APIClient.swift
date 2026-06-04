@@ -66,6 +66,13 @@ public struct APIClient {
     public var updateTracker: @Sendable (UUID, UpdateTrackerRequest) async throws -> Tracker
     public var deleteTracker: @Sendable (UUID) async throws -> Void
     public var fetchPriceHistory: @Sendable (UUID) async throws -> [PriceSnapshot]
+    // Items
+    public var fetchItems: @Sendable () async throws -> [Item]
+    public var fetchItem: @Sendable (UUID) async throws -> Item
+    public var createItem: @Sendable (ItemIn) async throws -> Item
+    public var updateItem: @Sendable (UUID, ItemIn) async throws -> Item
+    public var deleteItem: @Sendable (UUID) async throws -> Void
+    public var markItemUsed: @Sendable (UUID) async throws -> Void
 }
 
 extension APIClient: DependencyKey {

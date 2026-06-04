@@ -13,7 +13,7 @@ public enum RipeSpacing {
     public static let s3: CGFloat = 12
     public static let s4: CGFloat = 16
     public static let s5: CGFloat = 20  // screen gutter
-    public static let s6: CGFloat = 26
+    public static let s6: CGFloat = 24
     public static let s7: CGFloat = 32
 }
 
