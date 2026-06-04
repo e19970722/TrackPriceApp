@@ -9,19 +9,22 @@ public struct MonoThumbnail: View {
     var size: CGFloat
     var round: Bool
     var systemImage: String?
+    var showStripeTexture: Bool
 
     public init(
         label: String,
         categoryColor: Color,
         size: CGFloat = 48,
         round: Bool = false,
-        systemImage: String? = nil
+        systemImage: String? = nil,
+        showStripeTexture: Bool = false
     ) {
         self.label = label
         self.categoryColor = categoryColor
         self.size = size
         self.round = round
         self.systemImage = systemImage
+        self.showStripeTexture = showStripeTexture
     }
 
     @Environment(\.colorScheme) private var colorScheme
@@ -40,6 +43,13 @@ extension MonoThumbnail {
         thumbnailContentView
             .frame(width: size, height: size)
             .background(thumbnailBackgroundView)
+            .overlay(stripeTextureOverlayView)
+            .clipShape(
+                RoundedRectangle(
+                    cornerRadius: round ? RipeRadius.pill : RipeRadius.control,
+                    style: .continuous
+                )
+            )
     }
 
     @ViewBuilder
@@ -69,6 +79,30 @@ extension MonoThumbnail {
             style: .continuous
         )
         .fill(thumbnailBackground)
+    }
+
+    @ViewBuilder
+    private var stripeTextureOverlayView: some View {
+        if showStripeTexture {
+            Canvas { context, size in
+                let stripeWidth: CGFloat = 3
+                let gap: CGFloat = 5
+                let step = stripeWidth + gap
+                let diag = sqrt(size.width * size.width + size.height * size.height)
+                var offset: CGFloat = -diag
+                while offset < diag * 2 {
+                    let path = Path { path in
+                        path.move(to: CGPoint(x: offset, y: 0))
+                        path.addLine(to: CGPoint(x: offset + diag, y: diag))
+                        path.addLine(to: CGPoint(x: offset + diag + stripeWidth, y: diag))
+                        path.addLine(to: CGPoint(x: offset + stripeWidth, y: 0))
+                        path.closeSubpath()
+                    }
+                    context.fill(path, with: .color(.white.opacity(0.07)))
+                    offset += step
+                }
+            }
+        }
     }
 }
 
@@ -114,6 +148,25 @@ extension MonoThumbnail {
                 size: 56,
                 round: true,
                 systemImage: "tag.fill"
+            )
+        }
+        HStack(spacing: RipeSpacing.s3) {
+            MonoThumbnail(
+                label: "A",
+                categoryColor: Color(.ripeAccent),
+                showStripeTexture: true
+            )
+            MonoThumbnail(
+                label: "B",
+                categoryColor: Color(.ripeGood),
+                size: 56,
+                showStripeTexture: true
+            )
+            MonoThumbnail(
+                label: "C",
+                categoryColor: Color(.ripeDanger),
+                round: true,
+                showStripeTexture: true
             )
         }
     }
