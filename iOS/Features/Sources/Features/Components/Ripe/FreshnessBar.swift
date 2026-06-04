@@ -89,13 +89,13 @@ extension FreshnessBar {
 
     private var startDateLabel: some View {
         Text(addedDate, style: .date)
-            .font(RipeFont.caption(11.5))
+            .font(CustomFont.caption(11.5))
             .foregroundStyle(Color(.ripeInk3))
     }
 
     private var endDateLabel: some View {
         Text(expiryDate, style: .date)
-            .font(RipeFont.caption(11.5))
+            .font(CustomFont.caption(11.5))
             .foregroundStyle(Color(.ripeInk3))
     }
 }

@@ -64,17 +64,17 @@ extension RipeCard {
         RipeCard {
             VStack(alignment: .leading, spacing: RipeSpacing.s2) {
                 Text("Light Mode Card")
-                    .font(RipeFont.heading())
+                    .font(CustomFont.heading())
                     .foregroundStyle(Color(.ripeInk))
                 Text("Soft shadow, ripeSurface background.")
-                    .font(RipeFont.body())
+                    .font(CustomFont.body())
                     .foregroundStyle(Color(.ripeInk2))
             }
         }
 
         RipeCard(padding: RipeSpacing.s3) {
             Text("Custom padding card")
-                .font(RipeFont.label())
+                .font(CustomFont.label())
                 .foregroundStyle(Color(.ripeInk))
         }
     }
@@ -87,10 +87,10 @@ extension RipeCard {
         RipeCard {
             VStack(alignment: .leading, spacing: RipeSpacing.s2) {
                 Text("Dark Mode Card")
-                    .font(RipeFont.heading())
+                    .font(CustomFont.heading())
                     .foregroundStyle(Color(.ripeInk))
                 Text("Line stroke, no shadow.")
-                    .font(RipeFont.body())
+                    .font(CustomFont.body())
                     .foregroundStyle(Color(.ripeInk2))
             }
         }

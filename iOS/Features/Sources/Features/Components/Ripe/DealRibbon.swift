@@ -47,10 +47,10 @@ extension DealRibbon {
             ZStack(alignment: .topLeading) {
                 VStack(alignment: .leading, spacing: RipeSpacing.s2) {
                     Text("Nike Air Max 90")
-                        .font(RipeFont.heading(15))
+                        .font(CustomFont.heading(15))
                         .foregroundStyle(Color(.ripeInk))
                     Text("$89.99")
-                        .font(RipeFont.num(20))
+                        .font(CustomFont.num(20))
                         .foregroundStyle(Color(.ripeGood))
                 }
                 .padding(RipeSpacing.s4)

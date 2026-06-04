@@ -64,7 +64,7 @@ extension DeltaBadge {
 
     private var deltaValueText: some View {
         Text(value)
-            .font(RipeFont.caption(12))
+            .font(CustomFont.caption(12))
             .fontWeight(.bold)
     }
 }

@@ -160,9 +160,9 @@ extension RipeButton {
 
     private var labelFont: Font {
         switch size {
-        case .sm: RipeFont.label(13)
-        case .md: RipeFont.label(15)
-        case .lg: RipeFont.label(17)
+        case .sm: CustomFont.label(13)
+        case .md: CustomFont.label(15)
+        case .lg: CustomFont.label(17)
         }
     }
 

@@ -54,7 +54,7 @@ extension TrackerListView {
     private var headerView: some View {
         HStack {
             Text(L10n.TrackerList.title)
-                .font(RipeFont.display(26))
+                .font(CustomFont.display(26))
                 .foregroundStyle(Color(.ripeInk))
             Spacer()
         }
@@ -83,7 +83,7 @@ extension TrackerListView {
                 Image(systemName: systemImage)
                     .font(.system(size: 15, weight: .semibold))
                 Text(label)
-                    .font(RipeFont.heading(14))
+                    .font(CustomFont.heading(14))
             }
             .foregroundStyle(active ? Color(.ripeInk) : Color(.ripeInk3))
             .frame(maxWidth: .infinity)
@@ -109,7 +109,7 @@ extension TrackerListView {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(Color(.ripeInk3))
             TextField("Search tracks\u{2026}", text: $searchText)
-                .font(RipeFont.body(14.5))
+                .font(CustomFont.body(14.5))
                 .foregroundStyle(Color(.ripeInk))
                 .tint(Color(.ripeAccent))
             Spacer(minLength: 0)
@@ -226,7 +226,7 @@ extension TrackerListView {
         VStack(alignment: .leading, spacing: RipeSpacing.s1) {
             HStack(spacing: RipeSpacing.s2) {
                 Text(tracker.name)
-                    .font(RipeFont.heading(16))
+                    .font(CustomFont.heading(16))
                     .foregroundStyle(Color(.ripeInk))
                     .lineLimit(1)
                 if trackerHasDealHit(tracker) {
@@ -234,7 +234,7 @@ extension TrackerListView {
                 }
             }
             Text(trackerSubtitle(tracker))
-                .font(RipeFont.caption(13))
+                .font(CustomFont.caption(13))
                 .foregroundStyle(Color(.ripeInk3))
                 .lineLimit(1)
         }
@@ -243,7 +243,7 @@ extension TrackerListView {
     private func trackerPriceColumn(_ tracker: Tracker) -> some View {
         VStack(alignment: .trailing, spacing: RipeSpacing.s1) {
             Text("$\(String(format: "%.2f", tracker.targetPrice))")
-                .font(RipeFont.num(17))
+                .font(CustomFont.num(17))
                 .foregroundStyle(Color(.ripeInk))
             DirectionBadge(direction: tracker.targetDirection)
         }
@@ -256,7 +256,7 @@ extension TrackerListView {
     private var loadingView: some View {
         ProgressView("Loading trackers\u{2026}")
             .frame(maxWidth: .infinity, minHeight: 200)
-            .font(RipeFont.body())
+            .font(CustomFont.body())
             .foregroundStyle(Color(.ripeInk2))
     }
 
@@ -266,10 +266,10 @@ extension TrackerListView {
                 .font(.system(size: 48))
                 .foregroundStyle(Color(.ripeInk3))
             Text(L10n.TrackerList.errorMessage)
-                .font(RipeFont.heading())
+                .font(CustomFont.heading())
                 .foregroundStyle(Color(.ripeInk))
             Text(message)
-                .font(RipeFont.body())
+                .font(CustomFont.body())
                 .foregroundStyle(Color(.ripeInk2))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, RipeSpacing.s5)
@@ -288,10 +288,10 @@ extension TrackerListView {
                 .font(.system(size: 48))
                 .foregroundStyle(Color(.ripeInk3))
             Text(L10n.TrackerList.emptyTitle)
-                .font(RipeFont.heading())
+                .font(CustomFont.heading())
                 .foregroundStyle(Color(.ripeInk))
             Text(L10n.TrackerList.emptyMessage)
-                .font(RipeFont.body())
+                .font(CustomFont.body())
                 .foregroundStyle(Color(.ripeInk2))
         }
         .frame(maxWidth: .infinity, minHeight: 200)

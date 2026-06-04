@@ -69,12 +69,12 @@ extension ChooseMethodView {
     private var heroTextStack: some View {
         VStack(spacing: RipeSpacing.s2) {
             Text(L10n.Expiry.firstPageTitle)
-                .font(RipeFont.heading(18))
+                .font(CustomFont.heading(18))
                 .foregroundStyle(Color(.ripeInk))
                 .multilineTextAlignment(.center)
 
             Text(L10n.Expiry.firstPageDesc)
-                .font(RipeFont.caption(13.5))
+                .font(CustomFont.caption(13.5))
                 .foregroundStyle(Color(.ripeInk2))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, RipeSpacing.s3)
@@ -105,9 +105,9 @@ extension ChooseMethodView {
             HStack(spacing: RipeSpacing.s2) {
                 Image(systemName: "pencil")
                     .font(.system(size: 17, weight: .semibold))
-                
+
                 Text(L10n.Expiry.enterManually)
-                    .font(RipeFont.label(17))
+                    .font(CustomFont.label(17))
                     .fontWeight(.semibold)
             }
             .frame(maxWidth: .infinity)
@@ -121,7 +121,7 @@ extension ChooseMethodView {
         Button(L10n.Common.cancel) {
             store.send(.dismiss)
         }
-        .font(RipeFont.body(15))
+        .font(CustomFont.body(15))
         .foregroundStyle(Color(.ripeInk2))
     }
 }

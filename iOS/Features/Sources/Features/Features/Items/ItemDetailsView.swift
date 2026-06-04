@@ -58,7 +58,7 @@ extension ItemDetailsView {
             fieldSectionLabel(L10n.Expiry.fieldItemName)
             RipeCard {
                 TextField("e.g. Greek Yogurt", text: $store.itemName)
-                    .font(RipeFont.body(15))
+                    .font(CustomFont.body(15))
                     .foregroundStyle(Color(.ripeInk))
                     .focused($focusedField, equals: .name)
             }
@@ -109,7 +109,7 @@ extension ItemDetailsView {
                     Image(systemName: image)
                         .font(.system(size: 15, weight: .semibold))
                     Text(label)
-                        .font(RipeFont.heading(13))
+                        .font(CustomFont.heading(13))
                 }
                 .foregroundStyle(isSelected ? Color(.ripeAccentInk) : Color(.ripeInk3))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -124,7 +124,7 @@ extension ItemDetailsView {
     private var customLocationTextField: some View {
         WithPerceptionTracking {
             TextField("Type a custom spot", text: $store.locationCustom)
-                .font(RipeFont.body(14))
+                .font(CustomFont.body(14))
                 .foregroundStyle(Color(.ripeInk))
                 .focused($focusedField, equals: .customLocation)
                 .tint(Color(.ripeAccent))
@@ -186,7 +186,7 @@ extension ItemDetailsView {
                             .strokeBorder(Color(.ripeInk).opacity(0.07), lineWidth: 1.5)
                     )
                 Text("\(quantityCount)")
-                    .font(RipeFont.num(22))
+                    .font(CustomFont.num(22))
                     .foregroundStyle(Color(.ripeInk))
                     .monospacedDigit()
                     .fontWeight(.heavy)
@@ -247,7 +247,7 @@ extension ItemDetailsView {
                 Text(store.isDateFromScan
                     ? "Auto-filled from the label — tap to adjust."
                     : "Defaults to today — tap to change.")
-                    .font(RipeFont.caption(12))
+                    .font(CustomFont.caption(12))
                     .foregroundStyle(Color(.ripeInk3))
                     .padding(.horizontal, 2)
             }
@@ -327,7 +327,7 @@ extension ItemDetailsView {
 extension ItemDetailsView {
     private func fieldSectionLabel(_ title: String) -> some View {
         Text(title)
-            .font(RipeFont.label(12))
+            .font(CustomFont.label(12))
             .foregroundStyle(Color(.ripeInk3))
             .textCase(.uppercase)
             .tracking(0.5)

@@ -54,7 +54,7 @@ extension StoredInSelector {
             Image(systemName: location.systemImage)
                 .font(.system(size: 16, weight: .semibold))
             Text(location.displayName)
-                .font(RipeFont.caption(11))
+                .font(CustomFont.caption(11))
                 .fontWeight(.semibold)
         }
         .frame(maxWidth: .infinity)

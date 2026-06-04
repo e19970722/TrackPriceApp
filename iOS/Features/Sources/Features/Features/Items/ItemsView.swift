@@ -51,7 +51,7 @@ extension ItemsView {
     private var headerRow: some View {
         HStack {
             Text(L10n.Expiry.listTitle)
-                .font(RipeFont.display(26))
+                .font(CustomFont.display(26))
                 .foregroundStyle(Color(.ripeInk))
             Spacer()
         }
@@ -124,11 +124,11 @@ extension ItemsView {
     private func itemInfoColumn(_ item: Item) -> some View {
         VStack(alignment: .leading, spacing: RipeSpacing.s1) {
             Text(item.name)
-                .font(RipeFont.heading(16))
+                .font(CustomFont.heading(16))
                 .foregroundStyle(Color(.ripeInk))
                 .lineLimit(1)
             Text(itemSubtitle(item))
-                .font(RipeFont.caption(13))
+                .font(CustomFont.caption(13))
                 .foregroundStyle(Color(.ripeInk3))
                 .lineLimit(1)
         }
@@ -137,7 +137,7 @@ extension ItemsView {
     private func itemTrailingColumn(_ item: Item) -> some View {
         VStack(alignment: .trailing, spacing: RipeSpacing.s1) {
             Text(daysLeftLabel(item))
-                .font(RipeFont.num(17))
+                .font(CustomFont.num(17))
                 .foregroundStyle(Color(.ripeInk))
             freshnessChip(item)
         }
@@ -157,7 +157,7 @@ extension ItemsView {
     private var loadingView: some View {
         ProgressView("Loading items\u{2026}")
             .frame(maxWidth: .infinity, minHeight: 200)
-            .font(RipeFont.body())
+            .font(CustomFont.body())
             .foregroundStyle(Color(.ripeInk2))
     }
 
@@ -167,10 +167,10 @@ extension ItemsView {
                 .font(.system(size: 48))
                 .foregroundStyle(Color(.ripeInk3))
             Text(L10n.Expiry.listErrorMessage)
-                .font(RipeFont.heading())
+                .font(CustomFont.heading())
                 .foregroundStyle(Color(.ripeInk))
             Text(message)
-                .font(RipeFont.body())
+                .font(CustomFont.body())
                 .foregroundStyle(Color(.ripeInk2))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, RipeSpacing.s5)
@@ -187,10 +187,10 @@ extension ItemsView {
                 .font(.system(size: 48))
                 .foregroundStyle(Color(.ripeInk3))
             Text(L10n.Expiry.listEmptyTitle)
-                .font(RipeFont.heading())
+                .font(CustomFont.heading())
                 .foregroundStyle(Color(.ripeInk))
             Text(L10n.Expiry.listEmptyMessage)
-                .font(RipeFont.body())
+                .font(CustomFont.body())
                 .foregroundStyle(Color(.ripeInk2))
         }
         .frame(maxWidth: .infinity, minHeight: 200)
