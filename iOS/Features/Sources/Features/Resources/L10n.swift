@@ -18,7 +18,6 @@ import Foundation
 // swiftlint:disable nesting type_body_length type_name vertical_whitespace_opening_braces
 
 public enum L10n {
-
     // MARK: - App
 
     public enum App {
@@ -63,7 +62,10 @@ public enum L10n {
         public static let deleteAction = L10n.tr("trackerList.deleteAction", fallback: "Delete")
         public static let errorMessage = L10n.tr("trackerList.errorMessage", fallback: "Failed to load trackers")
         public static let emptyTitle = L10n.tr("trackerList.emptyTitle", fallback: "No Trackers Yet")
-        public static let emptyMessage = L10n.tr("trackerList.emptyMessage", fallback: "Tap + to start tracking a price.")
+        public static let emptyMessage = L10n.tr(
+            "trackerList.emptyMessage",
+            fallback: "Tap + to start tracking a price."
+        )
     }
 
     // MARK: - TrackerDetail
@@ -73,6 +75,7 @@ public enum L10n {
         public static func targetPrice(_ value: String) -> String {
             L10n.tr("trackerDetail.targetPrice", value, fallback: "Target: %@")
         }
+
         public static let priceHistory = L10n.tr("trackerDetail.priceHistory", fallback: "Price History")
         public static let noPriceHistory = L10n.tr("trackerDetail.noPriceHistory", fallback: "No price history yet")
         public static let target = L10n.tr("trackerDetail.target", fallback: "Target")
@@ -95,12 +98,16 @@ public enum L10n {
         public static let urlPrompt = L10n.tr("addTracker.urlPrompt", fallback: "Enter a product URL")
         public static let urlPlaceholder = L10n.tr("addTracker.urlPlaceholder", fallback: "https://example.com/product")
         public static let goButton = L10n.tr("addTracker.goButton", fallback: "Go")
-        public static let pasteFromClipboard = L10n.tr("addTracker.pasteFromClipboard", fallback: "Paste from clipboard")
+        public static let pasteFromClipboard = L10n.tr(
+            "addTracker.pasteFromClipboard",
+            fallback: "Paste from clipboard"
+        )
         public static let confirmTitle = L10n.tr("addTracker.confirmTitle", fallback: "Is this the right element?")
         public static let selectedText = L10n.tr("addTracker.selectedText", fallback: "Selected text")
         public static func parsedPrice(_ value: String) -> String {
             L10n.tr("addTracker.parsedPrice", value, fallback: "Parsed price: %@")
         }
+
         public static let noPriceDetected = L10n.tr(
             "addTracker.noPriceDetected",
             fallback: "No price detected — you can enter it manually"
@@ -165,6 +172,7 @@ public enum L10n {
         public static func reminderDaysBefore(_ value: Int) -> String {
             L10n.tr("expiry.reminderDaysBefore", value, fallback: "%d days before")
         }
+
         public static let statLocation = L10n.tr("expiry.statLocation", fallback: "Location")
         public static let reminderSection = L10n.tr("expiry.reminderSection", fallback: "Reminder")
         public static let markingUsed = L10n.tr("expiry.markingUsed", fallback: "Marking\u{2026}")
@@ -193,12 +201,14 @@ public enum L10n {
         public static func bestBefore(_ value: String) -> String {
             L10n.tr("expiry.bestBefore", value, fallback: "Best before %@")
         }
+
         public static let remindMe = L10n.tr("expiry.remindMe", fallback: "Remind me before it expires")
         public static let daysBefore = L10n.tr("expiry.daysBefore", fallback: "days before")
         public static let alsoAlertOnDay = L10n.tr("expiry.alsoAlertOnDay", fallback: "Also alert on the day")
         public static func morningOf(_ value: String) -> String {
             L10n.tr("expiry.morningOf", value, fallback: "Morning of %@")
         }
+
         public static let saving = L10n.tr("expiry.saving", fallback: "Saving\u{2026}")
         public static let saveItem = L10n.tr("expiry.saveItem", fallback: "Save item")
 
@@ -218,12 +228,7 @@ public enum L10n {
 
 public extension L10n {
     private static func tr(_ key: String, _ args: CVarArg..., fallback value: String) -> String {
-        let isLocalizationEnabled = true
-        let format: String = if isLocalizationEnabled {
-            BundleToken.bundle.localizedString(forKey: key, value: value, table: nil)
-        } else {
-            value
-        }
+        let format = BundleToken.bundle.localizedString(forKey: key, value: value, table: nil)
         return String(format: format, locale: Locale.current, arguments: args)
     }
 }
