@@ -17,7 +17,7 @@ public struct ChooseMethodView: View {
                     Color(.ripeBg).ignoresSafeArea()
                     methodSelectionContent
                 }
-                .navigationTitle("New Item")
+                .navigationTitle(L10n.Expiry.newItemNavTitle)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
@@ -105,7 +105,7 @@ extension ChooseMethodView {
             HStack(spacing: RipeSpacing.s2) {
                 Image(systemName: "pencil")
                     .font(.system(size: 17, weight: .semibold))
-                Text("Enter it myself")
+                Text(L10n.Expiry.enterManually)
                     .font(RipeFont.label(17))
                     .fontWeight(.semibold)
             }
@@ -117,7 +117,7 @@ extension ChooseMethodView {
     }
 
     private var cancelButton: some View {
-        Button("Cancel") {
+        Button(L10n.Common.cancel) {
             store.send(.dismiss)
         }
         .font(RipeFont.body(15))
