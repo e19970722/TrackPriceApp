@@ -61,15 +61,15 @@ extension AppView {
                 HomeView(store: Store(initialState: HomeFeature.State()) { HomeFeature() })
                     .toolbarBackground(Color(.ripeSurface), for: .tabBar)
                     .toolbarBackground(.visible, for: .tabBar)
-                    .tabItem { Label("Home", systemImage: "house") }
+                    .tabItem { Label(L10n.App.tabHome, systemImage: "house") }
                 TrackerListView(store: Store(initialState: TrackerListFeature.State()) { TrackerListFeature() })
                     .toolbarBackground(Color(.ripeSurface), for: .tabBar)
                     .toolbarBackground(.visible, for: .tabBar)
-                    .tabItem { Label("Tracks", systemImage: "tag") }
+                    .tabItem { Label(L10n.App.tabTracks, systemImage: "tag") }
                 SettingsView(store: store.scope(state: \.settings, action: \.settings))
                     .toolbarBackground(Color(.ripeSurface), for: .tabBar)
                     .toolbarBackground(.visible, for: .tabBar)
-                    .tabItem { Label("Profile", systemImage: "person") }
+                    .tabItem { Label(L10n.App.tabProfile, systemImage: "person") }
             }
             .tint(Color(.ripeAccent))
         }

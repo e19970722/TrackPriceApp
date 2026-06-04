@@ -46,10 +46,10 @@ extension AuthView {
                 .font(.system(size: 60))
                 .foregroundStyle(.blue)
 
-            Text("TrackPrice")
+            Text(L10n.Auth.appName)
                 .font(.largeTitle.bold())
 
-            Text("Get notified when prices drop.")
+            Text(L10n.Auth.tagline)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -134,7 +134,7 @@ extension GoogleSignInButton {
             GoogleLogoShape()
                 .frame(width: 20, height: 20)
 
-            Text("Sign in with Google")
+            Text(L10n.Auth.signInWithGoogle)
                 .font(.system(size: 17, weight: .medium))
                 .foregroundStyle(Color(.label))
         }
