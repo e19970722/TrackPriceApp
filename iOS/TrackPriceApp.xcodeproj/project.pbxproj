@@ -89,7 +89,7 @@
 			buildPhases = (
 				F6F086BC4AED922B714B573F /* Sources */,
 				DB1C551053EBF050DB7469B7 /* Frameworks */,
-				B3485D352FD120A000B2A60D /* ShellScript */,
+				B3485D352FD120A000B2A60D /* 🚓 SwiftLint */,
 			);
 			buildRules = (
 			);
@@ -135,7 +135,7 @@
 /* End PBXProject section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		B3485D352FD120A000B2A60D /* ShellScript */ = {
+		B3485D352FD120A000B2A60D /* 🚓 SwiftLint */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -144,13 +144,14 @@
 			);
 			inputPaths = (
 			);
+			name = "🚓 SwiftLint";
 			outputFileListPaths = (
 			);
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nif which swiftlint > /dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed\"\nfi\n";
+			shellScript = "/opt/homebrew/bin/swiftlint lint Features/Sources/Features\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
