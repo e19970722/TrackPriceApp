@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 public enum CustomFont {
     case display
