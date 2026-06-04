@@ -53,7 +53,7 @@ extension HomeView {
 
     private var greetingTextStack: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text("Good morning")
+            Text(L10n.Home.greeting)
                 .font(RipeFont.label(14))
                 .foregroundStyle(Color(.ripeInk2))
             Text(store.userName)
@@ -75,7 +75,7 @@ extension HomeView {
 
     private var trendTracksSection: some View {
         VStack(alignment: .leading, spacing: RipeSpacing.s3) {
-            SectionLabel(title: "On Trend Tracks", action: "Markets")
+            SectionLabel(title: L10n.Home.sectionOnTrend, action: L10n.Home.markets)
                 .padding(.horizontal, RipeSpacing.s5)
             trendTracksScrollRail
         }
@@ -135,7 +135,7 @@ extension HomeView {
 
     private var expireSoonSection: some View {
         VStack(alignment: .leading, spacing: RipeSpacing.s3) {
-            SectionLabel(title: "Expire Soon", action: "See all")
+            SectionLabel(title: L10n.Home.sectionExpireSoon, action: L10n.Home.seeAll)
                 .padding(.horizontal, RipeSpacing.s5)
             VStack(spacing: 12) {
                 ForEach(expireItems) { item in
@@ -176,7 +176,7 @@ extension HomeView {
 
     private var priceTargetsSection: some View {
         VStack(alignment: .leading, spacing: RipeSpacing.s3) {
-            SectionLabel(title: "Price Reach Targets", action: "3 hits")
+            SectionLabel(title: L10n.Home.sectionPriceTargets, action: "3 hits")
                 .padding(.horizontal, RipeSpacing.s5)
             priceTargetCard
                 .padding(.horizontal, RipeSpacing.s5)
@@ -263,7 +263,7 @@ extension HomeView {
                 .foregroundStyle(Color(.ripeInk2))
             Spacer()
             RipeButton(
-                title: "Shop now",
+                title: L10n.Home.shopNow,
                 variant: .primary,
                 size: .sm,
                 trailingSystemImage: "chevron.right",
@@ -295,10 +295,10 @@ extension HomeView {
             Color(.ripeCat5),
         ]
         return [
-            TrendItem(name: "Coffee",    direction: .up,   delta: "6%",  color: colors[0]),
+            TrendItem(name: "Coffee", direction: .up, delta: "6%", color: colors[0]),
             TrendItem(name: "Olive Oil", direction: .down, delta: "11%", color: colors[1]),
-            TrendItem(name: "Eggs",      direction: .up,   delta: "4%",  color: colors[2]),
-            TrendItem(name: "Butter",    direction: .down, delta: "8%",  color: colors[3]),
+            TrendItem(name: "Eggs", direction: .up, delta: "4%", color: colors[2]),
+            TrendItem(name: "Butter", direction: .down, delta: "8%", color: colors[3]),
             TrendItem(name: "Detergent", direction: .down, delta: "12%", color: colors[4]),
         ]
     }
@@ -314,7 +314,7 @@ extension HomeView {
     private var expireItems: [ExpireItem] {
         [
             ExpireItem(name: "Greek Yogurt", meta: "2 cups · Fridge", chipLabel: "2d left", color: Color(.ripeCat3)),
-            ExpireItem(name: "Eggs",         meta: "6 left · Fridge", chipLabel: "3d left", color: Color(.ripeCat2)),
+            ExpireItem(name: "Eggs", meta: "6 left · Fridge", chipLabel: "3d left", color: Color(.ripeCat2)),
         ]
     }
 }
