@@ -35,7 +35,10 @@
       "Bash(curl -L -o PlusJakartaSans-Medium.ttf \"https://github.com/tokotype/PlusJakartaSans/raw/main/fonts/ttf/PlusJakartaSans-Medium.ttf\")",
       "Bash(curl -L -o PlusJakartaSans-SemiBold.ttf \"https://github.com/tokotype/PlusJakartaSans/raw/main/fonts/ttf/PlusJakartaSans-SemiBold.ttf\")",
       "Bash(curl -L -o PlusJakartaSans-Bold.ttf \"https://github.com/tokotype/PlusJakartaSans/raw/main/fonts/ttf/PlusJakartaSans-Bold.ttf\")",
-      "Bash(curl -L -o PlusJakartaSans-ExtraBold.ttf \"https://github.com/tokotype/PlusJakartaSans/raw/main/fonts/ttf/PlusJakartaSans-ExtraBold.ttf\")"
+      "Bash(curl -L -o PlusJakartaSans-ExtraBold.ttf \"https://github.com/tokotype/PlusJakartaSans/raw/main/fonts/ttf/PlusJakartaSans-ExtraBold.ttf\")",
+      "Bash(curl -s \"https://api.anthropic.com/v1/design/h/Qe5GqWP1LftnXFebGAvOHw?open_file=Component+Library.html\")",
+      "Bash(gunzip)",
+      "Skill(update-config)"
     ]
   }
 }
