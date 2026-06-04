@@ -105,6 +105,7 @@ extension ChooseMethodView {
             HStack(spacing: RipeSpacing.s2) {
                 Image(systemName: "pencil")
                     .font(.system(size: 17, weight: .semibold))
+                
                 Text(L10n.Expiry.enterManually)
                     .font(RipeFont.label(17))
                     .fontWeight(.semibold)
