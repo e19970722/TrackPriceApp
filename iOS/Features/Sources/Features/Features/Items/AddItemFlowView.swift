@@ -21,7 +21,6 @@ public struct AddItemFlowView: View {
 // MARK: - Subviews
 
 extension AddItemFlowView {
-
     @ViewBuilder
     private var stepContent: some View {
         switch store.step {
@@ -38,7 +37,7 @@ extension AddItemFlowView {
                     }
             }
 
-        case let .itemDetails(_, _):
+        case .itemDetails:
             NavigationStack {
                 ItemDetailsView(store: store)
                     .toolbar {

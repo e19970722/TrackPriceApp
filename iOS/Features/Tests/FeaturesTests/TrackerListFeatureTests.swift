@@ -1,6 +1,6 @@
 import ComposableArchitecture
-import XCTest
 @testable import Features
+import XCTest
 
 @MainActor
 final class TrackerListFeatureTests: XCTestCase {

@@ -89,6 +89,7 @@
 			buildPhases = (
 				F6F086BC4AED922B714B573F /* Sources */,
 				DB1C551053EBF050DB7469B7 /* Frameworks */,
+				B3485D372FD1483700B2A60D /* 🚂 SwiftFormat */,
 				B3485D352FD120A000B2A60D /* 🚓 SwiftLint */,
 			);
 			buildRules = (
@@ -152,6 +153,25 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "/opt/homebrew/bin/swiftlint lint Features/Sources/Features\n";
+		};
+		B3485D372FD1483700B2A60D /* 🚂 SwiftFormat */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/.swift-version",
+			);
+			name = "🚂 SwiftFormat";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/opt/homebrew/bin/swiftformat .\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

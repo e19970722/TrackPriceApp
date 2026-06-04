@@ -17,9 +17,11 @@ public struct ElementInfo: Equatable {
     public var rawText: String? {
         interactions.last(where: { $0.role == "price" })?.rawText
     }
+
     public var currentPrice: Double? {
         interactions.last(where: { $0.role == "price" })?.currentPrice
     }
+
     public var currencySymbol: String {
         interactions.last(where: { $0.role == "price" })?.currencySymbol ?? ""
     }
@@ -29,7 +31,6 @@ public struct ElementInfo: Equatable {
 
 @Reducer
 public struct AddTrackerFeature {
-
     public enum Step: Equatable {
         case urlEntry
         case webView

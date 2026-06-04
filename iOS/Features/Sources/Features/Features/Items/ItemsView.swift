@@ -35,7 +35,6 @@ public struct ItemsView: View {
 // MARK: - Subviews
 
 extension ItemsView {
-
     private var contentList: some View {
         List {
             if showsHeader { headerRow }
@@ -217,12 +216,11 @@ extension ItemsView {
 // MARK: - Helpers
 
 extension ItemsView {
-
     private func freshnessColor(_ freshness: Freshness) -> Color {
         switch freshness {
-        case .fresh:    return Color(.ripeGood)
-        case .expiring: return Color(.ripeWarn)
-        case .expired:  return Color(.ripeDanger)
+        case .fresh:    Color(.ripeGood)
+        case .expiring: Color(.ripeWarn)
+        case .expired:  Color(.ripeDanger)
         }
     }
 

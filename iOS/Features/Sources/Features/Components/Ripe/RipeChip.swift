@@ -35,7 +35,6 @@ public struct RipeChip: View {
 // MARK: - Subviews
 
 extension RipeChip {
-
     private var chipPillView: some View {
         HStack(spacing: RipeSpacing.s1) {
             if let systemImage {
@@ -64,24 +63,23 @@ extension RipeChip {
 // MARK: - Helpers
 
 extension RipeChip {
-
     private var toneBackground: Color {
         switch tone {
-        case .neutral: return Color(.ripeSurface2)
-        case .accent:  return Color(.ripeAccentSoft)
-        case .good:    return Color(.ripeGoodSoft)
-        case .warn:    return Color(.ripeWarnSoft)
-        case .danger:  return Color(.ripeDangerSoft)
+        case .neutral: Color(.ripeSurface2)
+        case .accent:  Color(.ripeAccentSoft)
+        case .good:    Color(.ripeGoodSoft)
+        case .warn:    Color(.ripeWarnSoft)
+        case .danger:  Color(.ripeDangerSoft)
         }
     }
 
     private var toneForeground: Color {
         switch tone {
-        case .neutral: return Color(.ripeInk2)
-        case .accent:  return Color(.ripeAccent)
-        case .good:    return Color(.ripeGood)
-        case .warn:    return Color(.ripeWarn)
-        case .danger:  return Color(.ripeDanger)
+        case .neutral: Color(.ripeInk2)
+        case .accent:  Color(.ripeAccent)
+        case .good:    Color(.ripeGood)
+        case .warn:    Color(.ripeWarn)
+        case .danger:  Color(.ripeDanger)
         }
     }
 }

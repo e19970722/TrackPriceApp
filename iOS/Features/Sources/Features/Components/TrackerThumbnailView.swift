@@ -19,7 +19,6 @@ public struct TrackerThumbnailView: View {
 // MARK: - Subviews
 
 extension TrackerThumbnailView {
-
     @ViewBuilder
     private var thumbnailView: some View {
         if let imageUrl, let url = URL(string: imageUrl) {
@@ -31,7 +30,7 @@ extension TrackerThumbnailView {
 
     private func asyncImageView(url: URL) -> some View {
         AsyncImage(url: url) { phase in
-            if case .success(let image) = phase {
+            if case let .success(image) = phase {
                 loadedImageView(image)
             } else {
                 placeholderView
@@ -62,11 +61,11 @@ extension TrackerThumbnailView {
 // MARK: - Preview
 
 #if DEBUG
-#Preview {
-    HStack(spacing: 16) {
-        TrackerThumbnailView(imageUrl: nil)
-        TrackerThumbnailView(imageUrl: "https://invalid-url")
+    #Preview {
+        HStack(spacing: 16) {
+            TrackerThumbnailView(imageUrl: nil)
+            TrackerThumbnailView(imageUrl: "https://invalid-url")
+        }
+        .padding()
     }
-    .padding()
-}
 #endif

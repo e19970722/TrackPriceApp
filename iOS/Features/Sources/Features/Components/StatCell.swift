@@ -22,7 +22,6 @@ public struct StatCell: View {
 // MARK: - Subviews
 
 extension StatCell {
-
     private var cellContainerView: some View {
         VStack(alignment: .leading, spacing: 4) {
             titleLabel
@@ -50,14 +49,14 @@ extension StatCell {
 // MARK: - Preview
 
 #if DEBUG
-#Preview {
-    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-        StatCell(title: "URL", value: "https://www.apple.com/shop/buy-mac/macbook-pro", truncate: true)
-        StatCell(title: "Created", value: "Dec 1, 2024")
-        StatCell(title: "Last Checked", value: "Jan 5, 2025, 3:00 PM")
-        StatCell(title: "Next Check", value: "in ~2h 15m")
+    #Preview {
+        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+            StatCell(title: "URL", value: "https://www.apple.com/shop/buy-mac/macbook-pro", truncate: true)
+            StatCell(title: "Created", value: "Dec 1, 2024")
+            StatCell(title: "Last Checked", value: "Jan 5, 2025, 3:00 PM")
+            StatCell(title: "Next Check", value: "in ~2h 15m")
+        }
+        .padding()
+        .background(Color(.secondarySystemBackground))
     }
-    .padding()
-    .background(Color(.secondarySystemBackground))
-}
 #endif

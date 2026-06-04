@@ -35,7 +35,6 @@ public struct TrackerListView: View {
 // MARK: - Persistent header
 
 extension TrackerListView {
-
     private var persistentHeader: some View {
         VStack(spacing: 0) {
             headerView
@@ -138,7 +137,6 @@ extension TrackerListView {
 // MARK: - Segment content
 
 extension TrackerListView {
-
     @ViewBuilder
     private var segmentContent: some View {
         if store.selectedSegment == .trackers {
@@ -189,7 +187,6 @@ extension TrackerListView {
 // MARK: - Tracker rows
 
 extension TrackerListView {
-
     private func trackerRow(_ tracker: Tracker) -> some View {
         Button {
             store.send(.trackerRowTapped(tracker))
@@ -256,7 +253,6 @@ extension TrackerListView {
 // MARK: - State views
 
 extension TrackerListView {
-
     private var loadingView: some View {
         ProgressView("Loading trackers\u{2026}")
             .frame(maxWidth: .infinity, minHeight: 200)
@@ -325,7 +321,6 @@ extension TrackerListView {
 // MARK: - Helpers
 
 extension TrackerListView {
-
     private var filteredTrackers: [Tracker] {
         guard !searchText.isEmpty else { return store.trackers }
         return store.trackers.filter { $0.name.localizedCaseInsensitiveContains(searchText) }

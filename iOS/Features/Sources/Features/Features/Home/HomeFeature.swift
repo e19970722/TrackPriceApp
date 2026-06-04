@@ -11,9 +11,9 @@ public struct HomeFeature {
     public enum Action { case onAppear }
 
     public var body: some ReducerOf<Self> {
-        Reduce { state, action in
+        Reduce { _, action in
             switch action {
-            case .onAppear: return .none
+            case .onAppear: .none
             }
         }
     }

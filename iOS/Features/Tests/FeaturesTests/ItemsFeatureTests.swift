@@ -1,11 +1,10 @@
 import ComposableArchitecture
-import XCTest
 @testable import Features
+import XCTest
 
 // MARK: - DatePatternParserTests
 
 final class DatePatternParserTests: XCTestCase {
-
     func testParsesDDMMMYYYY() {
         let result = DatePatternParser.findDate(in: ["BEST BEFORE 15 JUN 2025"])
         XCTAssertNotNil(result)
@@ -50,7 +49,6 @@ final class DatePatternParserTests: XCTestCase {
 // MARK: - ItemModelTests
 
 final class ItemModelTests: XCTestCase {
-
     private var futureItem: Item!
     private var expiringItem: Item!
     private var expiredItem: Item!
@@ -123,7 +121,6 @@ final class ItemModelTests: XCTestCase {
 
 @MainActor
 final class AddItemFeatureTests: XCTestCase {
-
     func testScanLabelTappedAdvancesToScanStep() async {
         let store = TestStore(initialState: AddItemFeature.State()) {
             AddItemFeature()
@@ -296,11 +293,10 @@ final class AddItemFeatureTests: XCTestCase {
 
 @MainActor
 final class ItemsFeatureTests: XCTestCase {
-
     func testOnAppearFetchesItems() async {
         let items = [
             Item(name: "Milk", bestBeforeDate: Date().addingTimeInterval(7 * 86400)),
-            Item(name: "Eggs", bestBeforeDate: Date().addingTimeInterval(14 * 86400))
+            Item(name: "Eggs", bestBeforeDate: Date().addingTimeInterval(14 * 86400)),
         ]
         let store = TestStore(initialState: ItemsFeature.State()) {
             ItemsFeature()
@@ -367,7 +363,6 @@ final class ItemsFeatureTests: XCTestCase {
 
 @MainActor
 final class ItemDetailFeatureTests: XCTestCase {
-
     func testDeleteButtonTappedCallsAPIAndDismisses() async {
         let item = Item(name: "Cheese", bestBeforeDate: Date().addingTimeInterval(-86400))
 
@@ -375,7 +370,7 @@ final class ItemDetailFeatureTests: XCTestCase {
             ItemDetailFeature()
         } withDependencies: {
             $0.apiClient.deleteItem = { _ in }
-            $0.dismiss = DismissEffect { }
+            $0.dismiss = DismissEffect {}
         }
 
         await store.send(.deleteButtonTapped) {
@@ -395,7 +390,7 @@ final class ItemDetailFeatureTests: XCTestCase {
             ItemDetailFeature()
         } withDependencies: {
             $0.apiClient.markItemUsed = { _ in }
-            $0.dismiss = DismissEffect { }
+            $0.dismiss = DismissEffect {}
         }
 
         await store.send(.markUsedButtonTapped) {

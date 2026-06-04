@@ -30,29 +30,28 @@ struct AppView: View {
 // MARK: - Subviews
 
 extension AppView {
-
     private var unauthenticatedView: some View {
         ZStack(alignment: .bottom) {
             AuthView(store: store.scope(state: \.auth, action: \.auth))
             #if DEBUG
-            devLoginButton
+                devLoginButton
             #endif
         }
     }
 
     #if DEBUG
-    private var devLoginButton: some View {
-        Button("Dev Login") {
-            store.send(.checkAuthStatus)
+        private var devLoginButton: some View {
+            Button("Dev Login") {
+                store.send(.checkAuthStatus)
+            }
+            .font(.footnote)
+            .padding(.vertical, 8)
+            .padding(.horizontal, 20)
+            .background(Color.orange.opacity(0.85))
+            .foregroundStyle(.white)
+            .clipShape(Capsule())
+            .padding(.bottom, 20)
         }
-        .font(.footnote)
-        .padding(.vertical, 8)
-        .padding(.horizontal, 20)
-        .background(Color.orange.opacity(0.85))
-        .foregroundStyle(.white)
-        .clipShape(Capsule())
-        .padding(.bottom, 20)
-    }
     #endif
 
     @ViewBuilder

@@ -36,7 +36,6 @@ public struct MonoThumbnail: View {
 // MARK: - Subviews
 
 extension MonoThumbnail {
-
     private var thumbnailContainerView: some View {
         thumbnailContentView
             .frame(width: size, height: size)
@@ -76,7 +75,6 @@ extension MonoThumbnail {
 // MARK: - Helpers
 
 extension MonoThumbnail {
-
     private var thumbnailBackground: Color {
         colorScheme == .dark
             ? Color(.ripeSurface2)

@@ -31,7 +31,6 @@ public struct AddTrackerView: View {
 // MARK: - Subviews
 
 extension AddTrackerView {
-
     @ViewBuilder
     private var stepContentView: some View {
         switch store.step {
@@ -54,13 +53,12 @@ extension AddTrackerView {
 // MARK: - Helpers
 
 extension AddTrackerView {
-
     private var navigationTitle: String {
         switch store.step {
-        case .urlEntry:      return "Add Tracker"
-        case .webView:       return "Browse"
-        case .confirmation:  return "Confirm Element"
-        case .targetSetup:   return "Set Target"
+        case .urlEntry:      "Add Tracker"
+        case .webView:       "Browse"
+        case .confirmation:  "Confirm Element"
+        case .targetSetup:   "Set Target"
         }
     }
 }
@@ -87,7 +85,6 @@ private struct URLEntryView: View {
 // MARK: - Subviews
 
 extension URLEntryView {
-
     private var urlInputSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Enter a product URL")
@@ -155,7 +152,6 @@ private struct WebBrowserView: View {
 // MARK: - Subviews
 
 extension WebBrowserView {
-
     private var webViewLayer: some View {
         WebViewContainer(
             url: store.currentURL,
@@ -215,7 +211,6 @@ private struct ConfirmationView: View {
 // MARK: - Subviews
 
 extension ConfirmationView {
-
     private var selectedElementCard: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Is this the right element?")
@@ -320,7 +315,6 @@ private struct TargetSetupView: View {
 // MARK: - Subviews
 
 extension TargetSetupView {
-
     private var trackerNameSection: some View {
         Section("Tracker Name") {
             TextField("e.g. Sony WH-1000XM5", text: $store.trackerName)

@@ -33,7 +33,6 @@ public struct ChooseMethodView: View {
 // MARK: - Subviews
 
 extension ChooseMethodView {
-
     private var methodSelectionContent: some View {
         VStack(spacing: RipeSpacing.s6) {
             Spacer()
@@ -73,7 +72,7 @@ extension ChooseMethodView {
                 .font(RipeFont.heading(18))
                 .foregroundStyle(Color(.ripeInk))
                 .multilineTextAlignment(.center)
-            
+
             Text(L10n.Expiry.firstPageDesc)
                 .font(RipeFont.caption(13.5))
                 .foregroundStyle(Color(.ripeInk2))

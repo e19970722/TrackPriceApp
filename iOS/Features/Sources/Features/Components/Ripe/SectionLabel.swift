@@ -26,7 +26,6 @@ public struct SectionLabel: View {
 // MARK: - Subviews
 
 extension SectionLabel {
-
     private var sectionHeaderRow: some View {
         HStack(alignment: .firstTextBaseline) {
             sectionTitleText

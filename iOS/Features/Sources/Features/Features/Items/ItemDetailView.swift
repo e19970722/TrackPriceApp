@@ -8,7 +8,7 @@ public struct ItemDetailView: View {
     @State private var editQuantityCount: Int = 1
     @State private var editLocation: ItemLocation = .fridge
     @State private var editLocationCustom: String = ""
-    @State private var editBestBeforeDate: Date = Date()
+    @State private var editBestBeforeDate: Date = .init()
     @State private var isEditDatePickerPresented: Bool = false
 
     enum EditField: Hashable { case name, locationCustom }
@@ -56,7 +56,6 @@ public struct ItemDetailView: View {
 // MARK: - Subviews
 
 extension ItemDetailView {
-
     private var scrollContentView: some View {
         ScrollView {
             VStack(spacing: RipeSpacing.s4) {
@@ -141,11 +140,11 @@ extension ItemDetailView {
     private var freshnessChip: some View {
         switch store.item.freshness {
         case .fresh:
-            return RipeChip(label: "Fresh", tone: .good, systemImage: "leaf")
+            RipeChip(label: "Fresh", tone: .good, systemImage: "leaf")
         case .expiring:
-            return RipeChip(label: "Expiring", tone: .warn, systemImage: "clock")
+            RipeChip(label: "Expiring", tone: .warn, systemImage: "clock")
         case .expired:
-            return RipeChip(label: "Expired", tone: .danger, systemImage: "xmark.circle")
+            RipeChip(label: "Expired", tone: .danger, systemImage: "xmark.circle")
         }
     }
 
@@ -491,12 +490,11 @@ extension ItemDetailView {
 // MARK: - Helpers
 
 extension ItemDetailView {
-
     private var freshnessAccentColor: Color {
         switch store.item.freshness {
-        case .fresh:    return Color(.ripeGood)
-        case .expiring: return Color(.ripeWarn)
-        case .expired:  return Color(.ripeDanger)
+        case .fresh:    Color(.ripeGood)
+        case .expiring: Color(.ripeWarn)
+        case .expired:  Color(.ripeDanger)
         }
     }
 

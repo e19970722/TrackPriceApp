@@ -65,7 +65,6 @@ public struct RipeButton: View {
 // MARK: - Subviews
 
 extension RipeButton {
-
     private var buttonLabelView: some View {
         HStack(spacing: RipeSpacing.s2) {
             if let systemImage {
@@ -134,54 +133,53 @@ extension RipeButton {
 // MARK: - Helpers
 
 extension RipeButton {
-
     private var buttonHeight: CGFloat {
         switch size {
-        case .sm: return 38
-        case .md: return 46
-        case .lg: return 54
+        case .sm: 38
+        case .md: 46
+        case .lg: 54
         }
     }
 
     private var horizontalPadding: CGFloat {
         switch size {
-        case .sm: return RipeSpacing.s3
-        case .md: return RipeSpacing.s4
-        case .lg: return RipeSpacing.s5
+        case .sm: RipeSpacing.s3
+        case .md: RipeSpacing.s4
+        case .lg: RipeSpacing.s5
         }
     }
 
     private var iconSize: CGFloat {
         switch size {
-        case .sm: return 13
-        case .md: return 15
-        case .lg: return 17
+        case .sm: 13
+        case .md: 15
+        case .lg: 17
         }
     }
 
     private var labelFont: Font {
         switch size {
-        case .sm: return RipeFont.label(13)
-        case .md: return RipeFont.label(15)
-        case .lg: return RipeFont.label(17)
+        case .sm: RipeFont.label(13)
+        case .md: RipeFont.label(15)
+        case .lg: RipeFont.label(17)
         }
     }
 
     private var backgroundColor: Color {
         switch variant {
-        case .primary:   return Color(.ripeAccent)
-        case .secondary: return Color(.ripeSurface2)
-        case .ghost:     return .clear
-        case .outline:   return .clear
+        case .primary:   Color(.ripeAccent)
+        case .secondary: Color(.ripeSurface2)
+        case .ghost:     .clear
+        case .outline:   .clear
         }
     }
 
     private var foregroundColor: Color {
         switch variant {
-        case .primary:   return Color(.ripeAccentInk)
-        case .secondary: return Color(.ripeInk)
-        case .ghost:     return Color(.ripeAccent)
-        case .outline:   return Color(.ripeInk)
+        case .primary:   Color(.ripeAccentInk)
+        case .secondary: Color(.ripeInk)
+        case .ghost:     Color(.ripeAccent)
+        case .outline:   Color(.ripeInk)
         }
     }
 

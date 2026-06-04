@@ -3,7 +3,6 @@ import Foundation
 
 @Reducer
 public struct TrackerListFeature {
-
     public enum Segment: Equatable {
         case trackers, items
     }

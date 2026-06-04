@@ -1,5 +1,5 @@
 //
-//  Localization.swift
+//  L10n.swift
 //  Features
 //
 //  Created by Yen Lin on 2026/6/4.
@@ -20,7 +20,10 @@ import Foundation
 public enum L10n {
     public enum Expiry {
         public static let firstPageTitle = L10n.tr("expiry.firstPageTitle", fallback: "Add to your kitchen")
-        public static let firstPageDesc = L10n.tr("expiry.firstPageDesc", fallback: "Scan a label and we’ll read the best-before date — then nudge you before it turns.")
+        public static let firstPageDesc = L10n.tr(
+            "expiry.firstPageDesc",
+            fallback: "Scan a label and we’ll read the best-before date — then nudge you before it turns."
+        )
         public static let scanTheLabel = L10n.tr("expiry.scanTheLabel", fallback: "Scan the label")
     }
 }
@@ -28,28 +31,28 @@ public enum L10n {
 // MARK: - Implementation Details
 
 public extension L10n {
-  private static func tr(_ key: String, _ args: CVarArg..., fallback value: String) -> String {
-    let isLocalizationEnabled = true
-    let format: String
-    if isLocalizationEnabled {
-      format = BundleToken.bundle.localizedString(forKey: key, value: value, table: nil)
-    } else {
-      format = value
+    private static func tr(_ key: String, _ args: CVarArg..., fallback value: String) -> String {
+        let isLocalizationEnabled = true
+        let format: String = if isLocalizationEnabled {
+            BundleToken.bundle.localizedString(forKey: key, value: value, table: nil)
+        } else {
+            value
+        }
+        return String(format: format, locale: Locale.current, arguments: args)
     }
-    return String(format: format, locale: Locale.current, arguments: args)
-  }
 }
 
 // swiftlint:disable convenience_type
 private final class BundleToken {
-  static let bundle: Bundle = {
-    #if SWIFT_PACKAGE
-    return Bundle.module
-    #else
-    return Bundle(for: BundleToken.self)
-    #endif
-  }()
+    static let bundle: Bundle = {
+        #if SWIFT_PACKAGE
+            return Bundle.module
+        #else
+            return Bundle(for: BundleToken.self)
+        #endif
+    }()
 }
+
 // swiftlint:enable convenience_type
 
 // swiftlint:enable all

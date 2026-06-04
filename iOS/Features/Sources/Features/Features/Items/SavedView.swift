@@ -26,7 +26,6 @@ public struct SavedView: View {
 // MARK: - Subviews
 
 extension SavedView {
-
     private var savedContentView: some View {
         VStack(spacing: RipeSpacing.s6) {
             Spacer()
@@ -94,7 +93,6 @@ extension SavedView {
 // MARK: - Helpers
 
 extension SavedView {
-
     private var confirmationBody: String {
         let days = savedItem.remindDaysBefore
         return "\(savedItem.name) is in your \(savedItem.locationLabel). We'll remind you \(days) day\(days == 1 ? "" : "s") before it expires."

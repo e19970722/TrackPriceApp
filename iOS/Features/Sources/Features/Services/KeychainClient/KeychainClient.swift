@@ -18,7 +18,7 @@ extension KeychainClient: DependencyKey {
                 let query: [CFString: Any] = [
                     kSecClass: kSecClassGenericPassword,
                     kSecAttrAccount: tokenKey,
-                    kSecValueData: data
+                    kSecValueData: data,
                 ]
                 SecItemDelete(query as CFDictionary)
                 SecItemAdd(query as CFDictionary, nil)
@@ -28,7 +28,7 @@ extension KeychainClient: DependencyKey {
                     kSecClass: kSecClassGenericPassword,
                     kSecAttrAccount: tokenKey,
                     kSecReturnData: true,
-                    kSecMatchLimit: kSecMatchLimitOne
+                    kSecMatchLimit: kSecMatchLimitOne,
                 ]
                 var result: AnyObject?
                 guard SecItemCopyMatching(query as CFDictionary, &result) == errSecSuccess,
@@ -38,7 +38,7 @@ extension KeychainClient: DependencyKey {
             deleteToken: {
                 let query: [CFString: Any] = [
                     kSecClass: kSecClassGenericPassword,
-                    kSecAttrAccount: tokenKey
+                    kSecAttrAccount: tokenKey,
                 ]
                 SecItemDelete(query as CFDictionary)
             }
@@ -55,8 +55,8 @@ extension KeychainClient: DependencyKey {
     }
 }
 
-extension DependencyValues {
-    public var keychainClient: KeychainClient {
+public extension DependencyValues {
+    var keychainClient: KeychainClient {
         get { self[KeychainClient.self] }
         set { self[KeychainClient.self] = newValue }
     }

@@ -22,7 +22,6 @@ public struct UrgencyBar: View {
 // MARK: - Subviews
 
 extension UrgencyBar {
-
     private var urgencyBarView: some View {
         ZStack(alignment: .leading) {
             barTrackView
@@ -47,7 +46,6 @@ extension UrgencyBar {
 // MARK: - Helpers
 
 extension UrgencyBar {
-
     /// Fill = max(8%, 100% - min(100%, daysLeft * 1.4%)) of total width.
     private var fillWidth: CGFloat {
         let percentage = max(0.08, 1.0 - min(1.0, Double(daysLeft) * 0.014))
@@ -56,11 +54,11 @@ extension UrgencyBar {
 
     private var fillColor: Color {
         if daysLeft <= 3 {
-            return Color(.ripeWarn)
+            Color(.ripeWarn)
         } else if daysLeft <= 7 {
-            return Color(.ripeAccent)
+            Color(.ripeAccent)
         } else {
-            return Color(.ripeGood)
+            Color(.ripeGood)
         }
     }
 }

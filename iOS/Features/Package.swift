@@ -5,7 +5,7 @@ let package = Package(
     name: "Features",
     platforms: [.iOS(.v16)],
     products: [
-        .library(name: "Features", targets: ["Features"])
+        .library(name: "Features", targets: ["Features"]),
     ],
     dependencies: [
         .package(

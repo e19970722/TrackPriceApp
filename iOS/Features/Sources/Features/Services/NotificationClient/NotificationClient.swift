@@ -14,7 +14,7 @@ extension NotificationClient: DependencyKey {
         NotificationClient(
             requestPermission: {
                 let center = UNUserNotificationCenter.current()
-                return (try? await center.requestAuthorization(options: [.alert, .sound, .badge])) ?? false
+                return await (try? center.requestAuthorization(options: [.alert, .sound, .badge])) ?? false
             },
             registerForRemoteNotifications: {
                 await MainActor.run {
@@ -30,14 +30,14 @@ extension NotificationClient: DependencyKey {
     public static var testValue: NotificationClient {
         NotificationClient(
             requestPermission: { true },
-            registerForRemoteNotifications: { },
+            registerForRemoteNotifications: {},
             getDeviceToken: { "test-device-token" }
         )
     }
 }
 
-extension DependencyValues {
-    public var notificationClient: NotificationClient {
+public extension DependencyValues {
+    var notificationClient: NotificationClient {
         get { self[NotificationClient.self] }
         set { self[NotificationClient.self] = newValue }
     }

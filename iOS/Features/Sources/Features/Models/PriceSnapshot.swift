@@ -6,5 +6,4 @@ public struct PriceSnapshot: Codable, Identifiable, Equatable {
     public let price: Double
     public let rawText: String
     public let scrapedAt: Date
-
 }

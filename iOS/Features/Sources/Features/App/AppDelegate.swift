@@ -2,7 +2,7 @@ import UIKit
 
 public class AppDelegate: NSObject, UIApplicationDelegate {
     public func application(
-        _ application: UIApplication,
+        _: UIApplication,
         didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
     ) {
         let token = deviceToken.map { String(format: "%02x", $0) }.joined()
@@ -15,7 +15,7 @@ public class AppDelegate: NSObject, UIApplicationDelegate {
     }
 
     public func application(
-        _ application: UIApplication,
+        _: UIApplication,
         didFailToRegisterForRemoteNotificationsWithError error: Error
     ) {
         print("APNs registration failed: \(error)")

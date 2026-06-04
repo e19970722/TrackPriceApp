@@ -57,7 +57,7 @@ public struct WebViewContainer: UIViewRepresentable {
         }
 
         let wasActive = context.coordinator.wasPickerActive
-        if isPickerActive && !wasActive {
+        if isPickerActive, !wasActive {
             context.coordinator.injectPickerScript(into: webView)
         }
         context.coordinator.wasPickerActive = isPickerActive
@@ -91,7 +91,7 @@ public struct WebViewContainer: UIViewRepresentable {
         // MARK: WKScriptMessageHandler
 
         public func userContentController(
-            _ userContentController: WKUserContentController,
+            _: WKUserContentController,
             didReceive message: WKScriptMessage
         ) {
             guard message.name == "elementPicked",
@@ -121,11 +121,11 @@ public struct WebViewContainer: UIViewRepresentable {
 
         // MARK: WKNavigationDelegate
 
-        public func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+        public func webView(_: WKWebView, didStartProvisionalNavigation _: WKNavigation!) {
             onLoadStateChanged(true)
         }
 
-        public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        public func webView(_ webView: WKWebView, didFinish _: WKNavigation!) {
             onLoadStateChanged(false)
             if let url = webView.url {
                 onNavigated(url)
@@ -134,14 +134,14 @@ public struct WebViewContainer: UIViewRepresentable {
             webView.evaluateJavaScript(ElementPickerScript.recorder, completionHandler: nil)
         }
 
-        public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        public func webView(_: WKWebView, didFail _: WKNavigation!, withError _: Error) {
             onLoadStateChanged(false)
         }
 
         public func webView(
-            _ webView: WKWebView,
-            didFailProvisionalNavigation navigation: WKNavigation!,
-            withError error: Error
+            _: WKWebView,
+            didFailProvisionalNavigation _: WKNavigation!,
+            withError _: Error
         ) {
             onLoadStateChanged(false)
         }

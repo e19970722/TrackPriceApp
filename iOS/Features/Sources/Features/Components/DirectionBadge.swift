@@ -19,7 +19,6 @@ public struct DirectionBadge: View {
 // MARK: - Subviews
 
 extension DirectionBadge {
-
     private var badgePillView: some View {
         HStack(spacing: 4) {
             Image(systemName: iconName)
@@ -36,7 +35,6 @@ extension DirectionBadge {
 // MARK: - Helpers
 
 extension DirectionBadge {
-
     private var label: String {
         direction == .below ? "Below" : "Above"
     }
@@ -53,11 +51,11 @@ extension DirectionBadge {
 // MARK: - Preview
 
 #if DEBUG
-#Preview {
-    HStack(spacing: 12) {
-        DirectionBadge(direction: .below)
-        DirectionBadge(direction: .above)
+    #Preview {
+        HStack(spacing: 12) {
+            DirectionBadge(direction: .below)
+            DirectionBadge(direction: .above)
+        }
+        .padding()
     }
-    .padding()
-}
 #endif

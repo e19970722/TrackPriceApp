@@ -39,7 +39,6 @@ public struct ScanLabelView: View {
 // MARK: - Subviews
 
 extension ScanLabelView {
-
     private var cameraBackgroundView: some View {
         CameraPreviewRepresentable(isFlashOn: $isFlashOn, onDateDetected: handleDetectedDate)
             .ignoresSafeArea()
@@ -125,7 +124,10 @@ extension ScanLabelView {
         Button {
             isFlashOn.toggle()
         } label: {
-            controlPillLabel(systemImage: isFlashOn ? "bolt.fill" : "bolt.slash", title: isFlashOn ? "Flash" : "Flash off")
+            controlPillLabel(
+                systemImage: isFlashOn ? "bolt.fill" : "bolt.slash",
+                title: isFlashOn ? "Flash" : "Flash off"
+            )
         }
         .buttonStyle(.plain)
     }
@@ -188,7 +190,6 @@ extension ScanLabelView {
 // MARK: - Helpers
 
 extension ScanLabelView {
-
     private func startScanLineAnimation() {
         withAnimation(.linear(duration: 1.6).repeatForever(autoreverses: true)) {
             scanLineOffset = 80
@@ -234,9 +235,21 @@ private struct ReticleCorner: View {
             let r: CGFloat = 6
             let corners: [(CGPoint, CGPoint, CGPoint)] = [
                 (CGPoint(x: 0, y: length), CGPoint(x: 0, y: r), CGPoint(x: length, y: 0)),
-                (CGPoint(x: size.width - length, y: 0), CGPoint(x: size.width - r, y: 0), CGPoint(x: size.width, y: length)),
-                (CGPoint(x: size.width, y: size.height - length), CGPoint(x: size.width, y: size.height - r), CGPoint(x: size.width - length, y: size.height)),
-                (CGPoint(x: length, y: size.height), CGPoint(x: r, y: size.height), CGPoint(x: 0, y: size.height - length))
+                (
+                    CGPoint(x: size.width - length, y: 0),
+                    CGPoint(x: size.width - r, y: 0),
+                    CGPoint(x: size.width, y: length)
+                ),
+                (
+                    CGPoint(x: size.width, y: size.height - length),
+                    CGPoint(x: size.width, y: size.height - r),
+                    CGPoint(x: size.width - length, y: size.height)
+                ),
+                (
+                    CGPoint(x: length, y: size.height),
+                    CGPoint(x: r, y: size.height),
+                    CGPoint(x: 0, y: size.height - length)
+                ),
             ]
             for (start, via, end) in corners {
                 var path = Path()
@@ -255,13 +268,13 @@ private struct CameraPreviewRepresentable: UIViewRepresentable {
     @Binding var isFlashOn: Bool
     var onDateDetected: (Date, String) -> Void
 
-    func makeUIView(context: Context) -> CameraPreviewView {
+    func makeUIView(context _: Context) -> CameraPreviewView {
         let view = CameraPreviewView(onDateDetected: onDateDetected)
         view.startSession()
         return view
     }
 
-    func updateUIView(_ uiView: CameraPreviewView, context: Context) {
+    func updateUIView(_ uiView: CameraPreviewView, context _: Context) {
         uiView.setFlash(isFlashOn)
     }
 }
@@ -283,7 +296,8 @@ private final class CameraPreviewView: UIView {
         backgroundColor = .black
     }
 
-    required init?(coder: NSCoder) { fatalError() }
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) { fatalError() }
 
     override func layoutSubviews() {
         super.layoutSubviews()
@@ -337,7 +351,7 @@ private final class CameraPreviewView: UIView {
 }
 
 extension CameraPreviewView: AVCaptureVideoDataOutputSampleBufferDelegate {
-    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+    func captureOutput(_: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
         guard !isProcessingFrame,
               Date().timeIntervalSince(lastDetectionTime) > 1.5,
               let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
@@ -349,7 +363,7 @@ extension CameraPreviewView: AVCaptureVideoDataOutputSampleBufferDelegate {
                   let observations = req.results as? [VNRecognizedTextObservation] else { return }
             let strings = observations.compactMap { $0.topCandidates(1).first?.string }
             if let (date, raw) = DatePatternParser.findDate(in: strings) {
-                self.lastDetectionTime = Date()
+                lastDetectionTime = Date()
                 DispatchQueue.main.async { self.onDateDetected(date, raw) }
             }
         }

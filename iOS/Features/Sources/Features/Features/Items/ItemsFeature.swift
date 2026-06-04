@@ -5,7 +5,6 @@ import Foundation
 
 @Reducer
 public struct ItemDetailFeature {
-
     @ObservableState
     public struct State: Equatable, Identifiable {
         public var id: UUID { item.id }
@@ -153,7 +152,6 @@ public struct ItemDetailFeature {
 
 @Reducer
 public struct AddItemFeature {
-
     public enum Step: Equatable {
         case chooseMethod
         case scanLabel
@@ -173,7 +171,7 @@ public struct AddItemFeature {
         public var quantity: String = ""
         public var location: ItemLocation = .fridge
         public var locationCustom: String = ""
-        public var bestBeforeDate: Date = Date()
+        public var bestBeforeDate: Date = .init()
         public var isDateFromScan: Bool = false
         public var isDatePickerPresented: Bool = false
 
@@ -354,7 +352,6 @@ public struct AddItemFeature {
 
 @Reducer
 public struct ItemsFeature {
-
     @ObservableState
     public struct State: Equatable {
         public var items: [Item] = []

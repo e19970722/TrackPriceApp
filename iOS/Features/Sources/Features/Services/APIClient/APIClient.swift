@@ -11,9 +11,14 @@ public struct InteractionStep: Codable, Equatable {
     public let currentPrice: Double?
     public let currencySymbol: String?
 
-    public init(type: String, locator: String, role: String? = nil,
-                rawText: String? = nil, currentPrice: Double? = nil,
-                currencySymbol: String? = nil) {
+    public init(
+        type: String,
+        locator: String,
+        role: String? = nil,
+        rawText: String? = nil,
+        currentPrice: Double? = nil,
+        currencySymbol: String? = nil
+    ) {
         self.type = type; self.locator = locator; self.role = role
         self.rawText = rawText; self.currentPrice = currentPrice
         self.currencySymbol = currencySymbol
@@ -30,10 +35,16 @@ public struct CreateTrackerRequest: Codable {
     public let targetDirection: TargetDirection
     public let itemImageUrl: String?
 
-    public init(url: String, name: String, interactions: [InteractionStep],
-                currencySymbol: String, confirmedPrice: Double,
-                targetPrice: Double, targetDirection: TargetDirection,
-                itemImageUrl: String? = nil) {
+    public init(
+        url: String,
+        name: String,
+        interactions: [InteractionStep],
+        currencySymbol: String,
+        confirmedPrice: Double,
+        targetPrice: Double,
+        targetDirection: TargetDirection,
+        itemImageUrl: String? = nil
+    ) {
         self.url = url; self.name = name; self.interactions = interactions
         self.currencySymbol = currencySymbol; self.confirmedPrice = confirmedPrice
         self.targetPrice = targetPrice; self.targetDirection = targetDirection
@@ -47,9 +58,12 @@ public struct UpdateTrackerRequest: Codable {
     public var targetDirection: TargetDirection?
     public var muteNotifications: Bool?
 
-    public init(name: String? = nil, targetPrice: Double? = nil,
-                targetDirection: TargetDirection? = nil,
-                muteNotifications: Bool? = nil) {
+    public init(
+        name: String? = nil,
+        targetPrice: Double? = nil,
+        targetDirection: TargetDirection? = nil,
+        muteNotifications: Bool? = nil
+    ) {
         self.name = name; self.targetPrice = targetPrice
         self.targetDirection = targetDirection; self.muteNotifications = muteNotifications
     }
@@ -80,8 +94,8 @@ extension APIClient: DependencyKey {
     public static var testValue: APIClient { .mock }
 }
 
-extension DependencyValues {
-    public var apiClient: APIClient {
+public extension DependencyValues {
+    var apiClient: APIClient {
         get { self[APIClient.self] }
         set { self[APIClient.self] = newValue }
     }

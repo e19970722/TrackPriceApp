@@ -28,7 +28,7 @@ public struct TrackerDetailFeature {
                 state.isLoadingHistory = true
                 let id = state.tracker.id
                 return .run { send in
-                    let history = (try? await apiClient.fetchPriceHistory(id)) ?? []
+                    let history = await (try? apiClient.fetchPriceHistory(id)) ?? []
                     await send(.historyLoaded(history))
                 }
 

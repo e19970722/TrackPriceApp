@@ -19,7 +19,6 @@ public struct StatusBadge: View {
 // MARK: - Subviews
 
 extension StatusBadge {
-
     private var badgePillView: some View {
         Text(label)
             .font(.caption.weight(.semibold))
@@ -33,20 +32,19 @@ extension StatusBadge {
 // MARK: - Helpers
 
 extension StatusBadge {
-
     private var label: String {
         switch status {
-        case .active: return "Active"
-        case .paused: return "Paused"
-        case .broken: return "Broken"
+        case .active: "Active"
+        case .paused: "Paused"
+        case .broken: "Broken"
         }
     }
 
     private var badgeColor: Color {
         switch status {
-        case .active: return .green
-        case .paused: return .orange
-        case .broken: return .red
+        case .active: .green
+        case .paused: .orange
+        case .broken: .red
         }
     }
 }
@@ -54,12 +52,12 @@ extension StatusBadge {
 // MARK: - Preview
 
 #if DEBUG
-#Preview {
-    HStack(spacing: 12) {
-        StatusBadge(status: .active)
-        StatusBadge(status: .paused)
-        StatusBadge(status: .broken)
+    #Preview {
+        HStack(spacing: 12) {
+            StatusBadge(status: .active)
+            StatusBadge(status: .paused)
+            StatusBadge(status: .broken)
+        }
+        .padding()
     }
-    .padding()
-}
 #endif

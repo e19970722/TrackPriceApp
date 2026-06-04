@@ -10,19 +10,19 @@ public enum ItemLocation: String, Codable, CaseIterable, Equatable, Sendable {
 
     public var displayName: String {
         switch self {
-        case .fridge:  return "Fridge"
-        case .pantry:  return "Pantry"
-        case .freezer: return "Freezer"
-        case .custom:  return "Custom"
+        case .fridge:  "Fridge"
+        case .pantry:  "Pantry"
+        case .freezer: "Freezer"
+        case .custom:  "Custom"
         }
     }
 
     public var systemImage: String {
         switch self {
-        case .fridge:  return "refrigerator"
-        case .pantry:  return "cabinet"
-        case .freezer: return "snowflake"
-        case .custom:  return "ellipsis.circle"
+        case .fridge:  "refrigerator"
+        case .pantry:  "cabinet"
+        case .freezer: "snowflake"
+        case .custom:  "ellipsis.circle"
         }
     }
 }

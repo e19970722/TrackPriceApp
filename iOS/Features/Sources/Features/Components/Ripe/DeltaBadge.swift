@@ -37,7 +37,6 @@ public struct DeltaBadge: View {
 // MARK: - Subviews
 
 extension DeltaBadge {
-
     private var pillBadgeView: some View {
         badgeContentView
             .padding(.horizontal, RipeSpacing.s2)
@@ -73,18 +72,17 @@ extension DeltaBadge {
 // MARK: - Helpers
 
 extension DeltaBadge {
-
     private var directionForeground: Color {
         switch direction {
-        case .down: return Color(.ripeGood)
-        case .up:   return Color(.ripeDanger)
+        case .down: Color(.ripeGood)
+        case .up:   Color(.ripeDanger)
         }
     }
 
     private var directionBackground: Color {
         switch direction {
-        case .down: return Color(.ripeGoodSoft)
-        case .up:   return Color(.ripeDangerSoft)
+        case .down: Color(.ripeGoodSoft)
+        case .up:   Color(.ripeDangerSoft)
         }
     }
 }

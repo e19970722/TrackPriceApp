@@ -28,7 +28,6 @@ public struct ReminderView: View {
 // MARK: - Subviews
 
 extension ReminderView {
-
     private var scrollContent: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: RipeSpacing.s5) {
@@ -119,7 +118,7 @@ extension ReminderView {
     private var sliderSection: some View {
         WithPerceptionTracking {
             VStack(spacing: RipeSpacing.s2) {
-                Slider(value: sliderBinding, in: 1...60, step: 1)
+                Slider(value: sliderBinding, in: 1 ... 60, step: 1)
                     .tint(Color(.ripeAccent))
                 sliderMilestoneLabels
             }
@@ -234,8 +233,6 @@ extension ReminderView {
 // MARK: - Helpers
 
 extension ReminderView {
-
-
     private var sliderBinding: Binding<Double> {
         Binding(
             get: { Double(store.remindDaysBefore) },

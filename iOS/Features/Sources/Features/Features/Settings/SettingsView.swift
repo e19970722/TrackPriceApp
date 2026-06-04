@@ -42,7 +42,6 @@ public struct SettingsView: View {
 // MARK: - Subviews
 
 extension SettingsView {
-
     private var scrollContentView: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: RipeSpacing.s6) {
@@ -203,7 +202,6 @@ extension SettingsView {
 // MARK: - Helpers
 
 extension SettingsView {
-
     private var displayName: String {
         // SettingsFeature.State does not yet expose a display name field;
         // fall back to "Sam Rivers" as placeholder per spec.

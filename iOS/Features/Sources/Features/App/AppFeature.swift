@@ -8,8 +8,8 @@ public struct AppFeature {
     @ObservableState
     public struct State: Equatable {
         public var authStatus: AuthStatus = .unauthenticated
-        public var auth: AuthFeature.State = AuthFeature.State()
-        public var settings: SettingsFeature.State = SettingsFeature.State()
+        public var auth: AuthFeature.State = .init()
+        public var settings: SettingsFeature.State = .init()
         public init() {}
     }
 
@@ -47,18 +47,19 @@ public struct AppFeature {
                     return .none
                 }
                 #if DEBUG
-                state.authStatus = .authenticated
-                return .run { _ in
-                    struct DevTokenResponse: Decodable { let token: String }
-                    var request = URLRequest(url: URL(string: "http://127.0.0.1:8000/dev/token")!)
-                    request.httpMethod = "POST"
-                    guard let (data, _) = try? await URLSession.shared.data(for: request),
-                          let response = try? JSONDecoder().decode(DevTokenResponse.self, from: data) else { return }
-                    keychainClient.saveToken(response.token)
-                }
+                    state.authStatus = .authenticated
+                    return .run { _ in
+                        struct DevTokenResponse: Decodable { let token: String }
+                        var request = URLRequest(url: URL(string: "http://127.0.0.1:8000/dev/token")!)
+                        request.httpMethod = "POST"
+                        guard let (data, _) = try? await URLSession.shared.data(for: request),
+                              let response = try? JSONDecoder().decode(DevTokenResponse.self, from: data)
+                        else { return }
+                        keychainClient.saveToken(response.token)
+                    }
                 #else
-                state.authStatus = .unauthenticated
-                return .none
+                    state.authStatus = .unauthenticated
+                    return .none
                 #endif
 
             case let .setAuthStatus(status):

@@ -9,11 +9,11 @@ public enum APIError: Error, LocalizedError {
 
     public var errorDescription: String? {
         switch self {
-        case .unauthorized: return "Session expired. Please sign in again."
-        case .notFound: return "Resource not found."
-        case let .serverError(code): return "Server error (\(code))."
-        case let .decodingError(e): return "Data error: \(e.localizedDescription)"
-        case let .networkError(e): return e.localizedDescription
+        case .unauthorized: "Session expired. Please sign in again."
+        case .notFound: "Resource not found."
+        case let .serverError(code): "Server error (\(code))."
+        case let .decodingError(e): "Data error: \(e.localizedDescription)"
+        case let .networkError(e): e.localizedDescription
         }
     }
 }

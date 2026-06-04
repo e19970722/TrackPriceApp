@@ -25,7 +25,6 @@ public struct HomeView: View {
 // MARK: - Subviews
 
 extension HomeView {
-
     private var scrollContentView: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(alignment: .leading, spacing: RipeSpacing.s6) {
@@ -277,7 +276,6 @@ extension HomeView {
 // MARK: - Helpers
 
 extension HomeView {
-
     private struct TrendItem: Identifiable {
         let id = UUID()
         let name: String
@@ -292,14 +290,14 @@ extension HomeView {
             Color(.ripeCat2),
             Color(.ripeCat3),
             Color(.ripeCat4),
-            Color(.ripeCat5)
+            Color(.ripeCat5),
         ]
         return [
             TrendItem(name: "Coffee",    direction: .up,   delta: "6%",  color: colors[0]),
             TrendItem(name: "Olive Oil", direction: .down, delta: "11%", color: colors[1]),
             TrendItem(name: "Eggs",      direction: .up,   delta: "4%",  color: colors[2]),
             TrendItem(name: "Butter",    direction: .down, delta: "8%",  color: colors[3]),
-            TrendItem(name: "Detergent", direction: .down, delta: "12%", color: colors[4])
+            TrendItem(name: "Detergent", direction: .down, delta: "12%", color: colors[4]),
         ]
     }
 
@@ -314,7 +312,7 @@ extension HomeView {
     private var expireItems: [ExpireItem] {
         [
             ExpireItem(name: "Greek Yogurt", meta: "2 cups · Fridge", chipLabel: "2d left", color: Color(.ripeCat3)),
-            ExpireItem(name: "Eggs",         meta: "6 left · Fridge", chipLabel: "3d left", color: Color(.ripeCat2))
+            ExpireItem(name: "Eggs",         meta: "6 left · Fridge", chipLabel: "3d left", color: Color(.ripeCat2)),
         ]
     }
 }

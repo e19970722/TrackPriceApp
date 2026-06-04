@@ -28,7 +28,6 @@ public struct AuthView: View {
 // MARK: - Subviews
 
 extension AuthView {
-
     private var authContentView: some View {
         VStack(spacing: 0) {
             Spacer()
@@ -130,7 +129,6 @@ private struct GoogleSignInButton: View {
 // MARK: - Subviews
 
 extension GoogleSignInButton {
-
     private var googleButtonLabel: some View {
         HStack(spacing: 10) {
             GoogleLogoShape()
@@ -154,7 +152,6 @@ extension GoogleSignInButton {
 // MARK: - GoogleLogoShape
 
 private struct GoogleLogoShape: View {
-
     // MARK: - Body
 
     var body: some View {
@@ -169,7 +166,6 @@ private struct GoogleLogoShape: View {
 // MARK: - Subviews
 
 extension GoogleLogoShape {
-
     private func googleLogoCanvas(size: CGFloat) -> some View {
         ZStack {
             coloredArcStack(size: size)
@@ -216,32 +212,32 @@ extension GoogleLogoShape {
 // MARK: - Preview
 
 #if DEBUG
-#Preview {
-    AuthView(
-        store: Store(initialState: AuthFeature.State()) {
-            AuthFeature()
-        }
-    )
-}
+    #Preview {
+        AuthView(
+            store: Store(initialState: AuthFeature.State()) {
+                AuthFeature()
+            }
+        )
+    }
 
-#Preview("Loading") {
-    AuthView(
-        store: Store(initialState: AuthFeature.State(isLoading: true)) {
-            AuthFeature()
-        }
-    )
-}
+    #Preview("Loading") {
+        AuthView(
+            store: Store(initialState: AuthFeature.State(isLoading: true)) {
+                AuthFeature()
+            }
+        )
+    }
 
-#Preview("Error") {
-    AuthView(
-        store: Store(
-            initialState: AuthFeature.State(
-                isLoading: false,
-                errorMessage: "Sign in failed. Please try again."
-            )
-        ) {
-            AuthFeature()
-        }
-    )
-}
+    #Preview("Error") {
+        AuthView(
+            store: Store(
+                initialState: AuthFeature.State(
+                    isLoading: false,
+                    errorMessage: "Sign in failed. Please try again."
+                )
+            ) {
+                AuthFeature()
+            }
+        )
+    }
 #endif

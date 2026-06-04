@@ -26,7 +26,6 @@ public struct RipeCard<Content: View>: View {
 // MARK: - Subviews
 
 extension RipeCard {
-
     private var cardContainerView: some View {
         content()
             .padding(padding)

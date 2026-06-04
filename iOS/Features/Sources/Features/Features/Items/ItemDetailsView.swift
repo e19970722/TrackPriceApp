@@ -36,7 +36,6 @@ public struct ItemDetailsView: View {
 // MARK: - Subviews
 
 extension ItemDetailsView {
-
     private var scrollFormView: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: RipeSpacing.s5) {
@@ -96,7 +95,6 @@ extension ItemDetailsView {
         }
         .frame(height: locationButtonHeight)
     }
-
 
     private func locationButton(_ loc: ItemLocation) -> some View {
         WithPerceptionTracking {
@@ -247,8 +245,8 @@ extension ItemDetailsView {
                 .buttonStyle(.plain)
                 .contentShape(Rectangle())
                 Text(store.isDateFromScan
-                     ? "Auto-filled from the label — tap to adjust."
-                     : "Defaults to today — tap to change.")
+                    ? "Auto-filled from the label — tap to adjust."
+                    : "Defaults to today — tap to change.")
                     .font(RipeFont.caption(12))
                     .foregroundStyle(Color(.ripeInk3))
                     .padding(.horizontal, 2)
@@ -327,7 +325,6 @@ extension ItemDetailsView {
 // MARK: - Helpers
 
 extension ItemDetailsView {
-
     private func fieldSectionLabel(_ title: String) -> some View {
         Text(title)
             .font(RipeFont.label(12))

@@ -40,7 +40,6 @@ public struct TrackerDetailView: View {
 // MARK: - Subviews
 
 extension TrackerDetailView {
-
     private var dismissButton: some View {
         Button("Done") {
             store.send(.dismiss)
@@ -63,7 +62,7 @@ extension TrackerDetailView {
         if let imageUrl = store.tracker.itemImageUrl, let url = URL(string: imageUrl) {
             AsyncImage(url: url) { phase in
                 switch phase {
-                case .success(let image):
+                case let .success(image):
                     image
                         .resizable()
                         .aspectRatio(contentMode: .fill)
@@ -246,7 +245,6 @@ extension TrackerDetailView {
 // MARK: - Helpers
 
 extension TrackerDetailView {
-
     private func formattedDate(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium

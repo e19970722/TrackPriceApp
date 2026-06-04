@@ -3,7 +3,7 @@ import Foundation
 
 enum AppleSignInHelper {
     static func requestToken() async throws -> String {
-        return try await withCheckedThrowingContinuation { continuation in
+        try await withCheckedThrowingContinuation { continuation in
             let provider = ASAuthorizationAppleIDProvider()
             let request = provider.createRequest()
             request.requestedScopes = [.fullName, .email]
@@ -25,8 +25,10 @@ private final class AppleSignInDelegate: NSObject, ASAuthorizationControllerDele
         self.continuation = continuation
     }
 
-    func authorizationController(controller: ASAuthorizationController,
-                                  didCompleteWithAuthorization authorization: ASAuthorization) {
+    func authorizationController(
+        controller _: ASAuthorizationController,
+        didCompleteWithAuthorization authorization: ASAuthorization
+    ) {
         guard let cred = authorization.credential as? ASAuthorizationAppleIDCredential,
               let tokenData = cred.identityToken,
               let token = String(data: tokenData, encoding: .utf8) else {
@@ -36,8 +38,10 @@ private final class AppleSignInDelegate: NSObject, ASAuthorizationControllerDele
         continuation.resume(returning: token)
     }
 
-    func authorizationController(controller: ASAuthorizationController,
-                                  didCompleteWithError error: Error) {
+    func authorizationController(
+        controller _: ASAuthorizationController,
+        didCompleteWithError error: Error
+    ) {
         continuation.resume(throwing: error)
     }
 }

@@ -30,7 +30,10 @@ extension JSONDecoder {
             if let date = formatter.date(from: string) { return date }
             if let date = formatterNoFraction.date(from: string) { return date }
             if let date = plainDateFormatter.date(from: string) { return date }
-            throw DecodingError.dataCorrupted(.init(codingPath: decoder.codingPath, debugDescription: "Invalid date: \(string)"))
+            throw DecodingError.dataCorrupted(.init(
+                codingPath: decoder.codingPath,
+                debugDescription: "Invalid date: \(string)"
+            ))
         }
         return d
     }()
@@ -49,7 +52,7 @@ private func apiRequest<T: Decodable>(
     path: String,
     body: (any Encodable)? = nil,
     token: String?,
-    as type: T.Type = T.self
+    as _: T.Type = T.self
 ) async throws -> T {
     var request = URLRequest(url: Config.apiBaseURL.appending(path: path))
     request.httpMethod = method
@@ -58,7 +61,7 @@ private func apiRequest<T: Decodable>(
     if let body { request.httpBody = try JSONEncoder.api.encode(body) }
 
     #if DEBUG
-    logRequest(request)
+        logRequest(request)
     #endif
 
     let (data, response): (Data, URLResponse)
@@ -72,11 +75,11 @@ private func apiRequest<T: Decodable>(
     }
 
     #if DEBUG
-    logResponse(http, data: data)
+        logResponse(http, data: data)
     #endif
 
     switch http.statusCode {
-    case 200...299:
+    case 200 ... 299:
         do { return try JSONDecoder.api.decode(T.self, from: data) }
         catch { throw APIError.decodingError(error) }
     case 401: throw APIError.unauthorized
@@ -93,7 +96,7 @@ private func apiRequestVoid(_ method: String, path: String, body: (any Encodable
     if let body { request.httpBody = try JSONEncoder.api.encode(body) }
 
     #if DEBUG
-    logRequest(request)
+        logRequest(request)
     #endif
 
     let (data, response): (Data, URLResponse)
@@ -102,11 +105,11 @@ private func apiRequestVoid(_ method: String, path: String, body: (any Encodable
     guard let http = response as? HTTPURLResponse else { return }
 
     #if DEBUG
-    logResponse(http, data: data)
+        logResponse(http, data: data)
     #endif
 
     switch http.statusCode {
-    case 200...299: return
+    case 200 ... 299: return
     case 401: throw APIError.unauthorized
     case 404: throw APIError.notFound
     default: throw APIError.serverError(http.statusCode)
@@ -114,26 +117,26 @@ private func apiRequestVoid(_ method: String, path: String, body: (any Encodable
 }
 
 #if DEBUG
-private func logRequest(_ request: URLRequest) {
-    print("→ \(request.httpMethod ?? "?") \(request.url?.absoluteString ?? "")")
-    if let body = request.httpBody,
-       let json = try? JSONSerialization.jsonObject(with: body),
-       let pretty = try? JSONSerialization.data(withJSONObject: json, options: .prettyPrinted),
-       let text = String(data: pretty, encoding: .utf8) {
-        print("  Body: \(text)")
+    private func logRequest(_ request: URLRequest) {
+        print("→ \(request.httpMethod ?? "?") \(request.url?.absoluteString ?? "")")
+        if let body = request.httpBody,
+           let json = try? JSONSerialization.jsonObject(with: body),
+           let pretty = try? JSONSerialization.data(withJSONObject: json, options: .prettyPrinted),
+           let text = String(data: pretty, encoding: .utf8) {
+            print("  Body: \(text)")
+        }
     }
-}
 
-private func logResponse(_ response: HTTPURLResponse, data: Data) {
-    print("← \(response.statusCode) \(response.url?.absoluteString ?? "")")
-    if let json = try? JSONSerialization.jsonObject(with: data),
-       let pretty = try? JSONSerialization.data(withJSONObject: json, options: .prettyPrinted),
-       let text = String(data: pretty, encoding: .utf8) {
-        print("  Body: \(text)")
-    } else if let text = String(data: data, encoding: .utf8), !text.isEmpty {
-        print("  Body: \(text)")
+    private func logResponse(_ response: HTTPURLResponse, data: Data) {
+        print("← \(response.statusCode) \(response.url?.absoluteString ?? "")")
+        if let json = try? JSONSerialization.jsonObject(with: data),
+           let pretty = try? JSONSerialization.data(withJSONObject: json, options: .prettyPrinted),
+           let text = String(data: pretty, encoding: .utf8) {
+            print("  Body: \(text)")
+        } else if let text = String(data: data, encoding: .utf8), !text.isEmpty {
+            print("  Body: \(text)")
+        }
     }
-}
 #endif
 
 // MARK: - Live & Mock
@@ -143,30 +146,62 @@ extension APIClient {
         @Dependency(\.keychainClient) var keychain
         return APIClient(
             signInWithApple: { idToken in
-                let res: AuthResponse = try await apiRequest("POST", path: "/auth/apple", body: ["token": idToken], token: nil)
+                let res: AuthResponse = try await apiRequest(
+                    "POST",
+                    path: "/auth/apple",
+                    body: ["token": idToken],
+                    token: nil
+                )
                 return res.token
             },
             signInWithGoogle: { idToken in
-                let res: AuthResponse = try await apiRequest("POST", path: "/auth/google", body: ["token": idToken], token: nil)
+                let res: AuthResponse = try await apiRequest(
+                    "POST",
+                    path: "/auth/google",
+                    body: ["token": idToken],
+                    token: nil
+                )
                 return res.token
             },
             updateDeviceToken: { apnsToken in
-                try await apiRequestVoid("PATCH", path: "/users/me", body: ["apns_token": apnsToken], token: keychain.loadToken())
+                try await apiRequestVoid(
+                    "PATCH",
+                    path: "/users/me",
+                    body: ["apns_token": apnsToken],
+                    token: keychain.loadToken()
+                )
             },
             fetchTrackers: {
                 try await apiRequest("GET", path: "/trackers", token: keychain.loadToken(), as: [Tracker].self)
             },
             createTracker: { req in
-                try await apiRequest("POST", path: "/trackers", body: req, token: keychain.loadToken(), as: Tracker.self)
+                try await apiRequest(
+                    "POST",
+                    path: "/trackers",
+                    body: req,
+                    token: keychain.loadToken(),
+                    as: Tracker.self
+                )
             },
             updateTracker: { id, req in
-                try await apiRequest("PATCH", path: "/trackers/\(id)", body: req, token: keychain.loadToken(), as: Tracker.self)
+                try await apiRequest(
+                    "PATCH",
+                    path: "/trackers/\(id)",
+                    body: req,
+                    token: keychain.loadToken(),
+                    as: Tracker.self
+                )
             },
             deleteTracker: { id in
                 try await apiRequestVoid("DELETE", path: "/trackers/\(id)", token: keychain.loadToken())
             },
             fetchPriceHistory: { id in
-                try await apiRequest("GET", path: "/trackers/\(id)/history", token: keychain.loadToken(), as: [PriceSnapshot].self)
+                try await apiRequest(
+                    "GET",
+                    path: "/trackers/\(id)/history",
+                    token: keychain.loadToken(),
+                    as: [PriceSnapshot].self
+                )
             },
             fetchItems: {
                 try await apiRequest("GET", path: "/items", token: keychain.loadToken(), as: [Item].self)
@@ -178,7 +213,13 @@ extension APIClient {
                 try await apiRequest("POST", path: "/items", body: itemIn, token: keychain.loadToken(), as: Item.self)
             },
             updateItem: { id, itemIn in
-                try await apiRequest("PATCH", path: "/items/\(id)", body: itemIn, token: keychain.loadToken(), as: Item.self)
+                try await apiRequest(
+                    "PATCH",
+                    path: "/items/\(id)",
+                    body: itemIn,
+                    token: keychain.loadToken(),
+                    as: Item.self
+                )
             },
             deleteItem: { id in
                 try await apiRequestVoid("DELETE", path: "/items/\(id)", token: keychain.loadToken())
