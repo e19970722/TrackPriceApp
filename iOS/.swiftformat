@@ -1,0 +1,8 @@
+# format options
+--indent 4
+--maxwidth 120
+--wraparguments before-first
+
+# rules
+--enable isEmpty
+--disable wrapMultilineStatementBraces

@@ -1,67 +1,50 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+TrackPriceApp is a native iOS price tracker. Users long-press any webpage element to select a price, set a target, and receive a push notification when the price crosses the threshold.
 
-## Project Overview
+Full product spec: `SPEC.md`
 
-TrackPriceApp is a native iOS price tracker. Users open a WebView, long-press to activate selection mode, tap a price element on any webpage, and set a target price. The backend scrapes that element on a schedule and sends a push notification when the price crosses the threshold.
+---
 
-See `SPEC.md` for the full product specification.
+## Sub-directory Instructions
 
-## Architecture
+| Domain | Instructions |
+|---|---|
+| iOS (`iOS/`) | [`iOS/CLAUDE.md`](iOS/CLAUDE.md) |
+| Backend (`Backend/`) | [`Backend/CLAUDE.md`](Backend/CLAUDE.md) |
 
-Two components:
+---
 
-### `iOS/` — Native iOS app (Swift + SwiftUI, iOS 16+)
-- WKWebView browser with injected `ElementPicker.js` for element selection
-- Charts framework for price history graphs
-- APNs / FCM for push notifications
-- Apple Sign In + Google Sign In
+## Agent Orchestration
 
-### `Backend/` — Python API + scraping workers
-- **FastAPI** — REST API
-- **PostgreSQL** — users, trackers, price snapshots, url_jobs
-- **Redis + Celery** — job queue; Celery Beat for scheduling
-- **Playwright** + residential proxy pool — headless scraping
+The main agent is **project manager only** — it must not write or edit code files directly.
 
-## Key Design Decisions
+| Work type | Subagent |
+|---|---|
+| iOS Swift / SwiftUI / TCA | `ios-expert` |
+| Backend FastAPI / Celery / DB | `backend-expert` |
+| Docker / CI / GitHub Actions | `devops` |
+| Figma / UI design | `uiux-designer` |
+| PR review | `code-reviewer` |
+| Anything else | Spawn a new subagent with a clearly described role |
 
-- **URL-level deduplication**: one fetch per URL per check window, results fanned out to all trackers watching that URL (`url_jobs` table).
-- **Selector failure**: silent retry for 3 days, then notify user to re-select or provide a new URL.
-- **Alert throttle**: max 1 push per tracker per 24 hours; re-notify only when price reaches a new extreme past the threshold.
-- **Tiers**: free = 10 trackers + daily checks; paid = unlimited + hourly. Paywall not enforced yet — `subscription_tier` column exists for future use.
+When dispatching: include the goal, relevant file paths, constraints, branch name, and any shared API contract. Resolve cross-domain conflicts (e.g. API shape changes) before agents start. Consolidate results into one report to the user when done.
+
+---
+
+## Issue-First Workflow
+
+For any request involving **logic, feature, or bug fix changes**, ask: **"要開一個 GitHub issue 來追蹤這個需求嗎？"**
+
+Skip for: pure discussion, exploratory questions, cosmetic-only changes (typos, colours, label text).
+
+- **Yes** → `gh issue create`, then follow `/issue <N>` (see `.claude/commands/issue.md`)
+- **No** → proceed directly, still follow branch naming and PR conventions below
+
+---
 
 ## Git Workflow (GitHub Flow)
 
-- `main` is always deployable — never push directly to it
-- For every issue: create a branch named `feature/issue-N-short-description`
-- Open a PR into `main` when done; PR title should reference the issue (e.g. `Fix #5: scraping worker`)
-- Use `/issue <issue-number>` slash command to start working on an issue — it will fetch the issue, plan the work, branch, implement, and open a PR
-
-## Commands
-
-_To be filled in as each component is scaffolded._
-
-### Backend
-```bash
-# Install dependencies (once virtualenv is created)
-pip install -r requirements.txt
-
-# Run dev server
-uvicorn app.main:app --reload
-
-# Run Celery worker
-celery -A app.worker worker --loglevel=info
-
-# Run Celery Beat scheduler
-celery -A app.worker beat --loglevel=info
-
-# Run tests
-pytest
-
-# Run a single test
-pytest tests/path/to/test_file.py::test_function_name
-```
-
-### iOS
-Open `iOS/TrackPriceApp.xcodeproj` in Xcode. Build and run with `Cmd+R`. Tests: `Cmd+U`.
+- `main` is always deployable — never push directly
+- Branch naming: `feature/issue-N-short-description`
+- PR title: `Fix #N: short description`

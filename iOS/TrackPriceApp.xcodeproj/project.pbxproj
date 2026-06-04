@@ -12,7 +12,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		2679CD5A605171BA69A73ED4 /* Features */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Features; path = Features; sourceTree = SOURCE_ROOT; };
+		2679CD5A605171BA69A73ED4 /* Features */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Features; sourceTree = SOURCE_ROOT; };
 		B324B4C422E4CC3123CF3936 /* TrackPriceAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackPriceAppApp.swift; sourceTree = "<group>"; };
 		BC11539AFFE469D1AF325636 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		EF9C077C17178C7CA564EACA /* TrackPriceApp.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = TrackPriceApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -89,6 +89,7 @@
 			buildPhases = (
 				F6F086BC4AED922B714B573F /* Sources */,
 				DB1C551053EBF050DB7469B7 /* Frameworks */,
+				B3485D352FD120A000B2A60D /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -110,8 +111,6 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1500;
-				TargetAttributes = {
-				};
 			};
 			buildConfigurationList = 627666E179E2D112C762CE5B /* Build configuration list for PBXProject "TrackPriceApp" */;
 			developmentRegion = en;
@@ -134,6 +133,26 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		B3485D352FD120A000B2A60D /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nif which swiftlint > /dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		F6F086BC4AED922B714B573F /* Sources */ = {
