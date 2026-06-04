@@ -6,6 +6,7 @@ public enum RipeButtonVariant {
     case secondary
     case ghost
     case outline
+    case danger
 }
 
 /// The size of a `RipeButton`, controlling height and font size.
@@ -171,6 +172,7 @@ extension RipeButton {
         case .secondary: Color(.ripeSurface2)
         case .ghost:     .clear
         case .outline:   .clear
+        case .danger:    Color(red: 0.98, green: 0.89, blue: 0.87)
         }
     }
 
@@ -180,6 +182,7 @@ extension RipeButton {
         case .secondary: Color(.ripeInk)
         case .ghost:     Color(.ripeAccent)
         case .outline:   Color(.ripeInk)
+        case .danger:    Color(.ripeDanger)
         }
     }
 
@@ -199,6 +202,7 @@ extension RipeButton {
         RipeButton(title: "Secondary", variant: .secondary, action: {})
         RipeButton(title: "Ghost", variant: .ghost, action: {})
         RipeButton(title: "Outline", variant: .outline, action: {})
+        RipeButton(title: "Danger", variant: .danger, action: {})
         RipeButton(title: "Primary Small", size: .sm, action: {})
         RipeButton(title: "Primary Large", size: .lg, action: {})
         RipeButton(title: "With Icon", systemImage: "cart.fill", action: {})
