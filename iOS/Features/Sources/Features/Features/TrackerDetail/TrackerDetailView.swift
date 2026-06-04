@@ -41,7 +41,7 @@ public struct TrackerDetailView: View {
 
 extension TrackerDetailView {
     private var dismissButton: some View {
-        Button("Done") {
+        Button(L10n.Common.done) {
             store.send(.dismiss)
         }
     }
@@ -99,7 +99,7 @@ extension TrackerDetailView {
             if let lastPrice = store.tracker.lastPrice {
                 Text("\(store.tracker.currencySymbol)\(String(format: "%.2f", lastPrice))")
             } else {
-                Text("—")
+                Text(L10n.TrackerDetail.noData)
                     .foregroundStyle(.secondary)
             }
         }
@@ -109,15 +109,17 @@ extension TrackerDetailView {
     private var targetRowView: some View {
         HStack(spacing: 8) {
             DirectionBadge(direction: store.tracker.targetDirection)
-            Text("Target: \(store.tracker.currencySymbol)\(String(format: "%.2f", store.tracker.targetPrice))")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+            Text(L10n.TrackerDetail.targetPrice(
+                "\(store.tracker.currencySymbol)\(String(format: "%.2f", store.tracker.targetPrice))"
+            ))
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
         }
     }
 
     private var priceChartSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Price History")
+            Text(L10n.TrackerDetail.priceHistory)
                 .font(.headline)
 
             chartContentView
@@ -143,7 +145,7 @@ extension TrackerDetailView {
             Image(systemName: "chart.line.uptrend.xyaxis")
                 .font(.system(size: 36))
                 .foregroundStyle(.secondary)
-            Text("No price history yet")
+            Text(L10n.TrackerDetail.noPriceHistory)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
@@ -174,7 +176,7 @@ extension TrackerDetailView {
                     .foregroundStyle(.red.opacity(0.7))
                     .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
                     .annotation(position: .trailing, alignment: .center) {
-                        Text("Target")
+                        Text(L10n.TrackerDetail.target)
                             .font(.caption2)
                             .foregroundStyle(.red.opacity(0.7))
                     }
@@ -206,7 +208,7 @@ extension TrackerDetailView {
                 openURL(url)
             }
         } label: {
-            Text("Shop Now")
+            Text(L10n.TrackerDetail.shopNow)
                 .font(.headline)
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
@@ -219,7 +221,7 @@ extension TrackerDetailView {
 
     private var detailStatsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Details")
+            Text(L10n.TrackerDetail.details)
                 .font(.headline)
 
             statsGridView
@@ -230,14 +232,14 @@ extension TrackerDetailView {
 
     private var statsGridView: some View {
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-            StatCell(title: "URL", value: store.tracker.url, truncate: true)
-            StatCell(title: "Created", value: formattedDate(store.tracker.createdAt))
+            StatCell(title: L10n.TrackerDetail.statUrl, value: store.tracker.url, truncate: true)
+            StatCell(title: L10n.TrackerDetail.statCreated, value: formattedDate(store.tracker.createdAt))
             if let lastChecked = store.tracker.lastCheckedAt {
-                StatCell(title: "Last Checked", value: formattedDate(lastChecked))
+                StatCell(title: L10n.TrackerDetail.statLastChecked, value: formattedDate(lastChecked))
             } else {
-                StatCell(title: "Last Checked", value: "Never")
+                StatCell(title: L10n.TrackerDetail.statLastChecked, value: L10n.TrackerDetail.lastCheckedNever)
             }
-            StatCell(title: "Next Check", value: nextCheckLabel(store.tracker.nextCheckedAt))
+            StatCell(title: L10n.TrackerDetail.statNextCheck, value: nextCheckLabel(store.tracker.nextCheckedAt))
         }
     }
 }

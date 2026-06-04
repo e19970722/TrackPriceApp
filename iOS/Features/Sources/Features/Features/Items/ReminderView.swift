@@ -19,7 +19,7 @@ public struct ReminderView: View {
                 Color(.ripeBg).ignoresSafeArea()
                 scrollContent
             }
-            .navigationTitle("Reminder")
+            .navigationTitle(L10n.Expiry.reminderNavTitle)
             .navigationBarTitleDisplayMode(.inline)
         }
     }
@@ -73,7 +73,7 @@ extension ReminderView {
                 .font(RipeFont.heading(15))
                 .foregroundStyle(Color(.ripeInk))
                 .lineLimit(1)
-            Text("Best before \(shortDate(draftItem.bestBeforeDate))")
+            Text(L10n.Expiry.bestBefore(shortDate(draftItem.bestBeforeDate)))
                 .font(RipeFont.caption(12))
                 .foregroundStyle(Color(.ripeInk2))
         }
@@ -88,7 +88,7 @@ extension ReminderView {
     // MARK: Section label (no card)
 
     private var remindSectionLabel: some View {
-        Text("Remind me before it expires")
+        Text(L10n.Expiry.remindMe)
             .font(.system(size: 13, weight: .bold))
             .foregroundStyle(Color(.ripeInk2))
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -104,7 +104,7 @@ extension ReminderView {
                     .font(RipeFont.display(44))
                     .foregroundStyle(Color(.ripeAccent))
                     .monospacedDigit()
-                Text("days before")
+                Text(L10n.Expiry.daysBefore)
                     .font(RipeFont.body(18))
                     .foregroundStyle(Color(.ripeInk2))
                     .padding(.bottom, 4)
@@ -177,10 +177,10 @@ extension ReminderView {
                 HStack(spacing: 13) {
                     calendarCheckIcon
                     VStack(alignment: .leading, spacing: RipeSpacing.s1) {
-                        Text("Also alert on the day")
+                        Text(L10n.Expiry.alsoAlertOnDay)
                             .font(RipeFont.body(15))
                             .foregroundStyle(Color(.ripeInk))
-                        Text("Morning of \(shortDate(draftItem.bestBeforeDate))")
+                        Text(L10n.Expiry.morningOf(shortDate(draftItem.bestBeforeDate)))
                             .font(RipeFont.caption(12))
                             .foregroundStyle(Color(.ripeInk2))
                     }
@@ -209,7 +209,7 @@ extension ReminderView {
     private var saveButton: some View {
         WithPerceptionTracking {
             RipeButton(
-                title: store.isSaving ? "Saving\u{2026}" : "Save item",
+                title: store.isSaving ? L10n.Expiry.saving : L10n.Expiry.saveItem,
                 variant: .primary,
                 size: .lg,
                 fullWidth: true,
@@ -221,7 +221,7 @@ extension ReminderView {
 
     private var backButton: some View {
         RipeButton(
-            title: "Back",
+            title: L10n.Common.back,
             variant: .outline,
             size: .lg,
             fullWidth: true,

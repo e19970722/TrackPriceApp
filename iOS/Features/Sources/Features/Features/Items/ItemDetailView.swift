@@ -26,12 +26,12 @@ public struct ItemDetailView: View {
                     Color(.ripeBg).ignoresSafeArea()
                     scrollContentView
                 }
-                .navigationTitle(store.isEditing ? "Edit Item" : store.item.name)
+                .navigationTitle(store.isEditing ? L10n.Expiry.navTitleEdit : store.item.name)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     if store.isEditing {
                         ToolbarItem(placement: .cancellationAction) {
-                            Button("Cancel") { store.send(.cancelEditTapped) }
+                            Button(L10n.Common.cancel) { store.send(.cancelEditTapped) }
                         }
                         ToolbarItem(placement: .confirmationAction) {
                             Button(store.isSavingEdit ? "Saving\u{2026}" : "Save") {
@@ -117,7 +117,7 @@ extension ItemDetailView {
 
     private var countdownSection: some View {
         VStack(alignment: .leading, spacing: RipeSpacing.s2) {
-            sectionLabel("UNTIL BEST BEFORE")
+            sectionLabel(L10n.Expiry.sectionUntilBestBefore)
             countdownReadout
         }
     }
@@ -128,7 +128,7 @@ extension ItemDetailView {
                 .font(RipeFont.display(40))
                 .foregroundStyle(Color(.ripeInk))
                 .monospacedDigit()
-            Text("days")
+            Text(L10n.Expiry.days)
                 .font(RipeFont.body(18))
                 .foregroundStyle(Color(.ripeInk2))
                 .padding(.bottom, 4)
@@ -153,7 +153,7 @@ extension ItemDetailView {
     private var freshnessBarCard: some View {
         RipeCard {
             VStack(spacing: RipeSpacing.s3) {
-                sectionLabel("FRESHNESS")
+                sectionLabel(L10n.Expiry.sectionFreshness)
                 freshnessBarView
                 freshnessBarLabels
             }
@@ -211,10 +211,26 @@ extension ItemDetailView {
             columns: [GridItem(.flexible()), GridItem(.flexible())],
             spacing: RipeSpacing.s3
         ) {
-            statCard(icon: "calendar", title: "Best before", value: shortDate(store.item.bestBeforeDate))
-            statCard(icon: "leaf", title: "Added", value: shortDate(store.item.addedDate))
-            statCard(icon: "bell", title: "Reminder", value: "\(store.item.remindDaysBefore) days before")
-            statCard(icon: "refrigerator", title: "Location", value: store.item.locationLabel)
+            statCard(
+                icon: "calendar",
+                title: L10n.Expiry.statBestBefore,
+                value: shortDate(store.item.bestBeforeDate)
+            )
+            statCard(
+                icon: "leaf",
+                title: L10n.Expiry.statAdded,
+                value: shortDate(store.item.addedDate)
+            )
+            statCard(
+                icon: "bell",
+                title: L10n.Expiry.statReminderTitle,
+                value: L10n.Expiry.reminderDaysBefore(store.item.remindDaysBefore)
+            )
+            statCard(
+                icon: "refrigerator",
+                title: L10n.Expiry.statLocation,
+                value: store.item.locationLabel ?? ""
+            )
         }
     }
 
@@ -246,7 +262,7 @@ extension ItemDetailView {
                     .font(.system(size: 18))
                     .foregroundStyle(Color(.ripeAccent))
                 VStack(alignment: .leading, spacing: RipeSpacing.s1) {
-                    Text("Reminder")
+                    Text(L10n.Expiry.reminderSection)
                         .font(RipeFont.body(15))
                         .foregroundStyle(Color(.ripeInk))
                     Text(shortDate(store.item.remindOn))
@@ -273,7 +289,7 @@ extension ItemDetailView {
 
     private var markUsedButton: some View {
         RipeButton(
-            title: store.isMarkingUsed ? "Marking\u{2026}" : "Mark used",
+            title: store.isMarkingUsed ? L10n.Expiry.markingUsed : L10n.Expiry.markUsed,
             variant: .primary,
             size: .lg,
             systemImage: "checkmark",
@@ -318,7 +334,7 @@ extension ItemDetailView {
 
     private var editNameCard: some View {
         VStack(alignment: .leading, spacing: RipeSpacing.s2) {
-            fieldLabel("Item name")
+            fieldLabel(L10n.Expiry.fieldItemName)
             RipeCard {
                 TextField("e.g. Greek Yogurt", text: $editName)
                     .font(RipeFont.body(15))
@@ -330,7 +346,7 @@ extension ItemDetailView {
 
     private var editStoredInCard: some View {
         VStack(alignment: .leading, spacing: RipeSpacing.s2) {
-            fieldLabel("Stored in")
+            fieldLabel(L10n.Expiry.fieldStoredIn)
             editLocationButtonRow
             if editLocation == .custom {
                 editCustomLocationTextField
@@ -384,7 +400,7 @@ extension ItemDetailView {
 
     private var editQuantityCard: some View {
         VStack(alignment: .leading, spacing: RipeSpacing.s2) {
-            fieldLabel("Quantity")
+            fieldLabel(L10n.Expiry.fieldQuantity)
             RipeCard {
                 HStack {
                     editDecrementButton
@@ -435,7 +451,7 @@ extension ItemDetailView {
 
     private var editBestBeforeDateCard: some View {
         VStack(alignment: .leading, spacing: RipeSpacing.s2) {
-            fieldLabel("Best-before date")
+            fieldLabel(L10n.Expiry.fieldBestBeforeDate)
             Button {
                 isEditDatePickerPresented = true
             } label: {
@@ -459,7 +475,7 @@ extension ItemDetailView {
         NavigationStack {
             VStack {
                 DatePicker(
-                    "Best-before date",
+                    L10n.Expiry.fieldBestBeforeDate,
                     selection: $editBestBeforeDate,
                     displayedComponents: .date
                 )
@@ -467,11 +483,11 @@ extension ItemDetailView {
                 .tint(Color(.ripeAccent))
                 .padding(RipeSpacing.s5)
             }
-            .navigationTitle("Select date")
+            .navigationTitle(L10n.Expiry.navTitleSelectDate)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { isEditDatePickerPresented = false }
+                    Button(L10n.Common.done) { isEditDatePickerPresented = false }
                 }
             }
         }
@@ -492,9 +508,9 @@ extension ItemDetailView {
 extension ItemDetailView {
     private var freshnessAccentColor: Color {
         switch store.item.freshness {
-        case .fresh:    Color(.ripeGood)
+        case .fresh: Color(.ripeGood)
         case .expiring: Color(.ripeWarn)
-        case .expired:  Color(.ripeDanger)
+        case .expired: Color(.ripeDanger)
         }
     }
 

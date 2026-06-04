@@ -21,7 +21,7 @@ public struct ItemDetailsView: View {
                 Color(.ripeBg).ignoresSafeArea()
                 scrollFormView
             }
-            .navigationTitle("Item details")
+            .navigationTitle(L10n.Expiry.navTitleItemDetails)
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: Binding(
                 get: { store.isDatePickerPresented },
@@ -55,7 +55,7 @@ extension ItemDetailsView {
 
     private var itemNameFieldCard: some View {
         VStack(alignment: .leading, spacing: RipeSpacing.s2) {
-            fieldSectionLabel("Item name")
+            fieldSectionLabel(L10n.Expiry.fieldItemName)
             RipeCard {
                 TextField("e.g. Greek Yogurt", text: $store.itemName)
                     .font(RipeFont.body(15))
@@ -69,7 +69,7 @@ extension ItemDetailsView {
 
     private var storedInCard: some View {
         VStack(alignment: .leading, spacing: RipeSpacing.s2) {
-            fieldSectionLabel("Stored in")
+            fieldSectionLabel(L10n.Expiry.fieldStoredIn)
             primaryLocationRow
             othersRow
         }
@@ -143,7 +143,7 @@ extension ItemDetailsView {
 
     private var quantityFieldCard: some View {
         VStack(alignment: .leading, spacing: RipeSpacing.s2) {
-            fieldSectionLabel("Quantity")
+            fieldSectionLabel(L10n.Expiry.fieldQuantity)
             HStack(spacing: 12) {
                 decrementButton
                 quantityLabel
@@ -218,7 +218,7 @@ extension ItemDetailsView {
     private var bestBefforeDateCard: some View {
         WithPerceptionTracking {
             VStack(alignment: .leading, spacing: RipeSpacing.s2) {
-                fieldSectionLabel("Best-before date")
+                fieldSectionLabel(L10n.Expiry.fieldBestBeforeDate)
                 Button {
                     draftBestBeforeDate = store.bestBeforeDate
                     store.send(.datePickerPresented(true))
@@ -265,7 +265,7 @@ extension ItemDetailsView {
             NavigationStack {
                 VStack {
                     DatePicker(
-                        "Best-before date",
+                        L10n.Expiry.fieldBestBeforeDate,
                         selection: $draftBestBeforeDate,
                         displayedComponents: .date
                     )
@@ -273,11 +273,11 @@ extension ItemDetailsView {
                     .tint(Color(.ripeAccent))
                     .padding(RipeSpacing.s5)
                 }
-                .navigationTitle("Select date")
+                .navigationTitle(L10n.Expiry.navTitleSelectDate)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .confirmationAction) {
-                        Button("Done") {
+                        Button(L10n.Common.done) {
                             store.send(.bestBeforeDateChanged(draftBestBeforeDate))
                             store.send(.datePickerPresented(false))
                         }
@@ -302,7 +302,7 @@ extension ItemDetailsView {
 
     private var continueButton: some View {
         RipeButton(
-            title: "Continue",
+            title: L10n.Expiry.continueButton,
             variant: .primary,
             size: .lg,
             fullWidth: true,
@@ -313,7 +313,7 @@ extension ItemDetailsView {
 
     private var backButton: some View {
         RipeButton(
-            title: "Back",
+            title: L10n.Common.back,
             variant: .outline,
             size: .lg,
             fullWidth: true,

@@ -50,7 +50,7 @@ extension ItemsView {
 
     private var headerRow: some View {
         HStack {
-            Text("Items")
+            Text(L10n.Expiry.listTitle)
                 .font(RipeFont.display(26))
                 .foregroundStyle(Color(.ripeInk))
             Spacer()
@@ -166,7 +166,7 @@ extension ItemsView {
             Image(systemName: "exclamationmark.triangle")
                 .font(.system(size: 48))
                 .foregroundStyle(Color(.ripeInk3))
-            Text("Failed to load items")
+            Text(L10n.Expiry.listErrorMessage)
                 .font(RipeFont.heading())
                 .foregroundStyle(Color(.ripeInk))
             Text(message)
@@ -174,7 +174,7 @@ extension ItemsView {
                 .foregroundStyle(Color(.ripeInk2))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, RipeSpacing.s5)
-            Button("Retry") { store.send(.fetchItems) }
+            Button(L10n.Common.retry) { store.send(.fetchItems) }
                 .buttonStyle(.bordered)
         }
         .frame(maxWidth: .infinity, minHeight: 200)
@@ -186,10 +186,10 @@ extension ItemsView {
             Image(systemName: "refrigerator")
                 .font(.system(size: 48))
                 .foregroundStyle(Color(.ripeInk3))
-            Text("No Items Yet")
+            Text(L10n.Expiry.listEmptyTitle)
                 .font(RipeFont.heading())
                 .foregroundStyle(Color(.ripeInk))
-            Text("Tap + to track an expiry date.")
+            Text(L10n.Expiry.listEmptyMessage)
                 .font(RipeFont.body())
                 .foregroundStyle(Color(.ripeInk2))
         }

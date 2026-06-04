@@ -89,7 +89,7 @@ extension ScanLabelView {
             ProgressView()
                 .progressViewStyle(CircularProgressViewStyle(tint: .white))
                 .scaleEffect(0.75)
-            Text("Looking for a date\u{2026}")
+            Text(L10n.Expiry.scanning)
                 .font(RipeFont.label(13))
                 .foregroundStyle(.white)
         }
@@ -126,7 +126,7 @@ extension ScanLabelView {
         } label: {
             controlPillLabel(
                 systemImage: isFlashOn ? "bolt.fill" : "bolt.slash",
-                title: isFlashOn ? "Flash" : "Flash off"
+                title: isFlashOn ? L10n.Expiry.flash : L10n.Expiry.flashOff
             )
         }
         .buttonStyle(.plain)

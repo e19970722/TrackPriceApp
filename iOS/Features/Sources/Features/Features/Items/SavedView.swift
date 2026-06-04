@@ -51,7 +51,7 @@ extension SavedView {
 
     private var confirmationTextStack: some View {
         VStack(spacing: RipeSpacing.s3) {
-            Text("All set")
+            Text(L10n.Expiry.savedAllSet)
                 .font(RipeFont.display(34))
                 .foregroundStyle(Color(.ripeInk))
             Text(confirmationBody)
@@ -71,7 +71,7 @@ extension SavedView {
 
     private var viewItemButton: some View {
         RipeButton(
-            title: "View item",
+            title: L10n.Expiry.viewItem,
             variant: .primary,
             size: .lg,
             fullWidth: true,
@@ -81,7 +81,7 @@ extension SavedView {
 
     private var addAnotherButton: some View {
         RipeButton(
-            title: "Add another",
+            title: L10n.Expiry.addAnother,
             variant: .ghost,
             size: .lg,
             fullWidth: true,

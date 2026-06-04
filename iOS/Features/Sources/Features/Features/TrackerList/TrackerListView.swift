@@ -53,7 +53,7 @@ extension TrackerListView {
 
     private var headerView: some View {
         HStack {
-            Text("Tracks")
+            Text(L10n.TrackerList.title)
                 .font(RipeFont.display(26))
                 .foregroundStyle(Color(.ripeInk))
             Spacer()
@@ -198,7 +198,7 @@ extension TrackerListView {
             Button(role: .destructive) {
                 store.send(.deleteTrackerById(tracker.id))
             } label: {
-                Label("Delete", systemImage: "trash")
+                Label(L10n.TrackerList.deleteAction, systemImage: "trash")
             }
         }
         .listRowBackground(Color.clear)
@@ -265,7 +265,7 @@ extension TrackerListView {
             Image(systemName: "exclamationmark.triangle")
                 .font(.system(size: 48))
                 .foregroundStyle(Color(.ripeInk3))
-            Text("Failed to load trackers")
+            Text(L10n.TrackerList.errorMessage)
                 .font(RipeFont.heading())
                 .foregroundStyle(Color(.ripeInk))
             Text(message)
@@ -273,7 +273,7 @@ extension TrackerListView {
                 .foregroundStyle(Color(.ripeInk2))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, RipeSpacing.s5)
-            Button("Retry") {
+            Button(L10n.Common.retry) {
                 store.send(.onAppear)
             }
             .buttonStyle(.bordered)
@@ -287,10 +287,10 @@ extension TrackerListView {
             Image(systemName: "tag.slash")
                 .font(.system(size: 48))
                 .foregroundStyle(Color(.ripeInk3))
-            Text("No Trackers Yet")
+            Text(L10n.TrackerList.emptyTitle)
                 .font(RipeFont.heading())
                 .foregroundStyle(Color(.ripeInk))
-            Text("Tap + to start tracking a price.")
+            Text(L10n.TrackerList.emptyMessage)
                 .font(RipeFont.body())
                 .foregroundStyle(Color(.ripeInk2))
         }
