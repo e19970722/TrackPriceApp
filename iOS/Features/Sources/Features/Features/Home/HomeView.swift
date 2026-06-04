@@ -11,13 +11,15 @@ public struct HomeView: View {
     // MARK: - Body
 
     public var body: some View {
-        ZStack {
-            Color(.ripeBg)
-                .ignoresSafeArea()
-            scrollContentView
-        }
-        .onAppear {
-            store.send(.onAppear)
+        WithPerceptionTracking {
+            ZStack {
+                Color(.ripeBg)
+                    .ignoresSafeArea()
+                scrollContentView
+            }
+            .onAppear {
+                store.send(.onAppear)
+            }
         }
     }
 }
