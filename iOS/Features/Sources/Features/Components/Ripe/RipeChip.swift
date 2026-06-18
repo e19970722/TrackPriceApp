@@ -50,12 +50,12 @@ extension RipeChip {
 
     private func chipIconView(_ name: String) -> some View {
         Image(systemName: name)
-            .font(.system(size: 10, weight: .bold))
+            .iconFont(.xs)
     }
 
     private var chipLabelText: some View {
         Text(label)
-            .font(CustomFont.caption(12))
+            .customFont(.medium12)
             .fontWeight(.bold)
     }
 }

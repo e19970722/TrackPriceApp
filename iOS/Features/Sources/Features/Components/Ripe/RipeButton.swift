@@ -86,18 +86,18 @@ extension RipeButton {
 
     private func leadingIconView(_ name: String) -> some View {
         Image(systemName: name)
-            .font(.system(size: iconSize, weight: .semibold))
+            .iconFont(size: iconSize, weight: .semibold)
     }
 
     private var buttonTitleText: some View {
         Text(title)
-            .font(labelFont)
+            .customFont(labelFont)
             .fontWeight(.semibold)
     }
 
     private func trailingIconView(_ name: String) -> some View {
         Image(systemName: name)
-            .font(.system(size: iconSize, weight: .semibold))
+            .iconFont(size: iconSize, weight: .semibold)
     }
 
     @ViewBuilder
@@ -158,11 +158,11 @@ extension RipeButton {
         }
     }
 
-    private var labelFont: Font {
+    private var labelFont: CustomFont {
         switch size {
-        case .sm: CustomFont.label(13)
-        case .md: CustomFont.label(15)
-        case .lg: CustomFont.label(17)
+        case .sm: .semibold13
+        case .md: .semibold15
+        case .lg: .semibold17
         }
     }
 

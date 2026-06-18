@@ -53,13 +53,13 @@ extension RipeToggle {
     VStack(spacing: RipeSpacing.s5) {
         HStack(spacing: RipeSpacing.s4) {
             Text("Off")
-                .font(CustomFont.label())
+                .customFont(.semibold13)
                 .foregroundStyle(Color(.ripeInk2))
             RipeToggle(isOn: false, onToggle: {})
         }
         HStack(spacing: RipeSpacing.s4) {
             Text("On")
-                .font(CustomFont.label())
+                .customFont(.semibold13)
                 .foregroundStyle(Color(.ripeInk2))
             RipeToggle(isOn: true, onToggle: {})
         }
@@ -72,13 +72,13 @@ extension RipeToggle {
     VStack(spacing: RipeSpacing.s5) {
         HStack(spacing: RipeSpacing.s4) {
             Text("Off")
-                .font(CustomFont.label())
+                .customFont(.semibold13)
                 .foregroundStyle(Color(.ripeInk2))
             RipeToggle(isOn: false, onToggle: {})
         }
         HStack(spacing: RipeSpacing.s4) {
             Text("On")
-                .font(CustomFont.label())
+                .customFont(.semibold13)
                 .foregroundStyle(Color(.ripeInk2))
             RipeToggle(isOn: true, onToggle: {})
         }

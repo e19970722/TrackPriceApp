@@ -100,7 +100,7 @@ extension ItemDetailView {
     private var headerInfoStack: some View {
         VStack(alignment: .leading, spacing: RipeSpacing.s1) {
             Text(store.item.name)
-                .font(CustomFont.heading(17))
+                .customFont(.bold17)
                 .foregroundStyle(Color(.ripeInk))
             headerSubtitleText
         }
@@ -109,7 +109,7 @@ extension ItemDetailView {
     private var headerSubtitleText: some View {
         let parts = [store.item.quantity, store.item.locationLabel].compactMap { $0 }
         return Text(parts.joined(separator: " \u{00B7} "))
-            .font(CustomFont.caption(13))
+            .customFont(.medium13)
             .foregroundStyle(Color(.ripeInk2))
     }
 
@@ -125,11 +125,11 @@ extension ItemDetailView {
     private var countdownReadout: some View {
         HStack(alignment: .firstTextBaseline, spacing: RipeSpacing.s2) {
             Text("\(abs(store.item.daysLeft))")
-                .font(CustomFont.display(40))
+                .customFont(.extrabold40)
                 .foregroundStyle(Color(.ripeInk))
                 .monospacedDigit()
             Text(L10n.Expiry.days)
-                .font(CustomFont.body(18))
+                .customFont(.semibold18)
                 .foregroundStyle(Color(.ripeInk2))
                 .padding(.bottom, 4)
             freshnessChip
@@ -195,11 +195,11 @@ extension ItemDetailView {
     private var freshnessBarLabels: some View {
         HStack {
             Text(shortDate(store.item.addedDate))
-                .font(CustomFont.caption(11))
+                .customFont(.medium11)
                 .foregroundStyle(Color(.ripeInk3))
             Spacer()
             Text(shortDate(store.item.bestBeforeDate))
-                .font(CustomFont.caption(11))
+                .customFont(.medium11)
                 .foregroundStyle(Color(.ripeInk3))
         }
     }
@@ -238,15 +238,15 @@ extension ItemDetailView {
         RipeCard {
             VStack(alignment: .leading, spacing: RipeSpacing.s2) {
                 Image(systemName: icon)
-                    .font(.system(size: 15, weight: .semibold))
+                    .iconFont(.md)
                     .foregroundStyle(Color(.ripeAccent))
                 Text(title)
-                    .font(CustomFont.caption(11))
+                    .customFont(.medium11)
                     .foregroundStyle(Color(.ripeInk3))
                     .textCase(.uppercase)
                     .tracking(0.3)
                 Text(value)
-                    .font(CustomFont.body(14))
+                    .customFont(.semibold15)
                     .foregroundStyle(Color(.ripeInk))
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -259,19 +259,19 @@ extension ItemDetailView {
         RipeCard {
             HStack(spacing: RipeSpacing.s3) {
                 Image(systemName: "bell.fill")
-                    .font(.system(size: 18))
+                    .iconFont(.sectionIcon)
                     .foregroundStyle(Color(.ripeAccent))
                 VStack(alignment: .leading, spacing: RipeSpacing.s1) {
                     Text(L10n.Expiry.reminderSection)
-                        .font(CustomFont.body(15))
+                        .customFont(.semibold15)
                         .foregroundStyle(Color(.ripeInk))
                     Text(shortDate(store.item.remindOn))
-                        .font(CustomFont.caption(13))
+                        .customFont(.medium13)
                         .foregroundStyle(Color(.ripeInk2))
                 }
                 Spacer()
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 13, weight: .semibold))
+                    .iconFont(.sm)
                     .foregroundStyle(Color(.ripeInk3))
             }
         }
@@ -317,10 +317,10 @@ extension ItemDetailView {
                     .scaleEffect(0.85)
             } else {
                 Image(systemName: "trash")
-                    .font(.system(size: 15, weight: .semibold))
+                    .iconFont(.md)
             }
             Text(store.isDeleting ? "Deleting\u{2026}" : "Delete item")
-                .font(CustomFont.label(15))
+                .customFont(.semibold15)
                 .fontWeight(.semibold)
         }
         .foregroundStyle(Color(.ripeDanger))
@@ -337,7 +337,7 @@ extension ItemDetailView {
             fieldLabel(L10n.Expiry.fieldItemName)
             RipeCard {
                 TextField("e.g. Greek Yogurt", text: $editName)
-                    .font(CustomFont.body(15))
+                    .customFont(.semibold15)
                     .foregroundStyle(Color(.ripeInk))
                     .focused($focusedEditField, equals: .name)
             }
@@ -372,9 +372,9 @@ extension ItemDetailView {
         } label: {
             VStack(spacing: 4) {
                 Image(systemName: image)
-                    .font(.system(size: 15, weight: .semibold))
+                    .iconFont(.md)
                 Text(label)
-                    .font(CustomFont.heading(13))
+                    .customFont(.bold17)
             }
             .foregroundStyle(isSelected ? Color(.ripeAccentInk) : Color(.ripeInk3))
             .frame(maxWidth: .infinity)
@@ -388,7 +388,7 @@ extension ItemDetailView {
 
     private var editCustomLocationTextField: some View {
         TextField("Custom spot", text: $editLocationCustom)
-            .font(CustomFont.body(14))
+            .customFont(.semibold15)
             .foregroundStyle(Color(.ripeInk))
             .focused($focusedEditField, equals: .locationCustom)
             .tint(Color(.ripeAccent))
@@ -406,7 +406,7 @@ extension ItemDetailView {
                     editDecrementButton
                     Spacer(minLength: 0)
                     Text("\(editQuantityCount)")
-                        .font(CustomFont.num(22))
+                        .customFont(.bold22)
                         .foregroundStyle(Color(.ripeInk))
                         .monospacedDigit()
                     Spacer(minLength: 0)
@@ -423,7 +423,7 @@ extension ItemDetailView {
             ZStack {
                 Circle().fill(Color(.ripeSurface2))
                 Image(systemName: "minus")
-                    .font(.system(size: 16, weight: .semibold))
+                    .iconFont(.quantity)
                     .foregroundStyle(editQuantityCount <= 1 ? Color(.ripeInk3) : Color(.ripeInk))
             }
             .frame(width: 40, height: 40)
@@ -440,7 +440,7 @@ extension ItemDetailView {
             ZStack {
                 Circle().fill(Color(.ripeAccent))
                 Image(systemName: "plus")
-                    .font(.system(size: 16, weight: .semibold))
+                    .iconFont(.quantity)
                     .foregroundStyle(Color(.ripeAccentInk))
             }
             .frame(width: 40, height: 40)
@@ -458,7 +458,7 @@ extension ItemDetailView {
                 RipeCard {
                     HStack {
                         Text(shortDate(editBestBeforeDate))
-                            .font(CustomFont.body(15))
+                            .customFont(.semibold15)
                             .foregroundStyle(Color(.ripeInk))
                         Spacer()
                         Image(systemName: "calendar")
@@ -496,7 +496,7 @@ extension ItemDetailView {
 
     private func fieldLabel(_ title: String) -> some View {
         Text(title)
-            .font(CustomFont.label(12))
+            .customFont(.semibold13)
             .foregroundStyle(Color(.ripeInk3))
             .textCase(.uppercase)
             .tracking(0.5)
@@ -534,7 +534,7 @@ extension ItemDetailView {
 
     private func sectionLabel(_ title: String) -> some View {
         Text(title)
-            .font(CustomFont.caption(11))
+            .customFont(.medium11)
             .foregroundStyle(Color(.ripeInk3))
             .tracking(0.5)
             .frame(maxWidth: .infinity, alignment: .leading)

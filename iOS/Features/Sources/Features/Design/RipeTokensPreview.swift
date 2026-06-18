@@ -6,13 +6,13 @@ import SwiftUI
             VStack(alignment: .leading, spacing: RipeSpacing.s4) {
                 // Font preview
                 Group {
-                    Text("Display 30 — ExtraBold").font(CustomFont.display())
-                    Text("Title 26 — ExtraBold").font(CustomFont.title())
-                    Text("Heading 19 — Bold").font(CustomFont.heading())
-                    Text("Body 15 — SemiBold").font(CustomFont.body())
-                    Text("Label 13 — SemiBold").font(CustomFont.label())
-                    Text("Caption 12 — Medium").font(CustomFont.caption())
-                    Text("Num $12.99 — Bold").font(CustomFont.num())
+                    Text("Display 30 — ExtraBold").customFont(.extrabold30)
+                    Text("Title 26 — ExtraBold").customFont(.extrabold26)
+                    Text("Heading 19 — Bold").customFont(.bold19)
+                    Text("Body 15 — SemiBold").customFont(.semibold15)
+                    Text("Label 13 — SemiBold").customFont(.semibold13)
+                    Text("Caption 12 — Medium").customFont(.medium12)
+                    Text("Num $12.99 — Bold").customFont(.bold17).monospacedDigit()
                 }
 
                 Divider()
@@ -31,7 +31,7 @@ import SwiftUI
                                 .frame(height: 36)
                                 .overlay(RoundedRectangle(cornerRadius: RipeRadius.xs)
                                     .stroke(Color(.ripeInk).opacity(0.08)))
-                            Text(name).font(CustomFont.caption(10)).foregroundStyle(Color(.ripeInk2))
+                            Text(name).customFont(.medium10).foregroundStyle(Color(.ripeInk2))
                         }
                     }
                 }

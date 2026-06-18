@@ -61,7 +61,7 @@ extension ChooseMethodView {
                 .fill(Color(.ripeAccentSoft))
                 .frame(width: 120, height: 120)
             Image(systemName: "refrigerator.fill")
-                .font(.system(size: 52, weight: .regular))
+                .iconFont(.hero)
                 .foregroundStyle(Color(.ripeAccent))
         }
     }
@@ -69,12 +69,12 @@ extension ChooseMethodView {
     private var heroTextStack: some View {
         VStack(spacing: RipeSpacing.s2) {
             Text(L10n.Expiry.firstPageTitle)
-                .font(CustomFont.heading(18))
+                .customFont(.bold18)
                 .foregroundStyle(Color(.ripeInk))
                 .multilineTextAlignment(.center)
 
             Text(L10n.Expiry.firstPageDesc)
-                .font(CustomFont.caption(13.5))
+                .customFont(.medium13)
                 .foregroundStyle(Color(.ripeInk2))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, RipeSpacing.s3)
@@ -104,10 +104,10 @@ extension ChooseMethodView {
         Button(action: { store.send(.enterManuallyTapped) }) {
             HStack(spacing: RipeSpacing.s2) {
                 Image(systemName: "pencil")
-                    .font(.system(size: 17, weight: .semibold))
+                    .iconFont(.lg)
 
                 Text(L10n.Expiry.enterManually)
-                    .font(CustomFont.label(17))
+                    .customFont(.semibold17)
                     .fontWeight(.semibold)
             }
             .frame(maxWidth: .infinity)
@@ -121,7 +121,7 @@ extension ChooseMethodView {
         Button(L10n.Common.cancel) {
             store.send(.dismiss)
         }
-        .font(CustomFont.body(15))
+        .customFont(.semibold15)
         .foregroundStyle(Color(.ripeInk2))
     }
 }

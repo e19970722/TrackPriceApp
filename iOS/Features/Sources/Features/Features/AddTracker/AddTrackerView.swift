@@ -88,7 +88,7 @@ extension URLEntryView {
     private var urlInputSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(L10n.AddTracker.urlPrompt)
-                .font(.headline)
+                .customFont(.bold17)
             urlInputRow
         }
     }
@@ -214,7 +214,7 @@ extension ConfirmationView {
     private var selectedElementCard: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text(L10n.AddTracker.confirmTitle)
-                .font(.headline)
+                .customFont(.bold17)
             selectedTextSection
             parsedPriceRow
         }
@@ -227,10 +227,10 @@ extension ConfirmationView {
     private var selectedTextSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(L10n.AddTracker.selectedText)
-                .font(.caption)
+                .customFont(.medium12)
                 .foregroundStyle(.secondary)
             Text(info.rawText.map { $0.isEmpty ? "(no text)" : $0 } ?? "(no text)")
-                .font(.title2)
+                .customFont(.extrabold22)
                 .bold()
                 .padding()
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -246,7 +246,7 @@ extension ConfirmationView {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundStyle(.green)
                     Text(L10n.AddTracker.parsedPrice("\(info.currencySymbol)\(String(format: "%.2f", price))"))
-                        .font(.subheadline)
+                        .customFont(.medium15)
                         .foregroundStyle(.secondary)
                 }
             } else {
@@ -254,7 +254,7 @@ extension ConfirmationView {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundStyle(.yellow)
                     Text(L10n.AddTracker.noPriceDetected)
-                        .font(.subheadline)
+                        .customFont(.medium15)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -347,7 +347,7 @@ extension TargetSetupView {
         Section {
             Text(message)
                 .foregroundStyle(.red)
-                .font(.caption)
+                .customFont(.medium12)
         }
     }
 

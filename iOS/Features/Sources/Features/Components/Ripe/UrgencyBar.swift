@@ -69,42 +69,42 @@ extension UrgencyBar {
     VStack(alignment: .leading, spacing: RipeSpacing.s3) {
         HStack {
             Text("1 day left (warn)")
-                .font(CustomFont.label())
+                .customFont(.semibold13)
                 .foregroundStyle(Color(.ripeInk2))
             Spacer()
             UrgencyBar(daysLeft: 1)
         }
         HStack {
             Text("3 days left (warn)")
-                .font(CustomFont.label())
+                .customFont(.semibold13)
                 .foregroundStyle(Color(.ripeInk2))
             Spacer()
             UrgencyBar(daysLeft: 3)
         }
         HStack {
             Text("5 days left (accent)")
-                .font(CustomFont.label())
+                .customFont(.semibold13)
                 .foregroundStyle(Color(.ripeInk2))
             Spacer()
             UrgencyBar(daysLeft: 5)
         }
         HStack {
             Text("7 days left (accent)")
-                .font(CustomFont.label())
+                .customFont(.semibold13)
                 .foregroundStyle(Color(.ripeInk2))
             Spacer()
             UrgencyBar(daysLeft: 7)
         }
         HStack {
             Text("14 days left (good)")
-                .font(CustomFont.label())
+                .customFont(.semibold13)
                 .foregroundStyle(Color(.ripeInk2))
             Spacer()
             UrgencyBar(daysLeft: 14)
         }
         HStack {
             Text("30 days left (good)")
-                .font(CustomFont.label())
+                .customFont(.semibold13)
                 .foregroundStyle(Color(.ripeInk2))
             Spacer()
             UrgencyBar(daysLeft: 30)
@@ -118,21 +118,21 @@ extension UrgencyBar {
     VStack(alignment: .leading, spacing: RipeSpacing.s3) {
         HStack {
             Text("2 days")
-                .font(CustomFont.label())
+                .customFont(.semibold13)
                 .foregroundStyle(Color(.ripeInk2))
             Spacer()
             UrgencyBar(daysLeft: 2)
         }
         HStack {
             Text("6 days")
-                .font(CustomFont.label())
+                .customFont(.semibold13)
                 .foregroundStyle(Color(.ripeInk2))
             Spacer()
             UrgencyBar(daysLeft: 6)
         }
         HStack {
             Text("20 days")
-                .font(CustomFont.label())
+                .customFont(.semibold13)
                 .foregroundStyle(Color(.ripeInk2))
             Spacer()
             UrgencyBar(daysLeft: 20)

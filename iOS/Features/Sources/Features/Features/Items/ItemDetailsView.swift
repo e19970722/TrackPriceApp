@@ -58,7 +58,7 @@ extension ItemDetailsView {
             fieldSectionLabel(L10n.Expiry.fieldItemName)
             RipeCard {
                 TextField("e.g. Greek Yogurt", text: $store.itemName)
-                    .font(CustomFont.body(15))
+                    .customFont(.semibold15)
                     .foregroundStyle(Color(.ripeInk))
                     .focused($focusedField, equals: .name)
             }
@@ -107,9 +107,9 @@ extension ItemDetailsView {
             } label: {
                 VStack(spacing: 4) {
                     Image(systemName: image)
-                        .font(.system(size: 15, weight: .semibold))
+                        .iconFont(.md)
                     Text(label)
-                        .font(CustomFont.heading(13))
+                        .customFont(.bold13)
                 }
                 .foregroundStyle(isSelected ? Color(.ripeAccentInk) : Color(.ripeInk3))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -124,7 +124,7 @@ extension ItemDetailsView {
     private var customLocationTextField: some View {
         WithPerceptionTracking {
             TextField("Type a custom spot", text: $store.locationCustom)
-                .font(CustomFont.body(14))
+                .customFont(.semibold13)
                 .foregroundStyle(Color(.ripeInk))
                 .focused($focusedField, equals: .customLocation)
                 .tint(Color(.ripeAccent))
@@ -167,7 +167,7 @@ extension ItemDetailsView {
                                 .strokeBorder(Color(.ripeInk).opacity(0.07), lineWidth: 1.5)
                         )
                     Image(systemName: "minus")
-                        .font(.system(size: 18, weight: .semibold))
+                        .iconFont(.quantityLg)
                         .foregroundStyle(quantityCount <= 1 ? Color(.ripeInk3) : Color(.ripeInk2))
                 }
                 .frame(width: 52, height: 52)
@@ -188,7 +188,7 @@ extension ItemDetailsView {
                             .strokeBorder(Color(.ripeInk).opacity(0.07), lineWidth: 1.5)
                     )
                 Text("\(quantityCount)")
-                    .font(CustomFont.num(22))
+                    .customFont(.bold22)
                     .foregroundStyle(Color(.ripeInk))
                     .monospacedDigit()
                     .fontWeight(.heavy)
@@ -206,7 +206,7 @@ extension ItemDetailsView {
                     .fill(Color(.ripeAccent))
                     .shadow(color: Color(.ripeAccent).opacity(0.3), radius: 5, y: 3)
                 Image(systemName: "plus")
-                    .font(.system(size: 18, weight: .semibold))
+                    .iconFont(.quantityLg)
                     .foregroundStyle(Color(.ripeAccentInk))
             }
             .frame(width: 52, height: 52)
@@ -228,17 +228,17 @@ extension ItemDetailsView {
                     RipeCard {
                         HStack(spacing: RipeSpacing.s3) {
                             Image(systemName: "calendar")
-                                .font(.system(size: 17, weight: .semibold))
+                                .iconFont(.lg)
                                 .foregroundStyle(Color(.ripeAccent))
                             Text(formattedDate(store.bestBeforeDate))
-                                .font(.system(size: 17, weight: .bold))
+                                .customFont(.bold17)
                                 .foregroundStyle(Color(.ripeInk))
                             Spacer()
                             if store.isDateFromScan {
                                 scannedChip
                             } else {
                                 Image(systemName: "chevron.right")
-                                    .font(.system(size: 13, weight: .semibold))
+                                    .iconFont(.sm)
                                     .foregroundStyle(Color(.ripeInk3))
                             }
                         }
@@ -249,7 +249,7 @@ extension ItemDetailsView {
                 Text(store.isDateFromScan
                     ? "Auto-filled from the label — tap to adjust."
                     : "Defaults to today — tap to change.")
-                    .font(CustomFont.caption(12))
+                    .customFont(.medium12)
                     .foregroundStyle(Color(.ripeInk3))
                     .padding(.horizontal, 2)
             }
@@ -329,7 +329,7 @@ extension ItemDetailsView {
 extension ItemDetailsView {
     private func fieldSectionLabel(_ title: String) -> some View {
         Text(title)
-            .font(CustomFont.label(12))
+            .customFont(.semibold12)
             .foregroundStyle(Color(.ripeInk3))
             .textCase(.uppercase)
             .tracking(0.5)

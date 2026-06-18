@@ -66,10 +66,10 @@ extension SettingsView {
             )
             VStack(alignment: .leading, spacing: RipeSpacing.s1) {
                 Text(displayName)
-                    .font(CustomFont.display(26))
+                    .customFont(.extrabold26)
                     .foregroundStyle(Color(.ripeInk))
                 Text(displayEmail)
-                    .font(CustomFont.caption(13.5))
+                    .customFont(.medium13)
                     .foregroundStyle(Color(.ripeInk3))
             }
             Spacer()
@@ -188,7 +188,7 @@ extension SettingsView {
             HStack(spacing: RipeSpacing.s3) {
                 iconTileView(systemName: "rectangle.portrait.and.arrow.right", color: Color(.ripeDanger))
                 Text(L10n.Settings.signOutRow)
-                    .font(CustomFont.body(15.5))
+                    .customFont(.semibold15)
                     .foregroundStyle(Color(.ripeDanger))
                 Spacer()
             }
@@ -222,7 +222,7 @@ extension SettingsView {
 
     private func iconTileView(systemName: String, color: Color) -> some View {
         Image(systemName: systemName)
-            .font(.system(size: 15, weight: .semibold))
+            .iconFont(.md)
             .foregroundStyle(color)
             .frame(width: 36, height: 36)
             .background(
@@ -242,16 +242,16 @@ extension SettingsView {
             HStack(spacing: RipeSpacing.s3) {
                 iconTileView(systemName: icon, color: iconColor)
                 Text(title)
-                    .font(CustomFont.body(15.5))
+                    .customFont(.semibold15)
                     .foregroundStyle(Color(.ripeInk))
                 Spacer()
                 if let value {
                     Text(value)
-                        .font(CustomFont.caption(12.5))
+                        .customFont(.medium12)
                         .foregroundStyle(Color(.ripeInk2))
                 }
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .semibold))
+                    .iconFont(.sm)
                     .foregroundStyle(Color(.ripeInk3))
             }
             .padding(.horizontal, RipeSpacing.s4)
@@ -278,10 +278,10 @@ extension SettingsView {
                 iconTileView(systemName: icon, color: iconColor)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
-                        .font(CustomFont.body(15.5))
+                        .customFont(.semibold15)
                         .foregroundStyle(Color(.ripeInk))
                     Text(detail)
-                        .font(CustomFont.caption(12.5))
+                        .customFont(.medium12)
                         .foregroundStyle(Color(.ripeInk2))
                 }
                 Spacer()

@@ -70,11 +70,11 @@ extension ReminderView {
     private var itemSummaryTextStack: some View {
         VStack(alignment: .leading, spacing: RipeSpacing.s1) {
             Text(draftItem.name)
-                .font(CustomFont.heading(15))
+                .customFont(.bold17)
                 .foregroundStyle(Color(.ripeInk))
                 .lineLimit(1)
             Text(L10n.Expiry.bestBefore(shortDate(draftItem.bestBeforeDate)))
-                .font(CustomFont.caption(12))
+                .customFont(.medium12)
                 .foregroundStyle(Color(.ripeInk2))
         }
     }
@@ -89,7 +89,7 @@ extension ReminderView {
 
     private var remindSectionLabel: some View {
         Text(L10n.Expiry.remindMe)
-            .font(.system(size: 13, weight: .bold))
+            .customFont(.bold13)
             .foregroundStyle(Color(.ripeInk2))
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 2)
@@ -101,11 +101,11 @@ extension ReminderView {
         WithPerceptionTracking {
             HStack(alignment: .firstTextBaseline, spacing: RipeSpacing.s2) {
                 Text("\(store.remindDaysBefore)")
-                    .font(CustomFont.display(44))
+                    .customFont(.extrabold44)
                     .foregroundStyle(Color(.ripeAccent))
                     .monospacedDigit()
                 Text(L10n.Expiry.daysBefore)
-                    .font(CustomFont.body(18))
+                    .customFont(.semibold18)
                     .foregroundStyle(Color(.ripeInk2))
                     .padding(.bottom, 4)
             }
@@ -142,7 +142,7 @@ extension ReminderView {
                                 .frame(maxWidth: .infinity, alignment: .center)
                         }
                     }
-                    .font(.system(size: 12, weight: isActive ? .bold : .semibold))
+                    .customFont(isActive ? .bold12 : .semibold12)
                     .foregroundStyle(isActive ? Color(.ripeAccent) : Color(.ripeInk3))
                     .monospacedDigit()
                 }
@@ -156,10 +156,10 @@ extension ReminderView {
         WithPerceptionTracking {
             HStack(spacing: RipeSpacing.s3) {
                 Image(systemName: isReminderInPast ? "exclamationmark.triangle.fill" : "bell.fill")
-                    .font(.system(size: 16))
+                    .iconFont(.bodyIcon)
                     .foregroundStyle(isReminderInPast ? Color(.ripeWarn) : Color(.ripeAccent))
                 Text(isReminderInPast ? reminderPastHintText : reminderBannerText)
-                    .font(CustomFont.body(14))
+                    .customFont(.semibold15)
                     .foregroundStyle(Color(.ripeInk))
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -178,10 +178,10 @@ extension ReminderView {
                     calendarCheckIcon
                     VStack(alignment: .leading, spacing: RipeSpacing.s1) {
                         Text(L10n.Expiry.alsoAlertOnDay)
-                            .font(CustomFont.body(15))
+                            .customFont(.semibold15)
                             .foregroundStyle(Color(.ripeInk))
                         Text(L10n.Expiry.morningOf(shortDate(draftItem.bestBeforeDate)))
-                            .font(CustomFont.caption(12))
+                            .customFont(.medium12)
                             .foregroundStyle(Color(.ripeInk2))
                     }
                     Spacer()
@@ -198,7 +198,7 @@ extension ReminderView {
             RoundedRectangle(cornerRadius: 10, style: .continuous)
                 .fill(Color(.ripeGood).opacity(0.1))
             Image(systemName: "calendar.badge.checkmark")
-                .font(.system(size: 17, weight: .semibold))
+                .iconFont(.lg)
                 .foregroundStyle(Color(.ripeGood))
         }
         .frame(width: 36, height: 36)

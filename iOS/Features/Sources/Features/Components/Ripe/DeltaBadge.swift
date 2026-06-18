@@ -59,12 +59,12 @@ extension DeltaBadge {
 
     private var directionIconView: some View {
         Image(systemName: direction == .down ? "arrow.down" : "arrow.up")
-            .font(.system(size: 10, weight: .bold))
+            .iconFont(.xs)
     }
 
     private var deltaValueText: some View {
         Text(value)
-            .font(CustomFont.caption(12))
+            .customFont(.medium12)
             .fontWeight(.bold)
     }
 }

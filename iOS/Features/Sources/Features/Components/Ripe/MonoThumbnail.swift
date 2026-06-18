@@ -63,13 +63,13 @@ extension MonoThumbnail {
 
     private func thumbnailIconView(_ name: String) -> some View {
         Image(systemName: name)
-            .font(.system(size: size * 0.45, weight: .semibold))
+            .iconFont(size: size * 0.45, weight: .semibold)
             .foregroundStyle(thumbnailForeground)
     }
 
     private var thumbnailLetterText: some View {
         Text(String(label.prefix(1)).uppercased())
-            .font(CustomFont.display(size * 0.4))
+            .customFont(.extrabold22)
             .foregroundStyle(thumbnailForeground)
     }
 

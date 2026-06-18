@@ -43,14 +43,14 @@ extension AuthView {
     private var logoSectionView: some View {
         VStack(spacing: 12) {
             Image(systemName: "tag.fill")
-                .font(.system(size: 60))
+                .iconFont(.splash)
                 .foregroundStyle(.blue)
 
             Text(L10n.Auth.appName)
-                .font(.largeTitle.bold())
+                .customFont(.extrabold34)
 
             Text(L10n.Auth.tagline)
-                .font(.subheadline)
+                .customFont(.medium15)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
         }
@@ -92,7 +92,7 @@ extension AuthView {
     private var errorMessageLabel: some View {
         if let errorMessage = store.errorMessage {
             Text(errorMessage)
-                .font(.footnote)
+                .customFont(.medium13)
                 .foregroundStyle(.red)
                 .multilineTextAlignment(.center)
                 .padding(.top, 12)
@@ -135,7 +135,7 @@ extension GoogleSignInButton {
                 .frame(width: 20, height: 20)
 
             Text(L10n.Auth.signInWithGoogle)
-                .font(.system(size: 17, weight: .medium))
+                .customFont(.medium15)
                 .foregroundStyle(Color(.label))
         }
         .frame(maxWidth: .infinity)
