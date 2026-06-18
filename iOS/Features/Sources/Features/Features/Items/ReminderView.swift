@@ -185,9 +185,10 @@ extension ReminderView {
                             .foregroundStyle(Color(.ripeInk2))
                     }
                     Spacer()
-                    Toggle("", isOn: $store.remindOnDay)
-                        .labelsHidden()
-                        .tint(Color(.ripeAccent))
+                    RipeToggle(
+                        isOn: store.remindOnDay,
+                        onToggle: { store.remindOnDay = !store.remindOnDay }
+                    )
                 }
             }
         }
