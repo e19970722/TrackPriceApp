@@ -62,7 +62,7 @@ extension RipeModalHeader {
     private var leadingSlotContent: some View {
         if let leadingText {
             Text(leadingText)
-                .font(RipeFont.body(16))
+                .font(CustomFont.body(16))
                 .foregroundStyle(Color(.ripeInk2))
         } else {
             backTileView
@@ -82,7 +82,7 @@ extension RipeModalHeader {
 
     private var titleTextView: some View {
         Text(title)
-            .font(RipeFont.heading(17))
+            .font(CustomFont.heading(17))
             .foregroundStyle(Color(.ripeInk))
             .multilineTextAlignment(.center)
     }
@@ -117,7 +117,7 @@ extension RipeModalHeader {
             onLeadingTap: {},
             trailing: AnyView(
                 Button("Save") {}
-                    .font(RipeFont.body(16))
+                    .font(CustomFont.body(16))
                     .foregroundStyle(Color(.ripeAccent))
             )
         )

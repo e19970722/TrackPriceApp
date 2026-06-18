@@ -55,7 +55,7 @@ extension RipeChip {
 
     private var chipLabelText: some View {
         Text(label)
-            .font(RipeFont.caption(12))
+            .font(CustomFont.caption(12))
             .fontWeight(.bold)
     }
 }

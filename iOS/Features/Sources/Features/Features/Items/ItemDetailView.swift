@@ -100,7 +100,7 @@ extension ItemDetailView {
     private var headerInfoStack: some View {
         VStack(alignment: .leading, spacing: RipeSpacing.s1) {
             Text(store.item.name)
-                .font(RipeFont.heading(17))
+                .font(CustomFont.heading(17))
                 .foregroundStyle(Color(.ripeInk))
             headerSubtitleText
         }
@@ -109,7 +109,7 @@ extension ItemDetailView {
     private var headerSubtitleText: some View {
         let parts = [store.item.quantity, store.item.locationLabel].compactMap { $0 }
         return Text(parts.joined(separator: " \u{00B7} "))
-            .font(RipeFont.caption(13))
+            .font(CustomFont.caption(13))
             .foregroundStyle(Color(.ripeInk2))
     }
 
@@ -125,11 +125,11 @@ extension ItemDetailView {
     private var countdownReadout: some View {
         HStack(alignment: .firstTextBaseline, spacing: RipeSpacing.s2) {
             Text("\(abs(store.item.daysLeft))")
-                .font(RipeFont.display(40))
+                .font(CustomFont.display(40))
                 .foregroundStyle(Color(.ripeInk))
                 .monospacedDigit()
             Text(L10n.Expiry.days)
-                .font(RipeFont.body(18))
+                .font(CustomFont.body(18))
                 .foregroundStyle(Color(.ripeInk2))
                 .padding(.bottom, 4)
             freshnessChip
@@ -195,11 +195,11 @@ extension ItemDetailView {
     private var freshnessBarLabels: some View {
         HStack {
             Text(shortDate(store.item.addedDate))
-                .font(RipeFont.caption(11))
+                .font(CustomFont.caption(11))
                 .foregroundStyle(Color(.ripeInk3))
             Spacer()
             Text(shortDate(store.item.bestBeforeDate))
-                .font(RipeFont.caption(11))
+                .font(CustomFont.caption(11))
                 .foregroundStyle(Color(.ripeInk3))
         }
     }
@@ -241,12 +241,12 @@ extension ItemDetailView {
                     .font(.system(size: 15, weight: .semibold))
                     .foregroundStyle(Color(.ripeAccent))
                 Text(title)
-                    .font(RipeFont.caption(11))
+                    .font(CustomFont.caption(11))
                     .foregroundStyle(Color(.ripeInk3))
                     .textCase(.uppercase)
                     .tracking(0.3)
                 Text(value)
-                    .font(RipeFont.body(14))
+                    .font(CustomFont.body(14))
                     .foregroundStyle(Color(.ripeInk))
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -263,10 +263,10 @@ extension ItemDetailView {
                     .foregroundStyle(Color(.ripeAccent))
                 VStack(alignment: .leading, spacing: RipeSpacing.s1) {
                     Text(L10n.Expiry.reminderSection)
-                        .font(RipeFont.body(15))
+                        .font(CustomFont.body(15))
                         .foregroundStyle(Color(.ripeInk))
                     Text(shortDate(store.item.remindOn))
-                        .font(RipeFont.caption(13))
+                        .font(CustomFont.caption(13))
                         .foregroundStyle(Color(.ripeInk2))
                 }
                 Spacer()
@@ -320,7 +320,7 @@ extension ItemDetailView {
                     .font(.system(size: 15, weight: .semibold))
             }
             Text(store.isDeleting ? "Deleting\u{2026}" : "Delete item")
-                .font(RipeFont.label(15))
+                .font(CustomFont.label(15))
                 .fontWeight(.semibold)
         }
         .foregroundStyle(Color(.ripeDanger))
@@ -337,7 +337,7 @@ extension ItemDetailView {
             fieldLabel(L10n.Expiry.fieldItemName)
             RipeCard {
                 TextField("e.g. Greek Yogurt", text: $editName)
-                    .font(RipeFont.body(15))
+                    .font(CustomFont.body(15))
                     .foregroundStyle(Color(.ripeInk))
                     .focused($focusedEditField, equals: .name)
             }
@@ -374,7 +374,7 @@ extension ItemDetailView {
                 Image(systemName: image)
                     .font(.system(size: 15, weight: .semibold))
                 Text(label)
-                    .font(RipeFont.heading(13))
+                    .font(CustomFont.heading(13))
             }
             .foregroundStyle(isSelected ? Color(.ripeAccentInk) : Color(.ripeInk3))
             .frame(maxWidth: .infinity)
@@ -388,7 +388,7 @@ extension ItemDetailView {
 
     private var editCustomLocationTextField: some View {
         TextField("Custom spot", text: $editLocationCustom)
-            .font(RipeFont.body(14))
+            .font(CustomFont.body(14))
             .foregroundStyle(Color(.ripeInk))
             .focused($focusedEditField, equals: .locationCustom)
             .tint(Color(.ripeAccent))
@@ -406,7 +406,7 @@ extension ItemDetailView {
                     editDecrementButton
                     Spacer(minLength: 0)
                     Text("\(editQuantityCount)")
-                        .font(RipeFont.num(22))
+                        .font(CustomFont.num(22))
                         .foregroundStyle(Color(.ripeInk))
                         .monospacedDigit()
                     Spacer(minLength: 0)
@@ -458,7 +458,7 @@ extension ItemDetailView {
                 RipeCard {
                     HStack {
                         Text(shortDate(editBestBeforeDate))
-                            .font(RipeFont.body(15))
+                            .font(CustomFont.body(15))
                             .foregroundStyle(Color(.ripeInk))
                         Spacer()
                         Image(systemName: "calendar")
@@ -496,7 +496,7 @@ extension ItemDetailView {
 
     private func fieldLabel(_ title: String) -> some View {
         Text(title)
-            .font(RipeFont.label(12))
+            .font(CustomFont.label(12))
             .foregroundStyle(Color(.ripeInk3))
             .textCase(.uppercase)
             .tracking(0.5)
@@ -534,7 +534,7 @@ extension ItemDetailView {
 
     private func sectionLabel(_ title: String) -> some View {
         Text(title)
-            .font(RipeFont.caption(11))
+            .font(CustomFont.caption(11))
             .foregroundStyle(Color(.ripeInk3))
             .tracking(0.5)
             .frame(maxWidth: .infinity, alignment: .leading)

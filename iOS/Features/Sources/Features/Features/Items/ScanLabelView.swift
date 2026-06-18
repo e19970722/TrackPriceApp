@@ -90,7 +90,7 @@ extension ScanLabelView {
                 .progressViewStyle(CircularProgressViewStyle(tint: .white))
                 .scaleEffect(0.75)
             Text(L10n.Expiry.scanning)
-                .font(RipeFont.label(13))
+                .font(CustomFont.label(13))
                 .foregroundStyle(.white)
         }
         .padding(.horizontal, RipeSpacing.s4)
@@ -138,7 +138,7 @@ extension ScanLabelView {
                 .font(.system(size: 14, weight: .semibold))
             if let title {
                 Text(title)
-                    .font(RipeFont.label(13))
+                    .font(CustomFont.label(13))
             }
         }
         .foregroundStyle(.white)

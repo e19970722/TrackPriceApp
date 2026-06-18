@@ -69,7 +69,7 @@ extension MonoThumbnail {
 
     private var thumbnailLetterText: some View {
         Text(String(label.prefix(1)).uppercased())
-            .font(RipeFont.display(size * 0.4))
+            .font(CustomFont.display(size * 0.4))
             .foregroundStyle(thumbnailForeground)
     }
 

@@ -66,10 +66,10 @@ extension SettingsView {
             )
             VStack(alignment: .leading, spacing: RipeSpacing.s1) {
                 Text(displayName)
-                    .font(RipeFont.display(26))
+                    .font(CustomFont.display(26))
                     .foregroundStyle(Color(.ripeInk))
                 Text(displayEmail)
-                    .font(RipeFont.caption(13.5))
+                    .font(CustomFont.caption(13.5))
                     .foregroundStyle(Color(.ripeInk3))
             }
             Spacer()
@@ -188,7 +188,7 @@ extension SettingsView {
             HStack(spacing: RipeSpacing.s3) {
                 iconTileView(systemName: "rectangle.portrait.and.arrow.right", color: Color(.ripeDanger))
                 Text(L10n.Settings.signOutRow)
-                    .font(RipeFont.body(15.5))
+                    .font(CustomFont.body(15.5))
                     .foregroundStyle(Color(.ripeDanger))
                 Spacer()
             }
@@ -243,12 +243,12 @@ extension SettingsView {
             HStack(spacing: RipeSpacing.s3) {
                 iconTileView(systemName: icon, color: iconColor)
                 Text(title)
-                    .font(RipeFont.body(15.5))
+                    .font(CustomFont.body(15.5))
                     .foregroundStyle(Color(.ripeInk))
                 Spacer()
                 if let value {
                     Text(value)
-                        .font(RipeFont.caption(12.5))
+                        .font(CustomFont.caption(12.5))
                         .foregroundStyle(Color(.ripeInk2))
                 }
                 Image(systemName: "chevron.right")
@@ -280,10 +280,10 @@ extension SettingsView {
                 iconTileView(systemName: icon, color: iconColor)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
-                        .font(RipeFont.body(15.5))
+                        .font(CustomFont.body(15.5))
                         .foregroundStyle(Color(.ripeInk))
                     Text(detail)
-                        .font(RipeFont.caption(12.5))
+                        .font(CustomFont.caption(12.5))
                         .foregroundStyle(Color(.ripeInk2))
                 }
                 Spacer()

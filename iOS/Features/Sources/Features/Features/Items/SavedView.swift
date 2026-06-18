@@ -52,10 +52,10 @@ extension SavedView {
     private var confirmationTextStack: some View {
         VStack(spacing: RipeSpacing.s3) {
             Text(L10n.Expiry.savedAllSet)
-                .font(RipeFont.display(34))
+                .font(CustomFont.display(34))
                 .foregroundStyle(Color(.ripeInk))
             Text(confirmationBody)
-                .font(RipeFont.body(15))
+                .font(CustomFont.body(15))
                 .foregroundStyle(Color(.ripeInk2))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, RipeSpacing.s4)

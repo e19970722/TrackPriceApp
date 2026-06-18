@@ -80,13 +80,13 @@ extension RipeSettingsRow {
 
     private var titleTextView: some View {
         Text(title)
-            .font(RipeFont.label(16))
+            .font(CustomFont.label(16))
             .foregroundStyle(Color(.ripeInk))
     }
 
     private func subtitleTextView(_ text: String) -> some View {
         Text(text)
-            .font(RipeFont.caption(12))
+            .font(CustomFont.caption(12))
             .foregroundStyle(Color(.ripeInk2))
     }
 

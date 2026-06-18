@@ -70,11 +70,11 @@ extension ReminderView {
     private var itemSummaryTextStack: some View {
         VStack(alignment: .leading, spacing: RipeSpacing.s1) {
             Text(draftItem.name)
-                .font(RipeFont.heading(15))
+                .font(CustomFont.heading(15))
                 .foregroundStyle(Color(.ripeInk))
                 .lineLimit(1)
             Text(L10n.Expiry.bestBefore(shortDate(draftItem.bestBeforeDate)))
-                .font(RipeFont.caption(12))
+                .font(CustomFont.caption(12))
                 .foregroundStyle(Color(.ripeInk2))
         }
     }
@@ -101,11 +101,11 @@ extension ReminderView {
         WithPerceptionTracking {
             HStack(alignment: .firstTextBaseline, spacing: RipeSpacing.s2) {
                 Text("\(store.remindDaysBefore)")
-                    .font(RipeFont.display(44))
+                    .font(CustomFont.display(44))
                     .foregroundStyle(Color(.ripeAccent))
                     .monospacedDigit()
                 Text(L10n.Expiry.daysBefore)
-                    .font(RipeFont.body(18))
+                    .font(CustomFont.body(18))
                     .foregroundStyle(Color(.ripeInk2))
                     .padding(.bottom, 4)
             }
@@ -159,7 +159,7 @@ extension ReminderView {
                     .font(.system(size: 16))
                     .foregroundStyle(isReminderInPast ? Color(.ripeWarn) : Color(.ripeAccent))
                 Text(isReminderInPast ? reminderPastHintText : reminderBannerText)
-                    .font(RipeFont.body(14))
+                    .font(CustomFont.body(14))
                     .foregroundStyle(Color(.ripeInk))
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -178,10 +178,10 @@ extension ReminderView {
                     calendarCheckIcon
                     VStack(alignment: .leading, spacing: RipeSpacing.s1) {
                         Text(L10n.Expiry.alsoAlertOnDay)
-                            .font(RipeFont.body(15))
+                            .font(CustomFont.body(15))
                             .foregroundStyle(Color(.ripeInk))
                         Text(L10n.Expiry.morningOf(shortDate(draftItem.bestBeforeDate)))
-                            .font(RipeFont.caption(12))
+                            .font(CustomFont.caption(12))
                             .foregroundStyle(Color(.ripeInk2))
                     }
                     Spacer()
