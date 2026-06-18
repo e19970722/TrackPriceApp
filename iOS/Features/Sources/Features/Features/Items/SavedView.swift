@@ -44,7 +44,7 @@ extension SavedView {
                 .fill(Color(.ripeGoodSoft))
                 .frame(width: 120, height: 120)
             Image(systemName: "checkmark")
-                .font(.system(size: 52, weight: .bold))
+                .iconFont(.heroSolid)
                 .foregroundStyle(Color(.ripeGood))
         }
     }
@@ -52,10 +52,10 @@ extension SavedView {
     private var confirmationTextStack: some View {
         VStack(spacing: RipeSpacing.s3) {
             Text(L10n.Expiry.savedAllSet)
-                .font(CustomFont.display(34))
+                .customFont(.extrabold34)
                 .foregroundStyle(Color(.ripeInk))
             Text(confirmationBody)
-                .font(CustomFont.body(15))
+                .customFont(.semibold15)
                 .foregroundStyle(Color(.ripeInk2))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, RipeSpacing.s4)

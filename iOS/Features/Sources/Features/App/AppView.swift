@@ -44,7 +44,7 @@ extension AppView {
             Button("Dev Login") {
                 store.send(.checkAuthStatus)
             }
-            .font(.footnote)
+            .customFont(.medium13)
             .padding(.vertical, 8)
             .padding(.horizontal, 20)
             .background(Color.orange.opacity(0.85))

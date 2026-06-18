@@ -68,7 +68,7 @@ extension RipeInputShell {
                 Image(systemName: "magnifyingglass")
                     .foregroundStyle(Color(.ripeInk3))
                 Text("Search products...")
-                    .font(CustomFont.body())
+                    .customFont(.semibold15)
                     .foregroundStyle(Color(.ripeInk3))
                 Spacer()
             }
@@ -78,7 +78,7 @@ extension RipeInputShell {
                 Image(systemName: "link")
                     .foregroundStyle(Color(.ripeAccent))
                 Text("https://example.com/product")
-                    .font(CustomFont.body())
+                    .customFont(.semibold15)
                     .foregroundStyle(Color(.ripeInk))
                 Spacer()
             }
@@ -86,11 +86,11 @@ extension RipeInputShell {
         RipeInputShell {
             HStack {
                 Text("Select category")
-                    .font(CustomFont.body())
+                    .customFont(.semibold15)
                     .foregroundStyle(Color(.ripeInk3))
                 Spacer()
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 12, weight: .semibold))
+                    .iconFont(.sm)
                     .foregroundStyle(Color(.ripeInk3))
             }
         }
@@ -104,7 +104,7 @@ extension RipeInputShell {
         RipeInputShell {
             HStack {
                 Text("Product name")
-                    .font(CustomFont.body())
+                    .customFont(.semibold15)
                     .foregroundStyle(Color(.ripeInk))
                 Spacer()
             }
@@ -112,7 +112,7 @@ extension RipeInputShell {
         RipeInputShell(isFocused: true) {
             HStack {
                 Text("Focused state")
-                    .font(CustomFont.body())
+                    .customFont(.semibold15)
                     .foregroundStyle(Color(.ripeInk))
                 Spacer()
             }

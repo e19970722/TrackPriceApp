@@ -38,7 +38,7 @@ extension SectionLabel {
 
     private var sectionTitleText: some View {
         Text(title)
-            .font(CustomFont.heading(19))
+            .customFont(.bold19)
             .foregroundStyle(Color(.ripeInk))
     }
 
@@ -51,7 +51,7 @@ extension SectionLabel {
 
     private func actionLabelText(_ label: String) -> some View {
         Text(label)
-            .font(CustomFont.label(13))
+            .customFont(.semibold13)
             .fontWeight(.semibold)
             .foregroundStyle(Color(.ripeAccent))
     }

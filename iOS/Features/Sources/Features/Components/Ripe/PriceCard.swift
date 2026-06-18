@@ -85,14 +85,14 @@ extension PriceCard {
 
     private var productNameText: some View {
         Text(item.name)
-            .font(CustomFont.heading(15.5))
+            .customFont(.bold15)
             .foregroundStyle(Color(.ripeInk))
             .lineLimit(1)
     }
 
     private var productStoreText: some View {
         Text(item.store)
-            .font(CustomFont.caption(12))
+            .customFont(.medium12)
             .foregroundStyle(Color(.ripeInk2))
     }
 
@@ -105,13 +105,14 @@ extension PriceCard {
 
     private var currentPriceText: some View {
         Text(item.currentPrice, format: .currency(code: "USD"))
-            .font(CustomFont.num(20))
+            .customFont(.bold19)
+            .monospacedDigit()
             .foregroundStyle(priceColor)
     }
 
     private var targetPriceText: some View {
         Text("Target: \(item.targetPrice, format: .currency(code: "USD"))")
-            .font(CustomFont.caption(12))
+            .customFont(.medium12)
             .foregroundStyle(Color(.ripeInk3))
     }
 }

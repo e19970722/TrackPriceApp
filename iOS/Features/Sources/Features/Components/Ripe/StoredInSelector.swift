@@ -52,9 +52,9 @@ extension StoredInSelector {
     private func segmentLabel(_ location: StoredInLocation) -> some View {
         VStack(spacing: 4) {
             Image(systemName: location.systemImage)
-                .font(.system(size: 16, weight: .semibold))
+                .iconFont(.quantity)
             Text(location.displayName)
-                .font(CustomFont.caption(11))
+                .customFont(.medium11)
                 .fontWeight(.semibold)
         }
         .frame(maxWidth: .infinity)

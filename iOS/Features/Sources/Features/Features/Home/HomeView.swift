@@ -54,10 +54,10 @@ extension HomeView {
     private var greetingTextStack: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(L10n.Home.greeting)
-                .font(CustomFont.label(14))
+                .customFont(.semibold13)
                 .foregroundStyle(Color(.ripeInk2))
             Text(store.userName)
-                .font(CustomFont.display(30))
+                .customFont(.extrabold30)
                 .foregroundStyle(Color(.ripeInk))
         }
     }
@@ -96,12 +96,12 @@ extension HomeView {
         VStack(alignment: .center, spacing: 7) {
             trendThumbnailWithBadge(item)
             Text(item.name)
-                .font(CustomFont.caption(11.5))
+                .customFont(.medium12)
                 .foregroundStyle(Color(.ripeInk2))
                 .lineLimit(1)
                 .frame(width: 58)
             DeltaBadge(direction: item.direction, value: item.delta, plain: true)
-                .font(.system(size: 11))
+                .iconFont(size: 11)
         }
         .frame(width: 58)
     }
@@ -124,7 +124,7 @@ extension HomeView {
                 .fill(Color(.ripeSurface))
                 .frame(width: 18, height: 18)
             DeltaBadge(direction: direction, value: "", plain: true)
-                .font(.system(size: 8))
+                .iconFont(size: 8)
                 .offset(x: direction == .up ? 0 : 0)
         }
         .frame(width: 18, height: 18)
@@ -164,10 +164,10 @@ extension HomeView {
     private func expireItemTextStack(_ item: ExpireItem) -> some View {
         VStack(alignment: .leading, spacing: 3) {
             Text(item.name)
-                .font(CustomFont.heading(15))
+                .customFont(.bold17)
                 .foregroundStyle(Color(.ripeInk))
             Text(item.meta)
-                .font(CustomFont.caption(12))
+                .customFont(.medium12)
                 .foregroundStyle(Color(.ripeInk2))
         }
     }
@@ -221,7 +221,7 @@ extension HomeView {
     private var priceTargetNameRow: some View {
         HStack(spacing: RipeSpacing.s2) {
             Text("Olive Oil")
-                .font(CustomFont.heading(16))
+                .customFont(.bold17)
                 .foregroundStyle(Color(.ripeInk))
             RipeChip(label: "target hit", tone: .good, systemImage: "checkmark")
         }
@@ -230,10 +230,10 @@ extension HomeView {
     private var priceTargetStoreRow: some View {
         HStack(spacing: 4) {
             Image(systemName: "bag")
-                .font(.system(size: 11, weight: .medium))
+                .iconFont(.caption)
                 .foregroundStyle(Color(.ripeInk2))
             Text("Trader Joe's · 500 ml")
-                .font(CustomFont.caption(12))
+                .customFont(.medium12)
                 .foregroundStyle(Color(.ripeInk2))
         }
     }
@@ -241,10 +241,12 @@ extension HomeView {
     private var priceTargetPriceRow: some View {
         HStack(alignment: .firstTextBaseline, spacing: RipeSpacing.s2) {
             Text("$8.99")
-                .font(CustomFont.num(28))
+                .customFont(.bold22)
+                .monospacedDigit()
                 .foregroundStyle(Color(.ripeGood))
             Text("$10.10")
-                .font(CustomFont.num(15))
+                .customFont(.bold17)
+                .monospacedDigit()
                 .foregroundStyle(Color(.ripeInk3))
                 .strikethrough(true, color: Color(.ripeInk3))
             DeltaBadge(direction: .down, value: "11%")
@@ -259,7 +261,7 @@ extension HomeView {
     private var priceTargetFooterRow: some View {
         HStack {
             Text("Target was $9.00")
-                .font(CustomFont.caption(13))
+                .customFont(.medium13)
                 .foregroundStyle(Color(.ripeInk2))
             Spacer()
             RipeButton(

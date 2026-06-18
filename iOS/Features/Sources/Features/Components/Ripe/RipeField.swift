@@ -43,13 +43,13 @@ extension RipeField {
 
     private func fieldLabelText(_ text: String) -> some View {
         Text(text)
-            .font(CustomFont.label(13))
+            .customFont(.semibold13)
             .foregroundStyle(Color(.ripeInk2))
     }
 
     private func fieldHintText(_ text: String) -> some View {
         Text(text)
-            .font(CustomFont.caption(12))
+            .customFont(.medium12)
             .foregroundStyle(Color(.ripeInk3))
     }
 }
@@ -61,7 +61,7 @@ extension RipeField {
         RipeField(label: "Product Name", hint: "Enter the full product title") {
             RipeInputShell {
                 Text("Nike Air Max 90")
-                    .font(CustomFont.body())
+                    .customFont(.semibold15)
                     .foregroundStyle(Color(.ripeInk))
                 Spacer()
             }
@@ -69,7 +69,7 @@ extension RipeField {
         RipeField(label: "Target Price") {
             RipeInputShell {
                 Text("$89.99")
-                    .font(CustomFont.body())
+                    .customFont(.semibold15)
                     .foregroundStyle(Color(.ripeInk))
                 Spacer()
             }
@@ -77,7 +77,7 @@ extension RipeField {
         RipeField(hint: "No label, only hint") {
             RipeInputShell {
                 Text("Input value")
-                    .font(CustomFont.body())
+                    .customFont(.semibold15)
                     .foregroundStyle(Color(.ripeInk))
                 Spacer()
             }
@@ -92,7 +92,7 @@ extension RipeField {
         RipeField(label: "Store URL", hint: "Paste the product page URL") {
             RipeInputShell(isFocused: true) {
                 Text("https://amazon.com/dp/...")
-                    .font(CustomFont.body())
+                    .customFont(.semibold15)
                     .foregroundStyle(Color(.ripeInk))
                 Spacer()
             }

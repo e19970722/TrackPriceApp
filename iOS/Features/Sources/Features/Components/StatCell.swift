@@ -34,13 +34,13 @@ extension StatCell {
 
     private var titleLabel: some View {
         Text(title)
-            .font(.caption)
+            .customFont(.regular12)
             .foregroundStyle(.secondary)
     }
 
     private var valueLabel: some View {
         Text(value)
-            .font(.caption.weight(.medium))
+            .customFont(.medium12)
             .lineLimit(truncate ? 2 : nil)
             .truncationMode(.middle)
     }

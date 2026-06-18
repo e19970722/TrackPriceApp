@@ -51,7 +51,7 @@ extension ItemsView {
     private var headerRow: some View {
         HStack {
             Text(L10n.Expiry.listTitle)
-                .font(CustomFont.display(26))
+                .customFont(.extrabold26)
                 .foregroundStyle(Color(.ripeInk))
             Spacer()
         }
@@ -124,11 +124,11 @@ extension ItemsView {
     private func itemInfoColumn(_ item: Item) -> some View {
         VStack(alignment: .leading, spacing: RipeSpacing.s1) {
             Text(item.name)
-                .font(CustomFont.heading(16))
+                .customFont(.bold15)
                 .foregroundStyle(Color(.ripeInk))
                 .lineLimit(1)
             Text(itemSubtitle(item))
-                .font(CustomFont.caption(13))
+                .customFont(.medium13)
                 .foregroundStyle(Color(.ripeInk3))
                 .lineLimit(1)
         }
@@ -137,7 +137,8 @@ extension ItemsView {
     private func itemTrailingColumn(_ item: Item) -> some View {
         VStack(alignment: .trailing, spacing: RipeSpacing.s1) {
             Text(daysLeftLabel(item))
-                .font(CustomFont.num(17))
+                .customFont(.bold17)
+                .monospacedDigit()
                 .foregroundStyle(Color(.ripeInk))
             freshnessChip(item)
         }
@@ -157,20 +158,20 @@ extension ItemsView {
     private var loadingView: some View {
         ProgressView("Loading items\u{2026}")
             .frame(maxWidth: .infinity, minHeight: 200)
-            .font(CustomFont.body())
+            .customFont(.semibold15)
             .foregroundStyle(Color(.ripeInk2))
     }
 
     private func errorView(message: String) -> some View {
         VStack(spacing: RipeSpacing.s3) {
             Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 48))
+                .iconFont(.emptyState)
                 .foregroundStyle(Color(.ripeInk3))
             Text(L10n.Expiry.listErrorMessage)
-                .font(CustomFont.heading())
+                .customFont(.bold19)
                 .foregroundStyle(Color(.ripeInk))
             Text(message)
-                .font(CustomFont.body())
+                .customFont(.semibold15)
                 .foregroundStyle(Color(.ripeInk2))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, RipeSpacing.s5)
@@ -184,13 +185,13 @@ extension ItemsView {
     private var emptyStateView: some View {
         VStack(spacing: RipeSpacing.s4) {
             Image(systemName: "refrigerator")
-                .font(.system(size: 48))
+                .iconFont(.emptyState)
                 .foregroundStyle(Color(.ripeInk3))
             Text(L10n.Expiry.listEmptyTitle)
-                .font(CustomFont.heading())
+                .customFont(.bold19)
                 .foregroundStyle(Color(.ripeInk))
             Text(L10n.Expiry.listEmptyMessage)
-                .font(CustomFont.body())
+                .customFont(.semibold15)
                 .foregroundStyle(Color(.ripeInk2))
         }
         .frame(maxWidth: .infinity, minHeight: 200)
@@ -202,7 +203,7 @@ extension ItemsView {
             store.send(.addItemButtonTapped)
         } label: {
             Image(systemName: "plus")
-                .font(.system(size: 22, weight: .semibold))
+                .iconFont(.xxl)
                 .foregroundStyle(Color(.ripeAccentInk))
                 .frame(width: 58, height: 58)
                 .background(Color(.ripeAccent))

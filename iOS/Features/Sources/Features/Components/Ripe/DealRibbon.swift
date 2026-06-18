@@ -27,7 +27,7 @@ extension DealRibbon {
 
     private var ribbonBannerView: some View {
         Text("DEAL")
-            .font(.system(size: 10, weight: .black))
+            .customFont(.extrabold10)
             .tracking(0.6)
             .foregroundStyle(Color.white)
             .frame(width: 92)
@@ -47,10 +47,11 @@ extension DealRibbon {
             ZStack(alignment: .topLeading) {
                 VStack(alignment: .leading, spacing: RipeSpacing.s2) {
                     Text("Nike Air Max 90")
-                        .font(CustomFont.heading(15))
+                        .customFont(.bold15)
                         .foregroundStyle(Color(.ripeInk))
                     Text("$89.99")
-                        .font(CustomFont.num(20))
+                        .customFont(.bold19)
+                        .monospacedDigit()
                         .foregroundStyle(Color(.ripeGood))
                 }
                 .padding(RipeSpacing.s4)

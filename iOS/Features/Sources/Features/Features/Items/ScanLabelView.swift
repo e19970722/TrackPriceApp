@@ -90,7 +90,7 @@ extension ScanLabelView {
                 .progressViewStyle(CircularProgressViewStyle(tint: .white))
                 .scaleEffect(0.75)
             Text(L10n.Expiry.scanning)
-                .font(CustomFont.label(13))
+                .customFont(.semibold13)
                 .foregroundStyle(.white)
         }
         .padding(.horizontal, RipeSpacing.s4)
@@ -135,10 +135,10 @@ extension ScanLabelView {
     private func controlPillLabel(systemImage: String, title: String?) -> some View {
         HStack(spacing: RipeSpacing.s1) {
             Image(systemName: systemImage)
-                .font(.system(size: 14, weight: .semibold))
+                .iconFont(.controlPill)
             if let title {
                 Text(title)
-                    .font(CustomFont.label(13))
+                    .customFont(.semibold13)
             }
         }
         .foregroundStyle(.white)
@@ -165,7 +165,7 @@ extension ScanLabelView {
     private var galleryPickerButton: some View {
         PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
             Image(systemName: "photo.on.rectangle.angled")
-                .font(.system(size: 28, weight: .regular))
+                .iconFont(.cameraTool)
                 .foregroundStyle(.white)
                 .frame(width: 64, height: 64)
                 .background(.ultraThinMaterial, in: Circle())

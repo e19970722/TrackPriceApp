@@ -9,223 +9,102 @@ import SwiftUI
 import UIKit
 
 public enum CustomFont {
-    // Display & Title
-    case display
-    case displayLg
-    case displayXL
-    case title
-    case title2
-    case priceHero
+    // ExtraBold
+    case extrabold10
+    case extrabold22
+    case extrabold26
+    case extrabold30
+    case extrabold34
+    case extrabold40
+    case extrabold44
 
-    // Headings
-    case heading
-    case headingLg
-    case subheading
+    // Bold
+    case bold12
+    case bold13
+    case bold15
+    case bold17
+    case bold18
+    case bold19
+    case bold22
 
-    // Body
-    case body
-    case bodyLg
-    case headline
-    case subheadline
+    // SemiBold
+    case semibold12
+    case semibold13
+    case semibold15
+    case semibold17
+    case semibold18
 
-    // Label & Caption
-    case label
-    case labelLg
-    case caption
-    case captionSm
-    case caption2
-    case footnote
+    // Medium
+    case medium10
+    case medium11
+    case medium12
+    case medium13
+    case medium15
 
-    /// Numeric
-    case num
+    /// Regular
+    case regular12
 
-    public var font: Font {
-        switch self {
-        case .display: CustomFont.display()
-        case .displayLg: CustomFont.displayLg()
-        case .displayXL: CustomFont.displayXL()
-        case .title: CustomFont.title()
-        case .title2: CustomFont.title2()
-        case .priceHero: CustomFont.priceHero()
-        case .heading: CustomFont.heading()
-        case .headingLg: CustomFont.headingLg()
-        case .subheading: CustomFont.subheading()
-        case .body: CustomFont.body()
-        case .bodyLg: CustomFont.bodyLg()
-        case .headline: CustomFont.headline()
-        case .subheadline: CustomFont.subheadline()
-        case .label: CustomFont.label()
-        case .labelLg: CustomFont.labelLg()
-        case .caption: CustomFont.caption()
-        case .captionSm: CustomFont.captionSm()
-        case .caption2: CustomFont.caption2()
-        case .footnote: CustomFont.footnote()
-        case .num: CustomFont.num()
+    private static let family = "PlusJakartaSans"
+
+    private enum Weight: String {
+        case extraBold = "ExtraBold"
+        case bold = "Bold"
+        case semiBold = "SemiBold"
+        case medium = "Medium"
+        case regular = "Regular"
+
+        var uiFontWeight: UIFont.Weight {
+            switch self {
+            case .extraBold: .heavy
+            case .bold: .bold
+            case .semiBold: .semibold
+            case .medium: .medium
+            case .regular: .regular
+            }
         }
     }
 
-    /// Returns this font family at a custom size. Use sparingly — prefer a dedicated case
-    /// for any size that recurs in the design system.
-    public func font(size: CGFloat) -> Font {
+    private var spec: (weight: Weight, size: CGFloat) {
         switch self {
-        case .display, .displayLg, .displayXL: CustomFont.display(size)
-        case .title, .title2: CustomFont.title(size)
-        case .priceHero: CustomFont.priceHero(size)
-        case .heading, .headingLg, .subheading: CustomFont.heading(size)
-        case .body, .bodyLg, .headline, .subheadline: CustomFont.body(size)
-        case .label, .labelLg: CustomFont.label(size)
-        case .caption, .captionSm, .caption2, .footnote: CustomFont.caption(size)
-        case .num: CustomFont.num(size)
+        case .extrabold10: (.extraBold, 10)
+        case .extrabold22: (.extraBold, 22)
+        case .extrabold26: (.extraBold, 26)
+        case .extrabold30: (.extraBold, 30)
+        case .extrabold34: (.extraBold, 34)
+        case .extrabold40: (.extraBold, 40)
+        case .extrabold44: (.extraBold, 44)
+        case .bold12: (.bold, 12)
+        case .bold13: (.bold, 13)
+        case .bold15: (.bold, 15)
+        case .bold17: (.bold, 17)
+        case .bold18: (.bold, 18)
+        case .bold19: (.bold, 19)
+        case .bold22: (.bold, 22)
+        case .semibold12: (.semiBold, 12)
+        case .semibold13: (.semiBold, 13)
+        case .semibold15: (.semiBold, 15)
+        case .semibold17: (.semiBold, 17)
+        case .semibold18: (.semiBold, 18)
+        case .medium10: (.medium, 10)
+        case .medium11: (.medium, 11)
+        case .medium12: (.medium, 12)
+        case .medium13: (.medium, 13)
+        case .medium15: (.medium, 15)
+        case .regular12: (.regular, 12)
         }
+    }
+
+    private var fontName: String {
+        "\(Self.family)-\(spec.weight.rawValue)"
+    }
+
+    public var font: Font {
+        .custom(fontName, size: spec.size)
     }
 
     public var uiFont: UIFont {
-        switch self {
-        case .display:
-            UIFont(name: "PlusJakartaSans-ExtraBold", size: 30)
-                ?? UIFont.systemFont(ofSize: 30, weight: .heavy)
-        case .displayLg:
-            UIFont(name: "PlusJakartaSans-ExtraBold", size: 34)
-                ?? UIFont.systemFont(ofSize: 34, weight: .heavy)
-        case .displayXL:
-            UIFont(name: "PlusJakartaSans-ExtraBold", size: 44)
-                ?? UIFont.systemFont(ofSize: 44, weight: .heavy)
-        case .title:
-            UIFont(name: "PlusJakartaSans-ExtraBold", size: 26)
-                ?? UIFont.systemFont(ofSize: 26, weight: .heavy)
-        case .title2:
-            UIFont(name: "PlusJakartaSans-ExtraBold", size: 22)
-                ?? UIFont.systemFont(ofSize: 22, weight: .heavy)
-        case .priceHero:
-            UIFont(name: "PlusJakartaSans-ExtraBold", size: 40)
-                ?? UIFont.systemFont(ofSize: 40, weight: .heavy)
-        case .heading:
-            UIFont(name: "PlusJakartaSans-Bold", size: 19)
-                ?? UIFont.systemFont(ofSize: 19, weight: .bold)
-        case .headingLg:
-            UIFont(name: "PlusJakartaSans-Bold", size: 22)
-                ?? UIFont.systemFont(ofSize: 22, weight: .bold)
-        case .subheading:
-            UIFont(name: "PlusJakartaSans-Bold", size: 17)
-                ?? UIFont.systemFont(ofSize: 17, weight: .bold)
-        case .body:
-            UIFont(name: "PlusJakartaSans-SemiBold", size: 15)
-                ?? UIFont.systemFont(ofSize: 15, weight: .semibold)
-        case .bodyLg:
-            UIFont(name: "PlusJakartaSans-SemiBold", size: 18)
-                ?? UIFont.systemFont(ofSize: 18, weight: .semibold)
-        case .headline:
-            UIFont(name: "PlusJakartaSans-Bold", size: 17)
-                ?? UIFont.systemFont(ofSize: 17, weight: .bold)
-        case .subheadline:
-            UIFont(name: "PlusJakartaSans-Medium", size: 15)
-                ?? UIFont.systemFont(ofSize: 15, weight: .medium)
-        case .label:
-            UIFont(name: "PlusJakartaSans-SemiBold", size: 13)
-                ?? UIFont.systemFont(ofSize: 13, weight: .semibold)
-        case .labelLg:
-            UIFont(name: "PlusJakartaSans-SemiBold", size: 17)
-                ?? UIFont.systemFont(ofSize: 17, weight: .semibold)
-        case .caption:
-            UIFont(name: "PlusJakartaSans-Medium", size: 12)
-                ?? UIFont.systemFont(ofSize: 12, weight: .medium)
-        case .captionSm:
-            UIFont(name: "PlusJakartaSans-Medium", size: 11)
-                ?? UIFont.systemFont(ofSize: 11, weight: .medium)
-        case .caption2:
-            UIFont(name: "PlusJakartaSans-Medium", size: 10)
-                ?? UIFont.systemFont(ofSize: 10, weight: .medium)
-        case .footnote:
-            UIFont(name: "PlusJakartaSans-Medium", size: 13)
-                ?? UIFont.systemFont(ofSize: 13, weight: .medium)
-        case .num:
-            UIFont(name: "PlusJakartaSans-Bold", size: 17)
-                ?? UIFont.systemFont(ofSize: 17, weight: .bold)
-        }
-    }
-}
-
-// MARK: - Static Font Functions
-
-public extension CustomFont {
-    static func display(_ size: CGFloat = 30) -> Font {
-        .custom("PlusJakartaSans-ExtraBold", size: size)
-    }
-
-    static func displayLg(_ size: CGFloat = 34) -> Font {
-        .custom("PlusJakartaSans-ExtraBold", size: size)
-    }
-
-    static func displayXL(_ size: CGFloat = 44) -> Font {
-        .custom("PlusJakartaSans-ExtraBold", size: size)
-    }
-
-    static func title(_ size: CGFloat = 26) -> Font {
-        .custom("PlusJakartaSans-ExtraBold", size: size)
-    }
-
-    static func title2(_ size: CGFloat = 22) -> Font {
-        .custom("PlusJakartaSans-ExtraBold", size: size)
-    }
-
-    static func priceHero(_ size: CGFloat = 40) -> Font {
-        .custom("PlusJakartaSans-ExtraBold", size: size)
-    }
-
-    static func heading(_ size: CGFloat = 19) -> Font {
-        .custom("PlusJakartaSans-Bold", size: size)
-    }
-
-    static func headingLg(_ size: CGFloat = 22) -> Font {
-        .custom("PlusJakartaSans-Bold", size: size)
-    }
-
-    static func subheading(_ size: CGFloat = 17) -> Font {
-        .custom("PlusJakartaSans-Bold", size: size)
-    }
-
-    static func body(_ size: CGFloat = 15) -> Font {
-        .custom("PlusJakartaSans-SemiBold", size: size)
-    }
-
-    static func bodyLg(_ size: CGFloat = 18) -> Font {
-        .custom("PlusJakartaSans-SemiBold", size: size)
-    }
-
-    static func headline(_ size: CGFloat = 17) -> Font {
-        .custom("PlusJakartaSans-Bold", size: size)
-    }
-
-    static func subheadline(_ size: CGFloat = 15) -> Font {
-        .custom("PlusJakartaSans-Medium", size: size)
-    }
-
-    static func label(_ size: CGFloat = 13) -> Font {
-        .custom("PlusJakartaSans-SemiBold", size: size)
-    }
-
-    static func labelLg(_ size: CGFloat = 17) -> Font {
-        .custom("PlusJakartaSans-SemiBold", size: size)
-    }
-
-    static func caption(_ size: CGFloat = 12) -> Font {
-        .custom("PlusJakartaSans-Medium", size: size)
-    }
-
-    static func captionSm(_ size: CGFloat = 11) -> Font {
-        .custom("PlusJakartaSans-Medium", size: size)
-    }
-
-    static func caption2(_ size: CGFloat = 10) -> Font {
-        .custom("PlusJakartaSans-Medium", size: size)
-    }
-
-    static func footnote(_ size: CGFloat = 13) -> Font {
-        .custom("PlusJakartaSans-Medium", size: size)
-    }
-
-    static func num(_ size: CGFloat = 17) -> Font {
-        .custom("PlusJakartaSans-Bold", size: size).monospacedDigit()
+        UIFont(name: fontName, size: spec.size)
+            ?? UIFont.systemFont(ofSize: spec.size, weight: spec.weight.uiFontWeight)
     }
 }
 
@@ -234,12 +113,6 @@ public extension CustomFont {
 public extension View {
     func customFont(_ font: CustomFont) -> some View {
         self.font(font.font)
-    }
-
-    /// Apply a `CustomFont` family at a custom size. Prefer the no-size overload when possible;
-    /// reach for this only when the size is dynamic at runtime or a one-off in a design.
-    func customFont(_ font: CustomFont, size: CGFloat) -> some View {
-        self.font(font.font(size: size))
     }
 
     func ripeDisplayTracking() -> some View {
@@ -251,13 +124,13 @@ public extension View {
 
 #Preview {
     VStack(alignment: .leading, spacing: 12) {
-        Text("Display — Price Tracker").customFont(.display)
-        Text("Title — My Trackers").customFont(.title)
-        Text("Heading — Recent Items").customFont(.heading)
-        Text("Body — Track any price online").customFont(.body)
-        Text("Label — Last checked 2h ago").customFont(.label)
-        Text("Caption — Expires 2026-12-31").customFont(.caption)
-        Text("Num — $1,299.00").customFont(.num)
+        Text("ExtraBold 30 — Price Tracker").customFont(.extrabold30)
+        Text("ExtraBold 26 — My Trackers").customFont(.extrabold26)
+        Text("Bold 19 — Recent Items").customFont(.bold19)
+        Text("SemiBold 15 — Track any price online").customFont(.semibold15)
+        Text("SemiBold 13 — Last checked 2h ago").customFont(.semibold13)
+        Text("Medium 12 — Expires 2026-12-31").customFont(.medium12)
+        Text("Bold 17 mono — $1,299.00").customFont(.bold17).monospacedDigit()
     }
     .padding()
 }

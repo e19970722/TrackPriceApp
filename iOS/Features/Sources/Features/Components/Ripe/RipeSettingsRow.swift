@@ -64,7 +64,7 @@ extension RipeSettingsRow {
 
     private func leadingIconView(_ name: String) -> some View {
         Image(systemName: name)
-            .font(.system(size: 20, weight: .medium))
+            .iconFont(.xl)
             .foregroundStyle(Color(.ripeAccent))
             .frame(width: 24, height: 24)
     }
@@ -80,13 +80,13 @@ extension RipeSettingsRow {
 
     private var titleTextView: some View {
         Text(title)
-            .font(CustomFont.label(16))
+            .customFont(.semibold15)
             .foregroundStyle(Color(.ripeInk))
     }
 
     private func subtitleTextView(_ text: String) -> some View {
         Text(text)
-            .font(CustomFont.caption(12))
+            .customFont(.medium12)
             .foregroundStyle(Color(.ripeInk2))
     }
 
@@ -102,7 +102,7 @@ extension RipeSettingsRow {
 
     private var disclosureChevron: some View {
         Image(systemName: "chevron.right")
-            .font(.system(size: 13, weight: .semibold))
+            .iconFont(.sm)
             .foregroundStyle(Color(.ripeInk3))
     }
 

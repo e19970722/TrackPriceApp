@@ -24,19 +24,20 @@ public enum IconFont {
     case xxl          // 22pt semibold — tab bar icons, FAB plus
 
     // Specialised
-    case caption      // 11pt medium   — tiny in-row meta icons
-    case quantity     // 16pt semibold — quantity stepper +/-
-    case quantityLg   // 18pt semibold — quantity stepper +/- (large)
-    case bodyIcon     // 16pt regular  — bell/reminder body-size icons
-    case sectionIcon  // 18pt regular  — section header icons (no weight)
-    case nav          // 16pt semibold — modal header back chevron
-    case fab          // 24pt semibold — floating action button
-    case cameraTool   // 28pt regular  — camera tool icons (gallery picker)
-    case emptyState   // 48pt regular  — empty / error state large glyph
-    case hero         // 52pt regular  — hero illustration (refrigerator, …)
-    case heroSolid    // 52pt bold     — hero confirmation glyph (checkmark, …)
-    case heroPlain    // 36pt regular  — empty chart placeholder
-    case splash       // 60pt regular  — splash logo glyph
+    case caption        // 11pt medium   — tiny in-row meta icons
+    case controlPill    // 14pt semibold — camera control pill icons (xmark / bolt)
+    case quantity       // 16pt semibold — quantity stepper +/-
+    case quantityLg     // 18pt semibold — quantity stepper +/- (large)
+    case bodyIcon       // 16pt regular  — bell/reminder body-size icons
+    case sectionIcon    // 18pt regular  — section header icons (no weight)
+    case nav            // 16pt semibold — modal header back chevron
+    case fab            // 24pt semibold — floating action button
+    case cameraTool     // 28pt regular  — camera tool icons (gallery picker)
+    case emptyState     // 48pt regular  — empty / error state large glyph
+    case hero           // 52pt regular  — hero illustration (refrigerator, …)
+    case heroSolid      // 52pt bold     — hero confirmation glyph (checkmark, …)
+    case heroPlain      // 36pt regular  — empty chart placeholder
+    case splash         // 60pt regular  — splash logo glyph
 
     public var font: Font {
         switch self {
@@ -47,6 +48,7 @@ public enum IconFont {
         case .xl:           .system(size: 20, weight: .medium)
         case .xxl:          .system(size: 22, weight: .semibold)
         case .caption:      .system(size: 11, weight: .medium)
+        case .controlPill:  .system(size: 14, weight: .semibold)
         case .quantity:     .system(size: 16, weight: .semibold)
         case .quantityLg:   .system(size: 18, weight: .semibold)
         case .bodyIcon:     .system(size: 16)

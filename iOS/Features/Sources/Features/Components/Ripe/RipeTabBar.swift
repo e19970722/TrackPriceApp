@@ -66,7 +66,7 @@ extension RipeTabBar {
     private func tabItemLabel(_ tab: RipeTab) -> some View {
         VStack(spacing: 4) {
             Image(systemName: active == tab ? tab.filledSymbol : tab.outlineSymbol)
-                .font(.system(size: 22, weight: .semibold))
+                .iconFont(.xxl)
                 .foregroundStyle(active == tab ? Color(.ripeAccent) : Color(.ripeInk3))
         }
         .frame(height: 36)

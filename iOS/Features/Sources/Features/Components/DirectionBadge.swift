@@ -24,7 +24,7 @@ extension DirectionBadge {
             Image(systemName: iconName)
             Text(label)
         }
-        .font(.caption.weight(.semibold))
+        .customFont(.semibold12)
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
         .background(badgeColor.opacity(0.15), in: Capsule())

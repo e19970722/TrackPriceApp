@@ -80,7 +80,7 @@ extension TrackerDetailView {
     private var itemNameLabel: some View {
         if let itemName = store.tracker.itemName {
             Text(itemName)
-                .font(.subheadline)
+                .customFont(.medium15)
                 .foregroundStyle(.secondary)
                 .lineLimit(2)
         }
@@ -103,7 +103,7 @@ extension TrackerDetailView {
                     .foregroundStyle(.secondary)
             }
         }
-        .font(.system(size: 40, weight: .bold, design: .rounded))
+        .customFont(.extrabold40)
     }
 
     private var targetRowView: some View {
@@ -112,7 +112,7 @@ extension TrackerDetailView {
             Text(L10n.TrackerDetail.targetPrice(
                 "\(store.tracker.currencySymbol)\(String(format: "%.2f", store.tracker.targetPrice))"
             ))
-            .font(.subheadline)
+            .customFont(.medium15)
             .foregroundStyle(.secondary)
         }
     }
@@ -120,7 +120,7 @@ extension TrackerDetailView {
     private var priceChartSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(L10n.TrackerDetail.priceHistory)
-                .font(.headline)
+                .customFont(.bold17)
 
             chartContentView
         }
@@ -143,10 +143,10 @@ extension TrackerDetailView {
     private var emptyChartView: some View {
         VStack(spacing: 8) {
             Image(systemName: "chart.line.uptrend.xyaxis")
-                .font(.system(size: 36))
+                .iconFont(.heroPlain)
                 .foregroundStyle(.secondary)
             Text(L10n.TrackerDetail.noPriceHistory)
-                .font(.subheadline)
+                .customFont(.medium15)
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, minHeight: 180)
@@ -177,7 +177,7 @@ extension TrackerDetailView {
                     .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
                     .annotation(position: .trailing, alignment: .center) {
                         Text(L10n.TrackerDetail.target)
-                            .font(.caption2)
+                            .customFont(.medium10)
                             .foregroundStyle(.red.opacity(0.7))
                     }
             }
@@ -194,7 +194,7 @@ extension TrackerDetailView {
                     AxisValueLabel {
                         if let price = value.as(Double.self) {
                             Text("\(store.tracker.currencySymbol)\(String(format: "%.0f", price))")
-                                .font(.caption2)
+                                .customFont(.medium10)
                         }
                     }
                 }
@@ -209,7 +209,7 @@ extension TrackerDetailView {
             }
         } label: {
             Text(L10n.TrackerDetail.shopNow)
-                .font(.headline)
+                .customFont(.bold17)
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)
@@ -222,7 +222,7 @@ extension TrackerDetailView {
     private var detailStatsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(L10n.TrackerDetail.details)
-                .font(.headline)
+                .customFont(.bold17)
 
             statsGridView
         }

@@ -38,7 +38,7 @@ extension RipeFab {
 
     private var fabIconView: some View {
         Image(systemName: systemImage)
-            .font(.system(size: 24, weight: .semibold))
+            .iconFont(.fab)
             .foregroundStyle(Color(.ripeAccentInk))
             .frame(width: 58, height: 58)
             .background(
