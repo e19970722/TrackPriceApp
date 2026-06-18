@@ -139,7 +139,9 @@ extension ItemDetailsView {
 
     // MARK: Quantity — stepper with rounded-rect buttons (design: 52×52, r=14)
 
-    private var quantityCount: Int { Int(store.quantity) ?? 1 }
+    private var quantityCount: Int {
+        Int(store.quantity) ?? 1
+    }
 
     private var quantityFieldCard: some View {
         VStack(alignment: .leading, spacing: RipeSpacing.s2) {

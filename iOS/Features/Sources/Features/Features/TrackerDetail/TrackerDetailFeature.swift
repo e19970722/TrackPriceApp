@@ -7,7 +7,9 @@ public struct TrackerDetailFeature {
         public var tracker: Tracker
         public var history: [PriceSnapshot] = []
         public var isLoadingHistory = false
-        public init(tracker: Tracker) { self.tracker = tracker }
+        public init(tracker: Tracker) {
+            self.tracker = tracker
+        }
     }
 
     public enum Action {

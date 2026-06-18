@@ -248,7 +248,9 @@ final class AddItemFeatureTests: XCTestCase {
 
     func testSaveItemHandlesNetworkError() async {
         struct FakeError: Error, LocalizedError {
-            var errorDescription: String? { "Network down" }
+            var errorDescription: String? {
+                "Network down"
+            }
         }
 
         var initial = AddItemFeature.State(itemName: "Milk")
@@ -316,7 +318,9 @@ final class ItemsFeatureTests: XCTestCase {
 
     func testOnAppearSetsErrorOnFailure() async {
         struct FakeError: Error, LocalizedError {
-            var errorDescription: String? { "Server error" }
+            var errorDescription: String? {
+                "Server error"
+            }
         }
 
         let store = TestStore(initialState: ItemsFeature.State()) {
@@ -404,7 +408,9 @@ final class ItemDetailFeatureTests: XCTestCase {
 
     func testDeleteFailureClearsLoadingState() async {
         struct FakeError: Error, LocalizedError {
-            var errorDescription: String? { "Delete failed" }
+            var errorDescription: String? {
+                "Delete failed"
+            }
         }
         let item = Item(name: "Milk", bestBeforeDate: Date())
 

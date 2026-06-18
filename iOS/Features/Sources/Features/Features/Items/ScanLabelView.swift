@@ -297,7 +297,9 @@ private final class CameraPreviewView: UIView {
     }
 
     @available(*, unavailable)
-    required init?(coder _: NSCoder) { fatalError() }
+    required init?(coder _: NSCoder) {
+        fatalError()
+    }
 
     override func layoutSubviews() {
         super.layoutSubviews()

@@ -231,7 +231,6 @@ extension SettingsView {
             )
     }
 
-    @ViewBuilder
     private func settingsRow(
         icon: String,
         iconColor: Color,
@@ -266,7 +265,6 @@ extension SettingsView {
         }
     }
 
-    @ViewBuilder
     private func notificationToggleRow(
         icon: String,
         iconColor: Color,

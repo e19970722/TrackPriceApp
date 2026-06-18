@@ -3,9 +3,9 @@
 // The canonical JS source lives in Resources/ElementPicker.js — keep in sync.
 
 enum ElementPickerScript {
-    // Injected once when the page finishes loading.
-    // Records every user click into window.__interactions so variant selections
-    // made before activating the picker are captured.
+    /// Injected once when the page finishes loading.
+    /// Records every user click into window.__interactions so variant selections
+    /// made before activating the picker are captured.
     static let recorder = """
     (function() {
       if (window.__interactions !== undefined) return;
@@ -32,8 +32,8 @@ enum ElementPickerScript {
     })();
     """
 
-    // Injected on demand when the user taps "Pick Element".
-    // Activates highlight mode; the next tap sends the full interactions array.
+    /// Injected on demand when the user taps "Pick Element".
+    /// Activates highlight mode; the next tap sends the full interactions array.
     static let javascript = """
     (function() {
       if (window.__pickerActive) return;

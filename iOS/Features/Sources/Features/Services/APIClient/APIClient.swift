@@ -90,8 +90,13 @@ public struct APIClient {
 }
 
 extension APIClient: DependencyKey {
-    public static var liveValue: APIClient { .live }
-    public static var testValue: APIClient { .mock }
+    public static var liveValue: APIClient {
+        .live
+    }
+
+    public static var testValue: APIClient {
+        .mock
+    }
 }
 
 public extension DependencyValues {

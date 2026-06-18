@@ -7,7 +7,10 @@ import Foundation
 public struct ItemDetailFeature {
     @ObservableState
     public struct State: Equatable, Identifiable {
-        public var id: UUID { item.id }
+        public var id: UUID {
+            item.id
+        }
+
         public var item: Item
         public var isDeleting: Bool = false
         public var isMarkingUsed: Bool = false

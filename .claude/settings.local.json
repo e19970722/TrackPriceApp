@@ -38,7 +38,10 @@
       "Bash(curl -L -o PlusJakartaSans-ExtraBold.ttf \"https://github.com/tokotype/PlusJakartaSans/raw/main/fonts/ttf/PlusJakartaSans-ExtraBold.ttf\")",
       "Bash(curl -s \"https://api.anthropic.com/v1/design/h/Qe5GqWP1LftnXFebGAvOHw?open_file=Component+Library.html\")",
       "Bash(gunzip)",
-      "Skill(update-config)"
+      "Skill(update-config)",
+      "Bash(DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swiftlint lint --config /Users/yenlin/TrackPriceApp/iOS/.swiftlint.yml --quiet)",
+      "Bash(DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swiftlint lint --config /Users/yenlin/TrackPriceApp/iOS/.swiftlint.yml)",
+      "Bash(DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -scheme TrackPriceApp -destination 'generic/platform=iOS Simulator' build)"
     ]
   }
 }

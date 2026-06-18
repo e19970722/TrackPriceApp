@@ -54,7 +54,6 @@ extension AppView {
         }
     #endif
 
-    @ViewBuilder
     private var authenticatedView: some View {
         WithPerceptionTracking {
             TabView {
