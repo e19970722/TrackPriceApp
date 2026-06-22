@@ -67,17 +67,21 @@ extension AddTrackerView {
 
 private struct URLEntryView: View {
     @Perception.Bindable var store: StoreOf<AddTrackerFeature>
+    @FocusState private var isURLFieldFocused: Bool
 
     // MARK: - Body
 
     var body: some View {
         WithPerceptionTracking {
-            VStack(spacing: 24) {
-                urlInputSection
-                pasteFromClipboardButton
-                Spacer()
+            ZStack {
+                backgroundLayer
+                contentStack
             }
-            .padding()
+            .onAppear {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    isURLFieldFocused = true
+                }
+            }
         }
     }
 }
@@ -85,6 +89,22 @@ private struct URLEntryView: View {
 // MARK: - Subviews
 
 extension URLEntryView {
+    private var backgroundLayer: some View {
+        Color(.ripeBg)
+            .ignoresSafeArea()
+    }
+
+    private var contentStack: some View {
+        VStack(spacing: 24) {
+            urlInputSection
+            pasteFromClipboardButton
+            Spacer()
+        }
+        .padding()
+        .contentShape(Rectangle())
+        .onTapGesture { isURLFieldFocused = false }
+    }
+
     private var urlInputSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(L10n.AddTracker.urlPrompt)
@@ -96,6 +116,7 @@ extension URLEntryView {
     private var urlInputRow: some View {
         HStack {
             TextField(L10n.AddTracker.urlPlaceholder, text: $store.urlInput.sending(\.urlInputChanged))
+                .focused($isURLFieldFocused)
                 .keyboardType(.URL)
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
@@ -294,6 +315,9 @@ extension ConfirmationView {
 private struct TargetSetupView: View {
     let info: ElementInfo
     @Perception.Bindable var store: StoreOf<AddTrackerFeature>
+    @FocusState private var focusedField: Field?
+
+    enum Field: Hashable { case name, targetPrice }
 
     // MARK: - Body
 
@@ -308,6 +332,7 @@ private struct TargetSetupView: View {
                 }
                 submitSection
             }
+            .scrollDismissesKeyboard(.immediately)
         }
     }
 }
@@ -318,6 +343,7 @@ extension TargetSetupView {
     private var trackerNameSection: some View {
         Section("Tracker Name") {
             TextField("e.g. Sony WH-1000XM5", text: $store.trackerName)
+                .focused($focusedField, equals: .name)
         }
     }
 
@@ -328,6 +354,7 @@ extension TargetSetupView {
                     .foregroundStyle(.secondary)
                 TextField("0.00", text: $store.targetPriceInput)
                     .keyboardType(.decimalPad)
+                    .focused($focusedField, equals: .targetPrice)
             }
         }
     }

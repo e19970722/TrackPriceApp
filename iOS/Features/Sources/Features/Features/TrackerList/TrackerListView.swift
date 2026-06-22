@@ -4,6 +4,7 @@ import SwiftUI
 public struct TrackerListView: View {
     @Perception.Bindable var store: StoreOf<TrackerListFeature>
     @State private var searchText: String = ""
+    @FocusState private var isSearchFocused: Bool
 
     public init(store: StoreOf<TrackerListFeature>) {
         self.store = store
@@ -14,11 +15,14 @@ public struct TrackerListView: View {
     public var body: some View {
         WithPerceptionTracking {
             ZStack(alignment: .bottomTrailing) {
-                Color(.ripeBg).ignoresSafeArea()
+                Color(.ripeBg)
+                    .ignoresSafeArea()
                 VStack(spacing: 0) {
                     persistentHeader
                     segmentContent
                 }
+                .contentShape(Rectangle())
+                .onTapGesture { isSearchFocused = false }
                 fabButton
             }
             .sheet(item: $store.scope(state: \.addTracker, action: \.addTracker)) { addStore in
@@ -112,6 +116,7 @@ extension TrackerListView {
                 .customFont(.semibold15)
                 .foregroundStyle(Color(.ripeInk))
                 .tint(Color(.ripeAccent))
+                .focused($isSearchFocused)
             Spacer(minLength: 0)
             if !searchText.isEmpty {
                 Button {
@@ -160,6 +165,7 @@ extension TrackerListView {
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
+        .scrollDismissesKeyboard(.immediately)
     }
 
     @ViewBuilder

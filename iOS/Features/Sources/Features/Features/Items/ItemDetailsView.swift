@@ -6,7 +6,7 @@ public struct ItemDetailsView: View {
     @FocusState private var focusedField: Field?
     @State private var draftBestBeforeDate = Date()
 
-    enum Field: Hashable { case name }
+    enum Field: Hashable { case name, locationCustom, quantity }
 
     public init(store: StoreOf<AddItemFeature>) {
         self.store = store
@@ -17,11 +17,17 @@ public struct ItemDetailsView: View {
     public var body: some View {
         WithPerceptionTracking {
             ZStack {
-                Color(.ripeBg).ignoresSafeArea()
+                Color(.ripeBg)
+                    .ignoresSafeArea()
                 mainContent
             }
             .navigationTitle(L10n.Expiry.navTitleItemDetails)
             .navigationBarTitleDisplayMode(.inline)
+            .onAppear {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    focusedField = .name
+                }
+            }
             .sheet(isPresented: Binding(
                 get: { store.isDatePickerPresented },
                 set: { store.send(.datePickerPresented($0)) }
@@ -55,7 +61,10 @@ extension ItemDetailsView {
             .padding(.horizontal, RipeSpacing.s5)
             .padding(.top, RipeSpacing.s5)
             .padding(.bottom, RipeSpacing.s5)
+            .contentShape(Rectangle())
+            .onTapGesture { focusedField = nil }
         }
+        .scrollDismissesKeyboard(.immediately)
     }
 
     // MARK: Item name
@@ -78,7 +87,9 @@ extension ItemDetailsView {
             RipeField(label: L10n.Expiry.fieldStoredIn) {
                 StoredInSelector(
                     selection: $store.location,
-                    customText: $store.locationCustom
+                    customText: $store.locationCustom,
+                    focus: $focusedField,
+                    focusValue: .locationCustom
                 )
             }
         }
@@ -92,6 +103,8 @@ extension ItemDetailsView {
                 QuantityStepper(
                     quantity: $store.quantity,
                     decrementDisabled: quantityCount <= 1,
+                    focus: $focusedField,
+                    focusValue: .quantity,
                     onDecrement: { store.send(.decrementQuantity) },
                     onIncrement: { store.send(.incrementQuantity) }
                 )
