@@ -171,7 +171,7 @@ public struct AddItemFeature {
 
         // itemDetails form fields
         public var itemName: String = ""
-        public var quantity: String = ""
+        public var quantity: String = "1"
         public var location: ItemLocation = .fridge
         public var locationCustom: String = ""
         public var bestBeforeDate: Date = .init()
@@ -186,7 +186,7 @@ public struct AddItemFeature {
 
         public init(
             itemName: String = "",
-            quantity: String = "",
+            quantity: String = "1",
             location: ItemLocation = .fridge,
             locationCustom: String = "",
             bestBeforeDate: Date = Date(),

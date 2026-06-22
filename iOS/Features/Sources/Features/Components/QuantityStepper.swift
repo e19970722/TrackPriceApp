@@ -1,20 +1,22 @@
 import SwiftUI
 
 /// Reusable +/- quantity stepper matching the Ripe design spec.
-/// The label is rendered as-is; callers store quantity as a `String`.
+/// The middle slot is an editable text field bound to a `String`.
 public struct QuantityStepper: View {
-    let quantity: String
+    @Binding var quantity: String
     let decrementDisabled: Bool
     let onDecrement: () -> Void
     let onIncrement: () -> Void
 
+    @FocusState private var isFieldFocused: Bool
+
     public init(
-        quantity: String,
+        quantity: Binding<String>,
         decrementDisabled: Bool = false,
         onDecrement: @escaping () -> Void,
         onIncrement: @escaping () -> Void
     ) {
-        self.quantity = quantity
+        _quantity = quantity
         self.decrementDisabled = decrementDisabled
         self.onDecrement = onDecrement
         self.onIncrement = onIncrement
@@ -33,7 +35,7 @@ extension QuantityStepper {
     private var stepperRowView: some View {
         HStack(spacing: RipeSpacing.s3) {
             decrementButton
-            quantityLabel
+            quantityField
             incrementButton
         }
     }
@@ -62,21 +64,21 @@ extension QuantityStepper {
         .contentShape(RoundedRectangle(cornerRadius: RipeRadius.sm))
     }
 
-    private var quantityLabel: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: RipeRadius.sm, style: .continuous)
-                .fill(Color(.ripeSurface))
-                .overlay(
-                    RoundedRectangle(cornerRadius: RipeRadius.sm, style: .continuous)
-                        .strokeBorder(Color(.ripeInk).opacity(0.07), lineWidth: 1.5)
-                )
-            Text(quantity)
-                .customFont(.bold22)
-                .foregroundStyle(Color(.ripeInk))
-                .monospacedDigit()
-                .fontWeight(.heavy)
+    private var quantityField: some View {
+        RipeInputShell(isFocused: isFieldFocused) {
+            quantityTextField
         }
-        .frame(height: 52)
+        .frame(minWidth: 72)
+    }
+
+    private var quantityTextField: some View {
+        TextField("1", text: $quantity)
+            .keyboardType(.numberPad)
+            .multilineTextAlignment(.center)
+            .focused($isFieldFocused)
+            .customFont(.bold19)
+            .monospacedDigit()
+            .foregroundStyle(Color(.ripeInk))
     }
 
     private var incrementButton: some View {
@@ -102,36 +104,40 @@ extension QuantityStepper {
 
 // MARK: - Preview
 
-#Preview("QuantityStepper") {
-    VStack(spacing: RipeSpacing.s5) {
-        QuantityStepper(
-            quantity: "1",
-            decrementDisabled: true,
-            onDecrement: {},
-            onIncrement: {}
-        )
-        QuantityStepper(
-            quantity: "3",
-            onDecrement: {},
-            onIncrement: {}
-        )
-        QuantityStepper(
-            quantity: "12",
-            onDecrement: {},
-            onIncrement: {}
-        )
+private struct QuantityStepperPreviewWrapper: View {
+    @State private var defaultQty: String = "1"
+    @State private var multiDigitQty: String = "12"
+    @State private var disabledQty: String = "1"
+
+    var body: some View {
+        VStack(spacing: RipeSpacing.s5) {
+            QuantityStepper(
+                quantity: $defaultQty,
+                onDecrement: {},
+                onIncrement: {}
+            )
+            QuantityStepper(
+                quantity: $multiDigitQty,
+                onDecrement: {},
+                onIncrement: {}
+            )
+            QuantityStepper(
+                quantity: $disabledQty,
+                decrementDisabled: true,
+                onDecrement: {},
+                onIncrement: {}
+            )
+        }
+        .padding(RipeSpacing.s5)
+        .background(Color(.ripeBg))
     }
-    .padding(RipeSpacing.s5)
-    .background(Color(.ripeBg))
+}
+
+#Preview("QuantityStepper") {
+    QuantityStepperPreviewWrapper()
 }
 
 #Preview("QuantityStepper Dark") {
-    QuantityStepper(
-        quantity: "5",
-        onDecrement: {},
-        onIncrement: {}
-    )
-    .padding(RipeSpacing.s5)
-    .background(Color(.ripeBg))
-    .preferredColorScheme(.dark)
+    QuantityStepperPreviewWrapper()
+        .preferredColorScheme(.dark)
 }

@@ -18,7 +18,7 @@ public struct ItemDetailsView: View {
         WithPerceptionTracking {
             ZStack {
                 Color(.ripeBg).ignoresSafeArea()
-                scrollFormView
+                mainContent
             }
             .navigationTitle(L10n.Expiry.navTitleItemDetails)
             .navigationBarTitleDisplayMode(.inline)
@@ -35,6 +35,15 @@ public struct ItemDetailsView: View {
 // MARK: - Subviews
 
 extension ItemDetailsView {
+    private var mainContent: some View {
+        VStack(spacing: 0) {
+            scrollFormView
+            actionButtonsView
+                .padding(.horizontal, RipeSpacing.s5)
+                .padding(.bottom, RipeSpacing.s7)
+        }
+    }
+
     private var scrollFormView: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: RipeSpacing.s5) {
@@ -42,11 +51,10 @@ extension ItemDetailsView {
                 storedInCard
                 quantityFieldCard
                 bestBefforeDateCard
-                actionButtonsView
             }
             .padding(.horizontal, RipeSpacing.s5)
             .padding(.top, RipeSpacing.s5)
-            .padding(.bottom, RipeSpacing.s7)
+            .padding(.bottom, RipeSpacing.s5)
         }
     }
 
@@ -82,7 +90,7 @@ extension ItemDetailsView {
         WithPerceptionTracking {
             RipeField(label: L10n.Expiry.fieldQuantity) {
                 QuantityStepper(
-                    quantity: "\(quantityCount)",
+                    quantity: $store.quantity,
                     decrementDisabled: quantityCount <= 1,
                     onDecrement: { store.send(.decrementQuantity) },
                     onIncrement: { store.send(.incrementQuantity) }

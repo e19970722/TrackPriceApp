@@ -1,10 +1,14 @@
 import ComposableArchitecture
+import PhotosUI
 import SwiftUI
 
 public struct ReminderView: View {
     @Perception.Bindable var store: StoreOf<AddItemFeature>
     let draftItem: Item
     private let milestoneMarks: [Int] = [1, 3, 7, 30, 60]
+
+    @State private var photoItem: PhotosPickerItem?
+    @State private var photoImage: Image?
 
     public init(store: StoreOf<AddItemFeature>, draftItem: Item) {
         self.store = store
@@ -17,7 +21,7 @@ public struct ReminderView: View {
         WithPerceptionTracking {
             ZStack {
                 Color(.ripeBg).ignoresSafeArea()
-                scrollContent
+                mainContent
             }
             .navigationTitle(L10n.Expiry.reminderNavTitle)
             .navigationBarTitleDisplayMode(.inline)
@@ -28,6 +32,15 @@ public struct ReminderView: View {
 // MARK: - Subviews
 
 extension ReminderView {
+    private var mainContent: some View {
+        VStack(spacing: 0) {
+            scrollContent
+            bottomCTAStack
+                .padding(.horizontal, RipeSpacing.s5)
+                .padding(.bottom, RipeSpacing.s7)
+        }
+    }
+
     private var scrollContent: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: RipeSpacing.s5) {
@@ -37,12 +50,17 @@ extension ReminderView {
                 sliderSection
                 reminderBannerView
                 alsoAlertOnDayRow
-                saveButton
-                backButton
             }
             .padding(.horizontal, RipeSpacing.s5)
             .padding(.top, RipeSpacing.s5)
-            .padding(.bottom, RipeSpacing.s7)
+            .padding(.bottom, RipeSpacing.s5)
+        }
+    }
+
+    private var bottomCTAStack: some View {
+        VStack(spacing: RipeSpacing.s3) {
+            saveButton
+            backButton
         }
     }
 
@@ -60,11 +78,49 @@ extension ReminderView {
     }
 
     private var itemMonogram: some View {
-        MonoThumbnail(
-            label: draftItem.name,
-            categoryColor: Color(.ripeAccent),
-            size: 46
-        )
+        PhotosPicker(selection: $photoItem, matching: .images, photoLibrary: .shared()) {
+            photoOrMonogramView
+        }
+        .buttonStyle(.plain)
+        .onChange(of: photoItem) { newItem in
+            loadPhoto(from: newItem)
+        }
+    }
+
+    private var photoOrMonogramView: some View {
+        Group {
+            if let photoImage {
+                photoImage
+                    .resizable()
+                    .scaledToFill()
+            } else {
+                MonoThumbnail(
+                    label: draftItem.name,
+                    categoryColor: Color(.ripeAccent),
+                    size: 46
+                )
+            }
+        }
+        .frame(width: 46, height: 46)
+        .clipShape(RoundedRectangle(cornerRadius: RipeRadius.control, style: .continuous))
+        .overlay(alignment: .bottomTrailing) {
+            editPencilBadge
+        }
+    }
+
+    private var editPencilBadge: some View {
+        ZStack {
+            Circle()
+                .fill(Color(.ripeAccent))
+                .overlay {
+                    Circle().strokeBorder(Color(.ripeSurface), lineWidth: 2)
+                }
+            Image(systemName: "pencil")
+                .iconFont(.xs)
+                .foregroundStyle(.white)
+        }
+        .frame(width: 20, height: 20)
+        .offset(x: 4, y: 4)
     }
 
     private var itemSummaryTextStack: some View {
@@ -127,26 +183,34 @@ extension ReminderView {
 
     private var sliderMilestoneLabels: some View {
         WithPerceptionTracking {
-            HStack {
+            GeometryReader { geo in
+                milestoneLabelStack(in: geo.size.width)
+            }
+            .frame(height: 16)
+        }
+    }
+
+    private func milestoneLabelStack(in totalWidth: CGFloat) -> some View {
+        WithPerceptionTracking {
+            let thumbInset: CGFloat = 14
+            let usableWidth = max(0, totalWidth - 2 * thumbInset)
+            ZStack(alignment: .leading) {
                 ForEach(milestoneMarks, id: \.self) { mark in
-                    let isActive = mark == store.remindDaysBefore
-                    Group {
-                        if mark == milestoneMarks.first {
-                            Text("\(mark)")
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                        } else if mark == milestoneMarks.last {
-                            Text("\(mark)")
-                                .frame(maxWidth: .infinity, alignment: .trailing)
-                        } else {
-                            Text("\(mark)")
-                                .frame(maxWidth: .infinity, alignment: .center)
-                        }
-                    }
-                    .customFont(isActive ? .bold12 : .semibold12)
-                    .foregroundStyle(isActive ? Color(.ripeAccent) : Color(.ripeInk3))
-                    .monospacedDigit()
+                    milestoneLabel(for: mark, thumbInset: thumbInset, usableWidth: usableWidth)
                 }
             }
+        }
+    }
+
+    private func milestoneLabel(for mark: Int, thumbInset: CGFloat, usableWidth: CGFloat) -> some View {
+        WithPerceptionTracking {
+            let isActive = mark == store.remindDaysBefore
+            let x = thumbInset + CGFloat(mark - 1) / 59 * usableWidth
+            Text("\(mark)")
+                .customFont(isActive ? .bold12 : .semibold12)
+                .foregroundStyle(isActive ? Color(.ripeAccent) : Color(.ripeInk3))
+                .monospacedDigit()
+                .position(x: x, y: 8)
         }
     }
 
@@ -155,16 +219,16 @@ extension ReminderView {
     private var reminderBannerView: some View {
         WithPerceptionTracking {
             HStack(spacing: RipeSpacing.s3) {
-                Image(systemName: isReminderInPast ? "exclamationmark.triangle.fill" : "bell.fill")
+                Image(systemName: isReminderInPast ? "exclamationmark.octagon.fill" : "bell.fill")
                     .iconFont(.bodyIcon)
-                    .foregroundStyle(isReminderInPast ? Color(.ripeWarn) : Color(.ripeAccent))
+                    .foregroundStyle(isReminderInPast ? Color(.ripeDanger) : Color(.ripeWarn))
                 Text(isReminderInPast ? reminderPastHintText : reminderBannerText)
                     .customFont(.semibold15)
                     .foregroundStyle(Color(.ripeInk))
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(RipeSpacing.s4)
-            .background(isReminderInPast ? Color(.ripeWarnSoft) : Color(.ripeAccentSoft))
+            .background(isReminderInPast ? Color(.ripeDangerSoft) : Color(.ripeWarnSoft))
             .clipShape(RoundedRectangle(cornerRadius: RipeRadius.control, style: .continuous))
         }
     }
@@ -267,6 +331,18 @@ extension ReminderView {
         let df = DateFormatter()
         df.dateStyle = .medium
         return df.string(from: date)
+    }
+
+    private func loadPhoto(from item: PhotosPickerItem?) {
+        guard let item else { return }
+        Task {
+            if let data = try? await item.loadTransferable(type: Data.self),
+               let uiImage = UIImage(data: data) {
+                await MainActor.run {
+                    photoImage = Image(uiImage: uiImage)
+                }
+            }
+        }
     }
 }
 
