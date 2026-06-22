@@ -25,7 +25,7 @@ public struct TrackerListView: View {
                 .onTapGesture { isSearchFocused = false }
                 fabButton
             }
-            .sheet(item: $store.scope(state: \.addTracker, action: \.addTracker)) { addStore in
+            .fullScreenCover(item: $store.scope(state: \.addTracker, action: \.addTracker)) { addStore in
                 AddTrackerView(store: addStore)
             }
             .sheet(item: $store.scope(state: \.selectedTracker, action: \.trackerDetail)) { detailStore in
