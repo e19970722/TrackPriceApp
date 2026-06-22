@@ -47,6 +47,7 @@ extension SetTargetView {
             scrollableContentView
             dockView
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 
     private var headerView: some View {
