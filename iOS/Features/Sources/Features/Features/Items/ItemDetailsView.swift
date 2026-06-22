@@ -5,9 +5,8 @@ public struct ItemDetailsView: View {
     @Perception.Bindable var store: StoreOf<AddItemFeature>
     @FocusState private var focusedField: Field?
     @State private var draftBestBeforeDate = Date()
-    private let locationButtonHeight: CGFloat = 46
 
-    enum Field: Hashable { case name, customLocation }
+    enum Field: Hashable { case name }
 
     public init(store: StoreOf<AddItemFeature>) {
         self.store = store
@@ -19,7 +18,7 @@ public struct ItemDetailsView: View {
         WithPerceptionTracking {
             ZStack {
                 Color(.ripeBg).ignoresSafeArea()
-                scrollFormView
+                mainContent
             }
             .navigationTitle(L10n.Expiry.navTitleItemDetails)
             .navigationBarTitleDisplayMode(.inline)
@@ -36,6 +35,15 @@ public struct ItemDetailsView: View {
 // MARK: - Subviews
 
 extension ItemDetailsView {
+    private var mainContent: some View {
+        VStack(spacing: 0) {
+            scrollFormView
+            actionButtonsView
+                .padding(.horizontal, RipeSpacing.s5)
+                .padding(.bottom, RipeSpacing.s7)
+        }
+    }
+
     private var scrollFormView: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: RipeSpacing.s5) {
@@ -43,20 +51,18 @@ extension ItemDetailsView {
                 storedInCard
                 quantityFieldCard
                 bestBefforeDateCard
-                actionButtonsView
             }
             .padding(.horizontal, RipeSpacing.s5)
             .padding(.top, RipeSpacing.s5)
-            .padding(.bottom, RipeSpacing.s7)
+            .padding(.bottom, RipeSpacing.s5)
         }
     }
 
     // MARK: Item name
 
     private var itemNameFieldCard: some View {
-        VStack(alignment: .leading, spacing: RipeSpacing.s2) {
-            fieldSectionLabel(L10n.Expiry.fieldItemName)
-            RipeCard {
+        RipeField(label: L10n.Expiry.fieldItemName) {
+            RipeInputShell(isFocused: focusedField == .name) {
                 TextField("e.g. Greek Yogurt", text: $store.itemName)
                     .customFont(.semibold15)
                     .foregroundStyle(Color(.ripeInk))
@@ -65,194 +71,95 @@ extension ItemDetailsView {
         }
     }
 
-    // MARK: Stored in — 2-row layout matching design
+    // MARK: Stored in
 
     private var storedInCard: some View {
-        VStack(alignment: .leading, spacing: RipeSpacing.s2) {
-            fieldSectionLabel(L10n.Expiry.fieldStoredIn)
-            primaryLocationRow
-            othersRow
-        }
-    }
-
-    private var primaryLocationRow: some View {
-        HStack(spacing: RipeSpacing.s2) {
-            locationButton(.fridge)
-            locationButton(.pantry)
-            locationButton(.freezer)
-        }
-    }
-
-    private var othersRow: some View {
-        GeometryReader { geo in
-            let gap = CGFloat(RipeSpacing.s2)
-            let unitW = (geo.size.width - 2 * gap) / 3
-            HStack(spacing: gap) {
-                locationButton(.custom)
-                    .frame(width: unitW)
-                customLocationTextField
+        WithPerceptionTracking {
+            RipeField(label: L10n.Expiry.fieldStoredIn) {
+                StoredInSelector(
+                    selection: $store.location,
+                    customText: $store.locationCustom
+                )
             }
         }
-        .frame(height: locationButtonHeight)
     }
 
-    private func locationButton(_ loc: ItemLocation) -> some View {
+    // MARK: Quantity
+
+    private var quantityFieldCard: some View {
         WithPerceptionTracking {
-            let isSelected = store.location == loc
-            let image = loc == .custom ? "pencil" : loc.systemImage
-            let label = loc == .custom ? "Others" : loc.displayName
-            return Button {
-                store.send(.set(\.location, loc))
-                if loc == .custom { focusedField = .customLocation }
-            } label: {
-                VStack(spacing: 4) {
-                    Image(systemName: image)
-                        .iconFont(.md)
-                    Text(label)
-                        .customFont(.bold13)
-                }
-                .foregroundStyle(isSelected ? Color(.ripeAccentInk) : Color(.ripeInk3))
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(isSelected ? Color(.ripeAccent) : Color(.ripeSurface2))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+            RipeField(label: L10n.Expiry.fieldQuantity) {
+                QuantityStepper(
+                    quantity: $store.quantity,
+                    decrementDisabled: quantityCount <= 1,
+                    onDecrement: { store.send(.decrementQuantity) },
+                    onIncrement: { store.send(.incrementQuantity) }
+                )
             }
-            .buttonStyle(.plain)
-            .animation(.easeInOut(duration: 0.15), value: store.location)
         }
     }
-
-    private var customLocationTextField: some View {
-        WithPerceptionTracking {
-            TextField("Type a custom spot", text: $store.locationCustom)
-                .customFont(.semibold13)
-                .foregroundStyle(Color(.ripeInk))
-                .focused($focusedField, equals: .customLocation)
-                .tint(Color(.ripeAccent))
-                .disabled(store.location != .custom)
-                .padding(.horizontal, RipeSpacing.s3)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color(.ripeSurface2))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .opacity(store.location == .custom ? 1 : 0.5)
-        }
-    }
-
-    // MARK: Quantity — stepper with rounded-rect buttons (design: 52×52, r=14)
 
     private var quantityCount: Int {
         Int(store.quantity) ?? 1
     }
 
-    private var quantityFieldCard: some View {
-        VStack(alignment: .leading, spacing: RipeSpacing.s2) {
-            fieldSectionLabel(L10n.Expiry.fieldQuantity)
-            HStack(spacing: 12) {
-                decrementButton
-                quantityLabel
-                incrementButton
-            }
-        }
-    }
-
-    private var decrementButton: some View {
-        WithPerceptionTracking {
-            Button {
-                store.send(.decrementQuantity)
-            } label: {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .fill(Color(.ripeSurface2))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .strokeBorder(Color(.ripeInk).opacity(0.07), lineWidth: 1.5)
-                        )
-                    Image(systemName: "minus")
-                        .iconFont(.quantityLg)
-                        .foregroundStyle(quantityCount <= 1 ? Color(.ripeInk3) : Color(.ripeInk2))
-                }
-                .frame(width: 52, height: 52)
-                .contentShape(RoundedRectangle(cornerRadius: 14))
-            }
-            .buttonStyle(.plain)
-            .disabled(quantityCount <= 1)
-        }
-    }
-
-    private var quantityLabel: some View {
-        WithPerceptionTracking {
-            ZStack {
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(Color(.ripeSurface))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .strokeBorder(Color(.ripeInk).opacity(0.07), lineWidth: 1.5)
-                    )
-                Text("\(quantityCount)")
-                    .customFont(.bold22)
-                    .foregroundStyle(Color(.ripeInk))
-                    .monospacedDigit()
-                    .fontWeight(.heavy)
-            }
-            .frame(height: 52)
-        }
-    }
-
-    private var incrementButton: some View {
-        Button {
-            store.send(.incrementQuantity)
-        } label: {
-            ZStack {
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(Color(.ripeAccent))
-                    .shadow(color: Color(.ripeAccent).opacity(0.3), radius: 5, y: 3)
-                Image(systemName: "plus")
-                    .iconFont(.quantityLg)
-                    .foregroundStyle(Color(.ripeAccentInk))
-            }
-            .frame(width: 52, height: 52)
-            .contentShape(RoundedRectangle(cornerRadius: 14))
-        }
-        .buttonStyle(.plain)
-    }
-
-    // MARK: Best-before date — calendar icon on left, hint below
+    // MARK: Best-before date
 
     private var bestBefforeDateCard: some View {
         WithPerceptionTracking {
             VStack(alignment: .leading, spacing: RipeSpacing.s2) {
-                fieldSectionLabel(L10n.Expiry.fieldBestBeforeDate)
-                Button {
-                    draftBestBeforeDate = store.bestBeforeDate
-                    store.send(.datePickerPresented(true))
-                } label: {
-                    RipeCard {
-                        HStack(spacing: RipeSpacing.s3) {
-                            Image(systemName: "calendar")
-                                .iconFont(.lg)
-                                .foregroundStyle(Color(.ripeAccent))
-                            Text(formattedDate(store.bestBeforeDate))
-                                .customFont(.bold17)
-                                .foregroundStyle(Color(.ripeInk))
-                            Spacer()
-                            if store.isDateFromScan {
-                                scannedChip
-                            } else {
-                                Image(systemName: "chevron.right")
-                                    .iconFont(.sm)
-                                    .foregroundStyle(Color(.ripeInk3))
-                            }
-                        }
-                    }
+                RipeField(label: L10n.Expiry.fieldBestBeforeDate) {
+                    bestBeforeDateButton
                 }
-                .buttonStyle(.plain)
-                .contentShape(Rectangle())
-                Text(store.isDateFromScan
-                    ? "Auto-filled from the label — tap to adjust."
-                    : "Defaults to today — tap to change.")
-                    .customFont(.medium12)
-                    .foregroundStyle(Color(.ripeInk3))
-                    .padding(.horizontal, 2)
+                bestBeforeDateHintText
             }
+        }
+    }
+
+    private var bestBeforeDateButton: some View {
+        WithPerceptionTracking {
+            Button {
+                draftBestBeforeDate = store.bestBeforeDate
+                store.send(.datePickerPresented(true))
+            } label: {
+                RipeInputShell {
+                    bestBeforeDateRowContent
+                }
+            }
+            .buttonStyle(.plain)
+            .contentShape(Rectangle())
+        }
+    }
+
+    private var bestBeforeDateRowContent: some View {
+        WithPerceptionTracking {
+            HStack(spacing: RipeSpacing.s3) {
+                Image(systemName: "calendar")
+                    .iconFont(.lg)
+                    .foregroundStyle(Color(.ripeAccent))
+                Text(formattedDate(store.bestBeforeDate))
+                    .customFont(.bold17)
+                    .foregroundStyle(Color(.ripeInk))
+                Spacer()
+                if store.isDateFromScan {
+                    scannedChip
+                } else {
+                    Image(systemName: "chevron.right")
+                        .iconFont(.sm)
+                        .foregroundStyle(Color(.ripeInk3))
+                }
+            }
+        }
+    }
+
+    private var bestBeforeDateHintText: some View {
+        WithPerceptionTracking {
+            Text(store.isDateFromScan
+                ? "Auto-filled from the label — tap to adjust."
+                : "Defaults to today — tap to change.")
+                .customFont(.medium12)
+                .foregroundStyle(Color(.ripeInk3))
+                .padding(.horizontal, 2)
         }
     }
 
@@ -327,14 +234,6 @@ extension ItemDetailsView {
 // MARK: - Helpers
 
 extension ItemDetailsView {
-    private func fieldSectionLabel(_ title: String) -> some View {
-        Text(title)
-            .customFont(.semibold12)
-            .foregroundStyle(Color(.ripeInk3))
-            .textCase(.uppercase)
-            .tracking(0.5)
-    }
-
     private func formattedDate(_ date: Date) -> String {
         let df = DateFormatter()
         df.dateStyle = .long

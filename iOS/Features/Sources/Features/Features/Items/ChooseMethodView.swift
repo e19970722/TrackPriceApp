@@ -101,20 +101,14 @@ extension ChooseMethodView {
     }
 
     private var enterManuallyButton: some View {
-        Button(action: { store.send(.enterManuallyTapped) }) {
-            HStack(spacing: RipeSpacing.s2) {
-                Image(systemName: "pencil")
-                    .iconFont(.lg)
-
-                Text(L10n.Expiry.enterManually)
-                    .customFont(.semibold17)
-                    .fontWeight(.semibold)
-            }
-            .frame(maxWidth: .infinity)
-            .frame(height: 54)
-            .foregroundStyle(Color(.ripeInk3))
-        }
-        .buttonStyle(.plain)
+        RipeButton(
+            title: L10n.Expiry.enterManually,
+            variant: .ghost,
+            size: .lg,
+            systemImage: "pencil",
+            fullWidth: true,
+            action: { store.send(.enterManuallyTapped) }
+        )
     }
 
     private var cancelButton: some View {

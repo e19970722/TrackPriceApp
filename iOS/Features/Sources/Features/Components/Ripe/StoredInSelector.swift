@@ -1,59 +1,62 @@
 import SwiftUI
 
-/// Storage location options for food items.
-public enum StoredInLocation: CaseIterable {
-    case fridge
-    case pantry
-    case freezer
-    case others
-}
-
 /// 4-segment location picker used in item add/edit flows.
+/// When `customText` is provided and the selection is `.custom`, an inline
+/// text field is rendered below the segmented row for free-form entry.
 public struct StoredInSelector: View {
-    let selected: StoredInLocation
-    let onSelect: (StoredInLocation) -> Void
+    @Binding var selection: ItemLocation
+    var customText: Binding<String>?
 
     public init(
-        selected: StoredInLocation,
-        onSelect: @escaping (StoredInLocation) -> Void
+        selection: Binding<ItemLocation>,
+        customText: Binding<String>? = nil
     ) {
-        self.selected = selected
-        self.onSelect = onSelect
+        _selection = selection
+        self.customText = customText
     }
 
     // MARK: - Body
 
     public var body: some View {
-        segmentedRowView
+        selectorStackView
     }
 }
 
 // MARK: - Subviews
 
 extension StoredInSelector {
+    private var selectorStackView: some View {
+        VStack(alignment: .leading, spacing: RipeSpacing.s3) {
+            segmentedRowView
+            if shouldShowCustomField {
+                customTextFieldView
+            }
+        }
+    }
+
     private var segmentedRowView: some View {
         HStack(spacing: RipeSpacing.s2) {
-            ForEach(StoredInLocation.allCases, id: \.self) { location in
+            ForEach(ItemLocation.allCases, id: \.self) { location in
                 segmentButton(location)
             }
         }
         .frame(height: 52)
     }
 
-    private func segmentButton(_ location: StoredInLocation) -> some View {
+    private func segmentButton(_ location: ItemLocation) -> some View {
         Button {
-            onSelect(location)
+            selection = location
         } label: {
             segmentLabel(location)
         }
         .buttonStyle(.plain)
     }
 
-    private func segmentLabel(_ location: StoredInLocation) -> some View {
+    private func segmentLabel(_ location: ItemLocation) -> some View {
         VStack(spacing: 4) {
-            Image(systemName: location.systemImage)
+            Image(systemName: location.selectorSystemImage)
                 .iconFont(.quantity)
-            Text(location.displayName)
+            Text(location.selectorDisplayName)
                 .customFont(.medium11)
                 .fontWeight(.semibold)
         }
@@ -64,33 +67,51 @@ extension StoredInSelector {
         .clipShape(RoundedRectangle(cornerRadius: RipeRadius.sm, style: .continuous))
     }
 
-    private func segmentBackground(for location: StoredInLocation) -> Color {
-        selected == location ? Color(.ripeAccent) : Color(.ripeSurface2)
+    private func segmentBackground(for location: ItemLocation) -> Color {
+        selection == location ? Color(.ripeAccent) : Color(.ripeSurface2)
     }
 
-    private func segmentForeground(for location: StoredInLocation) -> Color {
-        selected == location ? Color(.ripeAccentInk) : Color(.ripeInk3)
+    private func segmentForeground(for location: ItemLocation) -> Color {
+        selection == location ? Color(.ripeAccentInk) : Color(.ripeInk3)
+    }
+
+    @ViewBuilder
+    private var customTextFieldView: some View {
+        if let binding = customText {
+            RipeInputShell {
+                TextField("Type a custom spot", text: binding)
+                    .customFont(.semibold15)
+                    .foregroundStyle(Color(.ripeInk))
+                    .tint(Color(.ripeAccent))
+            }
+        }
     }
 }
 
 // MARK: - Helpers
 
-private extension StoredInLocation {
-    var systemImage: String {
+extension StoredInSelector {
+    private var shouldShowCustomField: Bool {
+        customText != nil && selection == .custom
+    }
+}
+
+private extension ItemLocation {
+    var selectorSystemImage: String {
         switch self {
         case .fridge:  "refrigerator"
         case .pantry:  "cabinet"
         case .freezer: "snowflake"
-        case .others:  "ellipsis"
+        case .custom:  "ellipsis"
         }
     }
 
-    var displayName: String {
+    var selectorDisplayName: String {
         switch self {
         case .fridge:  "Fridge"
         case .pantry:  "Pantry"
         case .freezer: "Freezer"
-        case .others:  "Others"
+        case .custom:  "Others"
         }
     }
 }
@@ -98,19 +119,49 @@ private extension StoredInLocation {
 // MARK: - Preview
 
 #Preview("StoredInSelector") {
-    VStack(spacing: RipeSpacing.s5) {
-        StoredInSelector(selected: .fridge, onSelect: { _ in })
-        StoredInSelector(selected: .pantry, onSelect: { _ in })
-        StoredInSelector(selected: .freezer, onSelect: { _ in })
-        StoredInSelector(selected: .others, onSelect: { _ in })
+    StatefulPreviewWrapper(ItemLocation.fridge) { selection in
+        VStack(spacing: RipeSpacing.s5) {
+            StoredInSelector(selection: selection)
+        }
+        .padding(RipeSpacing.s5)
+        .background(Color(.ripeBg))
     }
-    .padding(RipeSpacing.s5)
-    .background(Color(.ripeBg))
+}
+
+#Preview("StoredInSelector with Custom Text") {
+    StatefulPreviewWrapper(ItemLocation.custom) { selection in
+        StatefulPreviewWrapper("Spice rack") { customText in
+            VStack(spacing: RipeSpacing.s5) {
+                StoredInSelector(
+                    selection: selection,
+                    customText: customText
+                )
+            }
+            .padding(RipeSpacing.s5)
+            .background(Color(.ripeBg))
+        }
+    }
 }
 
 #Preview("StoredInSelector Dark") {
-    StoredInSelector(selected: .fridge, onSelect: { _ in })
-        .padding(RipeSpacing.s5)
-        .background(Color(.ripeBg))
-        .preferredColorScheme(.dark)
+    StatefulPreviewWrapper(ItemLocation.fridge) { selection in
+        StoredInSelector(selection: selection)
+            .padding(RipeSpacing.s5)
+            .background(Color(.ripeBg))
+            .preferredColorScheme(.dark)
+    }
+}
+
+private struct StatefulPreviewWrapper<Value, Content: View>: View {
+    @State var value: Value
+    let content: (Binding<Value>) -> Content
+
+    init(_ value: Value, @ViewBuilder content: @escaping (Binding<Value>) -> Content) {
+        _value = State(initialValue: value)
+        self.content = content
+    }
+
+    var body: some View {
+        content($value)
+    }
 }
