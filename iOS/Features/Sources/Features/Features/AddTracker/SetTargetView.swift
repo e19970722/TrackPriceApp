@@ -18,18 +18,35 @@ struct SetTargetView: View {
 
     var body: some View {
         WithPerceptionTracking {
-            ZStack {
-                backgroundLayer
-                contentLayer
+            ScrollView {
+                VStack(alignment: .leading, spacing: RipeSpacing.s5) {
+                    productSummaryCard
+                    trackerNameField
+                    targetPriceField
+                    directionField
+                    infoBannerView
+                    if let error = store.creationError {
+                        errorText(error)
+                    }
+                }
+                .padding(.horizontal, RipeSpacing.s5)
+                .padding(.top, RipeSpacing.s2)
+            }
+            .scrollDismissesKeyboard(.interactively)
+            .safeAreaInset(edge: .bottom) {
+                bottomButton
+            }
+            .ripeFlowScreen(
+                title: L10n.AddTracker.navTitleSetTarget,
+                leadingTitle: L10n.Common.back,
+                onLeading: { store.send(.confirmationRejected) }
+            )
+            .overlay {
                 if store.showsAlreadyMetWarning {
                     alreadyMetDialogView
                 }
             }
-            .onAppear {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    focusedField = .targetPrice
-                }
-            }
+            .onAppear { focusedField = .targetPrice }
         }
     }
 }
@@ -37,44 +54,6 @@ struct SetTargetView: View {
 // MARK: - Subviews
 
 extension SetTargetView {
-    private var backgroundLayer: some View {
-        Color(.ripeBg).ignoresSafeArea()
-    }
-
-    private var contentLayer: some View {
-        VStack(spacing: 0) {
-            headerView
-            scrollableContentView
-            dockView
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-    }
-
-    private var headerView: some View {
-        RipeModalHeader(
-            title: L10n.AddTracker.navTitleSetTarget,
-            onLeadingTap: { store.send(.confirmationRejected) }
-        )
-    }
-
-    private var scrollableContentView: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: RipeSpacing.s5) {
-                productSummaryCard
-                trackerNameField
-                targetPriceField
-                directionField
-                infoBannerView
-                if let error = store.creationError {
-                    errorText(error)
-                }
-            }
-            .padding(.horizontal, RipeSpacing.s5)
-            .padding(.top, RipeSpacing.s2)
-        }
-        .scrollDismissesKeyboard(.interactively)
-    }
-
     private var productSummaryCard: some View {
         RipeCard {
             HStack(spacing: RipeSpacing.s3) {
@@ -178,18 +157,18 @@ extension SetTargetView {
             .foregroundStyle(Color(.ripeDanger))
     }
 
-    private var dockView: some View {
-        Dock {
-            RipeButton(
-                title: L10n.AddTracker.save,
-                variant: .primary,
-                size: .lg,
-                systemImage: "checkmark",
-                fullWidth: true,
-                cornerRadius: RipeRadius.card,
-                action: { store.send(.saveTapped) }
-            )
-        }
+    private var bottomButton: some View {
+        RipeButton(
+            title: L10n.AddTracker.save,
+            variant: .primary,
+            size: .lg,
+            systemImage: "checkmark",
+            fullWidth: true,
+            cornerRadius: RipeRadius.card,
+            action: { store.send(.saveTapped) }
+        )
+        .padding(.horizontal, RipeSpacing.s5)
+        .padding(.bottom, RipeSpacing.s7)
     }
 
     private var alreadyMetDialogView: some View {

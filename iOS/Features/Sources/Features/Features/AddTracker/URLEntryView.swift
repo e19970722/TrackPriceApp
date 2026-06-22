@@ -15,14 +15,25 @@ struct URLEntryView: View {
 
     var body: some View {
         WithPerceptionTracking {
-            ZStack {
-                backgroundLayer
-                contentLayer
+            ScrollView {
+                VStack(alignment: .leading, spacing: RipeSpacing.s6) {
+                    titleStackView
+                    urlFieldView
+                }
+                .padding(.horizontal, RipeSpacing.s5)
+                .padding(.top, RipeSpacing.s2)
+            }
+            .scrollDismissesKeyboard(.interactively)
+            .ripeFlowScreen(
+                title: L10n.AddTracker.navTitleAdd,
+                leadingTitle: L10n.Common.cancel,
+                onLeading: { store.send(.dismiss) }
+            )
+            .safeAreaInset(edge: .bottom) {
+                bottomButton
             }
             .onAppear {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    isURLFieldFocused = true
-                }
+                isURLFieldFocused = true
             }
         }
     }
@@ -31,39 +42,6 @@ struct URLEntryView: View {
 // MARK: - Subviews
 
 extension URLEntryView {
-    private var backgroundLayer: some View {
-        Color(.ripeBg).ignoresSafeArea()
-    }
-
-    private var contentLayer: some View {
-        VStack(spacing: 0) {
-            headerView
-            scrollableContentView
-            dockView
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-    }
-
-    private var headerView: some View {
-        RipeModalHeader(
-            title: L10n.AddTracker.navTitleAdd,
-            leadingText: L10n.Common.cancel,
-            onLeadingTap: { store.send(.dismiss) }
-        )
-    }
-
-    private var scrollableContentView: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: RipeSpacing.s6) {
-                titleStackView
-                urlFieldView
-            }
-            .padding(.horizontal, RipeSpacing.s5)
-            .padding(.top, RipeSpacing.s2)
-        }
-        .scrollDismissesKeyboard(.interactively)
-    }
-
     private var titleStackView: some View {
         VStack(alignment: .leading, spacing: RipeSpacing.s2) {
             Text(L10n.AddTracker.urlDisplayTitle)
@@ -122,18 +100,18 @@ extension URLEntryView {
         .buttonStyle(.plain)
     }
 
-    private var dockView: some View {
-        Dock {
-            RipeButton(
-                title: L10n.AddTracker.next,
-                variant: .primary,
-                size: .lg,
-                trailingSystemImage: "arrow.right",
-                fullWidth: true,
-                cornerRadius: RipeRadius.card,
-                action: { store.send(.loadURL) }
-            )
-        }
+    private var bottomButton: some View {
+        RipeButton(
+            title: L10n.AddTracker.next,
+            variant: .primary,
+            size: .lg,
+            trailingSystemImage: "arrow.right",
+            fullWidth: true,
+            cornerRadius: RipeRadius.card,
+            action: { store.send(.loadURL) }
+        )
+        .padding(.horizontal, RipeSpacing.s5)
+        .padding(.bottom, RipeSpacing.s7)
     }
 }
 

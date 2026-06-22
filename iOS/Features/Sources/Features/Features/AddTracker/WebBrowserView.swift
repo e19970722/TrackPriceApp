@@ -14,9 +14,21 @@ struct WebBrowserView: View {
 
     var body: some View {
         WithPerceptionTracking {
-            ZStack {
-                backgroundLayer
-                contentLayer
+            VStack(spacing: 0) {
+                browserChromeView
+                webViewLayer
+            }
+            .safeAreaInset(edge: .bottom) {
+                if !store.isSelecting {
+                    bottomButton
+                }
+            }
+            .ripeFlowScreen(
+                title: L10n.AddTracker.navTitleBrowse,
+                leadingTitle: L10n.Common.back,
+                onLeading: { store.send(.dismiss) }
+            )
+            .overlay {
                 if store.isSelecting {
                     selectionBannerOverlay
                 }
@@ -31,29 +43,6 @@ struct WebBrowserView: View {
 // MARK: - Subviews
 
 extension WebBrowserView {
-    private var backgroundLayer: some View {
-        Color(.ripeBg).ignoresSafeArea()
-    }
-
-    private var contentLayer: some View {
-        VStack(spacing: 0) {
-            headerView
-            browserChromeView
-            webViewLayer
-            if !store.isSelecting {
-                dockView
-            }
-        }
-    }
-
-    private var headerView: some View {
-        RipeModalHeader(
-            title: L10n.AddTracker.navTitleBrowse,
-            leadingText: L10n.Common.cancel,
-            onLeadingTap: { store.send(.dismiss) }
-        )
-    }
-
     private var browserChromeView: some View {
         BrowserChrome(
             host: store.currentURL?.host ?? "",
@@ -72,18 +61,18 @@ extension WebBrowserView {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    private var dockView: some View {
-        Dock(helperText: L10n.AddTracker.browseHelper) {
-            RipeButton(
-                title: L10n.AddTracker.pickElement,
-                variant: .primary,
-                size: .lg,
-                systemImage: "cursorarrow.rays",
-                fullWidth: true,
-                cornerRadius: RipeRadius.card,
-                action: { store.send(.pickElementTapped) }
-            )
-        }
+    private var bottomButton: some View {
+        RipeButton(
+            title: L10n.AddTracker.pickElement,
+            variant: .primary,
+            size: .lg,
+            systemImage: "cursorarrow.rays",
+            fullWidth: true,
+            cornerRadius: RipeRadius.card,
+            action: { store.send(.pickElementTapped) }
+        )
+        .padding(.horizontal, RipeSpacing.s5)
+        .padding(.bottom, RipeSpacing.s7)
     }
 
     private var selectionBannerOverlay: some View {

@@ -16,7 +16,6 @@ public struct AddTrackerView: View {
         WithPerceptionTracking {
             NavigationStack {
                 stepContentView
-                    .toolbar(.hidden, for: .navigationBar)
             }
         }
     }
