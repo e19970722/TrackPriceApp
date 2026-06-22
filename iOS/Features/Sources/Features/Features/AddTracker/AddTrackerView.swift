@@ -14,7 +14,10 @@ public struct AddTrackerView: View {
 
     public var body: some View {
         WithPerceptionTracking {
-            stepContentView
+            NavigationStack {
+                stepContentView
+                    .toolbar(.hidden, for: .navigationBar)
+            }
         }
     }
 }
