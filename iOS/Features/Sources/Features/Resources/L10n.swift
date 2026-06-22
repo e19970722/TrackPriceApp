@@ -91,33 +91,102 @@ public enum L10n {
     // MARK: - AddTracker
 
     public enum AddTracker {
-        public static let navTitleAdd = L10n.tr("addTracker.navTitleAdd", fallback: "Add Tracker")
+        // Headers
+        public static let navTitleAdd = L10n.tr("addTracker.navTitleAdd", fallback: "New Tracker")
         public static let navTitleBrowse = L10n.tr("addTracker.navTitleBrowse", fallback: "Browse")
         public static let navTitleConfirm = L10n.tr("addTracker.navTitleConfirm", fallback: "Confirm Element")
         public static let navTitleSetTarget = L10n.tr("addTracker.navTitleSetTarget", fallback: "Set Target")
-        public static let urlPrompt = L10n.tr("addTracker.urlPrompt", fallback: "Enter a product URL")
-        public static let urlPlaceholder = L10n.tr("addTracker.urlPlaceholder", fallback: "https://example.com/product")
-        public static let goButton = L10n.tr("addTracker.goButton", fallback: "Go")
-        public static let pasteFromClipboard = L10n.tr(
-            "addTracker.pasteFromClipboard",
-            fallback: "Paste from clipboard"
+
+        // Frame 1 — URL entry
+        public static let urlDisplayTitle = L10n.tr("addTracker.urlDisplayTitle", fallback: "Track a price")
+        public static let urlSubtitle = L10n.tr(
+            "addTracker.urlSubtitle",
+            fallback: "Paste a product link, then pick the price on the page."
         )
-        public static let confirmTitle = L10n.tr("addTracker.confirmTitle", fallback: "Is this the right element?")
-        public static let selectedText = L10n.tr("addTracker.selectedText", fallback: "Selected text")
-        public static func parsedPrice(_ value: String) -> String {
-            L10n.tr("addTracker.parsedPrice", value, fallback: "Parsed price: %@")
+        public static let urlFieldLabel = L10n.tr("addTracker.urlFieldLabel", fallback: "Product URL")
+        public static let urlPlaceholder = L10n.tr(
+            "addTracker.urlPlaceholder",
+            fallback: "https://store.com/product"
+        )
+        public static let urlHint = L10n.tr(
+            "addTracker.urlHint",
+            fallback: "Works with most store and marketplace pages."
+        )
+        public static let paste = L10n.tr("addTracker.paste", fallback: "Paste")
+        public static let recentTitle = L10n.tr("addTracker.recentTitle", fallback: "Recent")
+        public static let next = L10n.tr("addTracker.next", fallback: "Next")
+
+        // Frame 2 — Browser
+        public static let pickElement = L10n.tr("addTracker.pickElement", fallback: "Pick element")
+        public static let browseHelper = L10n.tr(
+            "addTracker.browseHelper",
+            fallback: "Browse to the right page, then tap to start picking."
+        )
+
+        // Frame 3 — Selection mode
+        public static let selectionModeTitle = L10n.tr("addTracker.selectionModeTitle", fallback: "Selection Mode")
+        public static let selectionModeBody = L10n.tr(
+            "addTracker.selectionModeBody",
+            fallback: "Tap the price you want to track"
+        )
+
+        // Frame 4 — Confirm element
+        public static let confirmTitle = L10n.tr("addTracker.confirmTitle", fallback: "Confirm price")
+        public static let confirmSubtitle = L10n.tr(
+            "addTracker.confirmSubtitle",
+            fallback: "Make sure we grabbed the right value."
+        )
+        public static let rawElementText = L10n.tr("addTracker.rawElementText", fallback: "RAW ELEMENT TEXT")
+        public static let detectedPrice = L10n.tr("addTracker.detectedPrice", fallback: "DETECTED PRICE")
+        public static let noText = L10n.tr("addTracker.noText", fallback: "(no text)")
+        public static let noPriceDetected = L10n.tr("addTracker.noPriceDetected", fallback: "No price detected")
+        public static let confirmHelper = L10n.tr(
+            "addTracker.confirmHelper",
+            fallback: "Wrong value? Pick a different element on the page."
+        )
+        public static let useThisPrice = L10n.tr("addTracker.useThisPrice", fallback: "Use this price")
+        public static let pickAgain = L10n.tr("addTracker.pickAgain", fallback: "Pick again")
+
+        // Frame 5 — Set target
+        public static let trackerNameLabel = L10n.tr("addTracker.trackerNameLabel", fallback: "Tracker name")
+        public static let trackerNamePlaceholder = L10n.tr(
+            "addTracker.trackerNamePlaceholder",
+            fallback: "e.g. Sony WH-1000XM5"
+        )
+        public static let targetPriceLabel = L10n.tr("addTracker.targetPriceLabel", fallback: "Target price")
+        public static let below = L10n.tr("addTracker.below", fallback: "Below")
+        public static let above = L10n.tr("addTracker.above", fallback: "Above")
+        public static func alertBelowInfo(_ value: String) -> String {
+            L10n.tr(
+                "addTracker.alertBelowInfo",
+                value,
+                fallback: "We'll alert you when it drops below %@. Checked daily."
+            )
         }
 
-        public static let noPriceDetected = L10n.tr(
-            "addTracker.noPriceDetected",
-            fallback: "No price detected — you can enter it manually"
-        )
-        public static let looksCorrect = L10n.tr("addTracker.looksCorrect", fallback: "Looks correct")
-        public static let reSelect = L10n.tr("addTracker.reSelect", fallback: "Re-select")
-        public static let belowTarget = L10n.tr("addTracker.belowTarget", fallback: "Below target")
-        public static let aboveTarget = L10n.tr("addTracker.aboveTarget", fallback: "Above target")
-        public static let creating = L10n.tr("addTracker.creating", fallback: "Creating\u{2026}")
-        public static let createTracker = L10n.tr("addTracker.createTracker", fallback: "Create Tracker")
+        public static func alertAboveInfo(_ value: String) -> String {
+            L10n.tr(
+                "addTracker.alertAboveInfo",
+                value,
+                fallback: "We'll alert you when it rises above %@. Checked daily."
+            )
+        }
+
+        public static let save = L10n.tr("addTracker.save", fallback: "Save")
+        public static let currentPriceLabel = L10n.tr("addTracker.currentPriceLabel", fallback: "Current")
+
+        // Frame 6 — Already-meets-target warning
+        public static let alreadyMetTitle = L10n.tr("addTracker.alreadyMetTitle", fallback: "Already meets target")
+        public static func alreadyMetBody(_ current: String, _ target: String) -> String {
+            L10n.tr(
+                "addTracker.alreadyMetBody",
+                current,
+                target,
+                fallback: "The current price (%@) already meets your target of %@. Save anyway?"
+            )
+        }
+
+        public static let saveAnyway = L10n.tr("addTracker.saveAnyway", fallback: "Save anyway")
     }
 
     // MARK: - Settings
