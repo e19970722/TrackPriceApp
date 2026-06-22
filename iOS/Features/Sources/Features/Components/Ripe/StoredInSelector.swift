@@ -3,16 +3,43 @@ import SwiftUI
 /// 4-segment location picker used in item add/edit flows.
 /// When `customText` is provided and the selection is `.custom`, an inline
 /// text field is rendered below the segmented row for free-form entry.
-public struct StoredInSelector: View {
+///
+/// Focus for the inline custom-spot field is owned by the parent screen: pass
+/// its `@FocusState` binding plus the value representing this field. A
+/// background tap that clears the parent's `@FocusState` then dismisses this
+/// field's keyboard too. When no binding is supplied (e.g. previews) the field
+/// manages focus internally.
+public struct StoredInSelector<FocusValue: Hashable>: View {
     @Binding var selection: ItemLocation
     var customText: Binding<String>?
 
+    private let externalFocus: FocusState<FocusValue?>.Binding?
+    private let focusValue: FocusValue?
+
+    @FocusState private var internalFocus: Bool
+
     public init(
         selection: Binding<ItemLocation>,
-        customText: Binding<String>? = nil
+        customText: Binding<String>? = nil,
+        focus: FocusState<FocusValue?>.Binding,
+        focusValue: FocusValue
     ) {
         _selection = selection
         self.customText = customText
+        externalFocus = focus
+        self.focusValue = focusValue
+    }
+
+    private init(
+        selection: Binding<ItemLocation>,
+        customText: Binding<String>?,
+        externalFocus: FocusState<FocusValue?>.Binding?,
+        focusValue: FocusValue?
+    ) {
+        _selection = selection
+        self.customText = customText
+        self.externalFocus = externalFocus
+        self.focusValue = focusValue
     }
 
     // MARK: - Body
@@ -79,12 +106,41 @@ extension StoredInSelector {
     private var customTextFieldView: some View {
         if let binding = customText {
             RipeInputShell {
-                TextField("Type a custom spot", text: binding)
-                    .customFont(.semibold15)
-                    .foregroundStyle(Color(.ripeInk))
-                    .tint(Color(.ripeAccent))
+                customTextField(binding)
             }
         }
+    }
+
+    @ViewBuilder
+    private func customTextField(_ binding: Binding<String>) -> some View {
+        let field = TextField("Type a custom spot", text: binding)
+            .customFont(.semibold15)
+            .foregroundStyle(Color(.ripeInk))
+            .tint(Color(.ripeAccent))
+        if let externalFocus, let focusValue {
+            field.focused(externalFocus, equals: focusValue)
+        } else {
+            field.focused($internalFocus)
+        }
+    }
+}
+
+/// A self-managed focus placeholder used when no external `@FocusState` is
+/// supplied (e.g. previews).
+public enum StoredInSelectorSelfFocus: Hashable { case customField }
+
+public extension StoredInSelector where FocusValue == StoredInSelectorSelfFocus {
+    /// Creates a selector that manages its own custom-field focus internally.
+    init(
+        selection: Binding<ItemLocation>,
+        customText: Binding<String>? = nil
+    ) {
+        self.init(
+            selection: selection,
+            customText: customText,
+            externalFocus: nil,
+            focusValue: nil
+        )
     }
 }
 

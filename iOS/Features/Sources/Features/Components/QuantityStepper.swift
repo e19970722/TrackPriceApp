@@ -2,30 +2,91 @@ import SwiftUI
 
 /// Reusable +/- quantity stepper matching the Ripe design spec.
 /// The middle slot is an editable text field bound to a `String`.
-public struct QuantityStepper: View {
+///
+/// The owning screen drives focus: pass its `@FocusState` binding plus the
+/// value that represents this field. Because the parent owns focus, a
+/// background tap on the parent that clears its `@FocusState` also dismisses
+/// this field's keyboard. When no binding is supplied (e.g. previews) the
+/// stepper falls back to an internal `@FocusState`.
+public struct QuantityStepper<FocusValue: Hashable>: View {
     @Binding var quantity: String
     let decrementDisabled: Bool
     let onDecrement: () -> Void
     let onIncrement: () -> Void
 
-    @FocusState private var isFieldFocused: Bool
+    private let externalFocus: FocusState<FocusValue?>.Binding?
+    private let focusValue: FocusValue?
+
+    @FocusState private var internalFocus: Bool
 
     public init(
         quantity: Binding<String>,
         decrementDisabled: Bool = false,
+        focus: FocusState<FocusValue?>.Binding,
+        focusValue: FocusValue,
+        onDecrement: @escaping () -> Void,
+        onIncrement: @escaping () -> Void
+    ) {
+        self.init(
+            quantity: quantity,
+            decrementDisabled: decrementDisabled,
+            externalFocus: focus,
+            focusValue: focusValue,
+            onDecrement: onDecrement,
+            onIncrement: onIncrement
+        )
+    }
+
+    private init(
+        quantity: Binding<String>,
+        decrementDisabled: Bool,
+        externalFocus: FocusState<FocusValue?>.Binding?,
+        focusValue: FocusValue?,
         onDecrement: @escaping () -> Void,
         onIncrement: @escaping () -> Void
     ) {
         _quantity = quantity
         self.decrementDisabled = decrementDisabled
+        self.externalFocus = externalFocus
+        self.focusValue = focusValue
         self.onDecrement = onDecrement
         self.onIncrement = onIncrement
+    }
+
+    private var isFieldFocused: Bool {
+        if let externalFocus {
+            return externalFocus.wrappedValue == focusValue
+        }
+        return internalFocus
     }
 
     // MARK: - Body
 
     public var body: some View {
         stepperRowView
+    }
+}
+
+/// A self-managed focus placeholder used when no external `@FocusState` is
+/// supplied (e.g. previews).
+public enum QuantityStepperSelfFocus: Hashable { case field }
+
+public extension QuantityStepper where FocusValue == QuantityStepperSelfFocus {
+    /// Creates a stepper that manages its own keyboard focus internally.
+    init(
+        quantity: Binding<String>,
+        decrementDisabled: Bool = false,
+        onDecrement: @escaping () -> Void,
+        onIncrement: @escaping () -> Void
+    ) {
+        self.init(
+            quantity: quantity,
+            decrementDisabled: decrementDisabled,
+            externalFocus: nil,
+            focusValue: nil,
+            onDecrement: onDecrement,
+            onIncrement: onIncrement
+        )
     }
 }
 
@@ -71,14 +132,19 @@ extension QuantityStepper {
         .frame(minWidth: 72)
     }
 
+    @ViewBuilder
     private var quantityTextField: some View {
-        TextField("1", text: $quantity)
+        let field = TextField("1", text: $quantity)
             .keyboardType(.numberPad)
             .multilineTextAlignment(.center)
-            .focused($isFieldFocused)
             .customFont(.bold19)
             .monospacedDigit()
             .foregroundStyle(Color(.ripeInk))
+        if let externalFocus, let focusValue {
+            field.focused(externalFocus, equals: focusValue)
+        } else {
+            field.focused($internalFocus)
+        }
     }
 
     private var incrementButton: some View {

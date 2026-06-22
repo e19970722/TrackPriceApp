@@ -23,11 +23,18 @@ public struct ItemDetailView: View {
         WithPerceptionTracking {
             NavigationStack {
                 ZStack {
-                    Color(.ripeBg).ignoresSafeArea()
+                    Color(.ripeBg)
+                        .ignoresSafeArea()
                     scrollContentView
                 }
                 .navigationTitle(store.isEditing ? L10n.Expiry.navTitleEdit : store.item.name)
                 .navigationBarTitleDisplayMode(.inline)
+                .onAppear {
+                    guard store.isEditing else { return }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        focusedEditField = .name
+                    }
+                }
                 .toolbar {
                     if store.isEditing {
                         ToolbarItem(placement: .cancellationAction) {
@@ -76,7 +83,10 @@ extension ItemDetailView {
             .padding(.horizontal, RipeSpacing.s5)
             .padding(.top, RipeSpacing.s4)
             .padding(.bottom, RipeSpacing.s7)
+            .contentShape(Rectangle())
+            .onTapGesture { focusedEditField = nil }
         }
+        .scrollDismissesKeyboard(.immediately)
     }
 
     // MARK: Header card
