@@ -26,16 +26,18 @@ struct WebBrowserView: View {
             .ripeFlowScreen(
                 title: L10n.AddTracker.navTitleBrowse,
                 leadingTitle: L10n.Common.back,
-                onLeading: { store.send(.dismiss) }
+                onLeading: { store.send(.backToURLEntry) }
             )
             .overlay {
                 if store.isSelecting {
                     selectionBannerOverlay
                 }
             }
-            .sheet(isPresented: confirmationSheetBinding) {
-                confirmationSheetContent
-            }
+            .sheet(
+                isPresented: confirmationSheetBinding,
+                onDismiss: { store.send(.confirmSheetDismissed) },
+                content: { confirmationSheetContent }
+            )
         }
     }
 }
@@ -91,6 +93,8 @@ extension WebBrowserView {
         WithPerceptionTracking {
             if case let .confirmation(info) = store.step {
                 confirmSheet(for: info)
+            } else if let info = store.dismissingSheetInfo {
+                confirmSheet(for: info)
             }
         }
     }
@@ -103,7 +107,7 @@ extension WebBrowserView {
             onUsePrice: { store.send(.confirmationConfirmed) },
             onPickAgain: { store.send(.confirmationRejected) }
         )
-        .presentationDetents([.medium, .large])
+        .presentationDetents([.medium])
         .presentationDragIndicator(.hidden)
     }
 }

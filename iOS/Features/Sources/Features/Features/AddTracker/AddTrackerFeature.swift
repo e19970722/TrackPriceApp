@@ -41,6 +41,14 @@ public struct AddTrackerFeature {
         case targetSetup(ElementInfo)
     }
 
+    /// A pushable destination in the Add-Tracker `NavigationStack`. The root
+    /// (`urlEntry`) is the stack's content and is therefore not a route; the
+    /// confirmation sheet is presented over `.webView`, so it maps to `.webView`.
+    public enum Route: Hashable {
+        case webView
+        case targetSetup
+    }
+
     @ObservableState
     public struct State: Equatable {
         public var step: Step = .urlEntry
@@ -48,6 +56,12 @@ public struct AddTrackerFeature {
         public var currentURL: URL?
         public var isLoadingPage: Bool = false
         public var isSelecting: Bool = false
+
+        /// Keeps the confirm sheet's content rendered while it plays its dismiss
+        /// animation, so the sheet doesn't flash empty/white as it slides down on
+        /// the pick-again / reject / swipe-to-dismiss paths (where no other field
+        /// retains the picked element). Cleared on `confirmSheetDismissed`.
+        public var dismissingSheetInfo: ElementInfo?
 
         // Target setup fields
         public var trackerName: String = ""
@@ -62,6 +76,16 @@ public struct AddTrackerFeature {
         public var creationError: String?
 
         public init() {}
+
+        /// The `NavigationStack` path derived from the current `step`. Driving the
+        /// stack from state keeps push/pop transitions in sync with the reducer.
+        public var navigationPath: [Route] {
+            switch step {
+            case .urlEntry: []
+            case .webView, .confirmation: [.webView]
+            case .targetSetup: [.webView, .targetSetup]
+            }
+        }
 
         /// The element confirmed during target setup, if any.
         public var confirmedElement: ElementInfo? {
@@ -99,6 +123,8 @@ public struct AddTrackerFeature {
         case elementPicked(ElementInfo)
         case confirmationConfirmed
         case confirmationRejected
+        case backToURLEntry
+        case confirmSheetDismissed
         case saveTapped
         case alreadyMetWarningCancelled
         case alreadyMetWarningConfirmed
@@ -157,11 +183,26 @@ public struct AddTrackerFeature {
                 guard case let .confirmation(info) = state.step else { return .none }
                 state.trackerName = info.pageTitle ?? ""
                 state.targetPriceInput = info.currentPrice.map { String(format: "%.2f", $0) } ?? ""
+                state.dismissingSheetInfo = info
                 state.step = .targetSetup(info)
                 return .none
 
             case .confirmationRejected:
+                if case let .confirmation(info) = state.step {
+                    state.dismissingSheetInfo = info
+                }
                 state.step = .webView
+                return .none
+
+            case .backToURLEntry:
+                state.step = .urlEntry
+                return .none
+
+            case .confirmSheetDismissed:
+                state.dismissingSheetInfo = nil
+                if case .webView = state.step {
+                    state.isSelecting = true
+                }
                 return .none
 
             case .saveTapped:

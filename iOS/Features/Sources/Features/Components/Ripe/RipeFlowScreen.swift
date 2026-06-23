@@ -22,6 +22,7 @@ private struct RipeFlowScreen: ViewModifier {
             .background(Color(.ripeBg).ignoresSafeArea())
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden(true)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(leadingTitle, action: onLeading)

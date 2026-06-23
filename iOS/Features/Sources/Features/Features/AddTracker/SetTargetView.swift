@@ -46,7 +46,11 @@ struct SetTargetView: View {
                     alreadyMetDialogView
                 }
             }
-            .onAppear { focusedField = .targetPrice }
+            .onAppear {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    focusedField = .targetPrice
+                }
+            }
         }
     }
 }
@@ -65,7 +69,31 @@ extension SetTargetView {
         }
     }
 
+    @ViewBuilder
     private var productThumbnailView: some View {
+        if let imageUrl = store.confirmedElement?.itemImageUrl, let url = URL(string: imageUrl) {
+            AsyncImage(url: url) { phase in
+                if case let .success(image) = phase {
+                    loadedThumbnail(image)
+                } else {
+                    monogramThumbnail
+                }
+            }
+        } else {
+            monogramThumbnail
+        }
+    }
+
+    private func loadedThumbnail(_ image: Image) -> some View {
+        image
+            .resizable()
+            .aspectRatio(contentMode: .fill)
+            .frame(width: 52, height: 52)
+            .clipped()
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    private var monogramThumbnail: some View {
         MonoThumbnail(
             label: productName,
             categoryColor: Color(.ripeAccent),

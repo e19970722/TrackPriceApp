@@ -89,7 +89,11 @@ struct AddTrackerFeatureTests {
         await store.send(.confirmationConfirmed) {
             $0.trackerName = "Sony WH-1000XM5"
             $0.targetPriceInput = "129.00"
+            $0.dismissingSheetInfo = info
             $0.step = .targetSetup(info)
+        }
+        await store.send(.confirmSheetDismissed) {
+            $0.dismissingSheetInfo = nil
         }
     }
 
@@ -100,6 +104,22 @@ struct AddTrackerFeatureTests {
             AddTrackerFeature()
         }
         await store.send(.confirmationRejected) { $0.step = .webView }
+    }
+
+    @Test("Pick again / reject retains sheet content then re-arms selection on dismissal")
+    func rejectRetainsSheetContentThenReArmsSelection() async {
+        let info = priceElement(price: 129)
+        let store = TestStore(initialState: confirmationState(info)) {
+            AddTrackerFeature()
+        }
+        await store.send(.confirmationRejected) {
+            $0.dismissingSheetInfo = info
+            $0.step = .webView
+        }
+        await store.send(.confirmSheetDismissed) {
+            $0.dismissingSheetInfo = nil
+            $0.isSelecting = true
+        }
     }
 
     // MARK: - Save success
