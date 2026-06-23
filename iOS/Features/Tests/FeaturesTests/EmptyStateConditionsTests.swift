@@ -75,6 +75,11 @@ struct EmptyStateConditionsTests {
         #expect(L10n.TrackerList.emptyMessage.hasSuffix("Tap + to start."))
     }
 
+    @Test("Prices no-results copy interpolates the query")
+    func pricesNoResultsCopy() {
+        #expect(L10n.TrackerList.noResults("milk") == "No matches for \u{201C}milk\u{201D}")
+    }
+
     @Test("Expire Dates empty copy matches the design")
     func expiryCopy() {
         #expect(L10n.Expiry.listEmptyTitle == "No expiry tracks yet")

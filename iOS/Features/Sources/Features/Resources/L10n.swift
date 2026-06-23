@@ -67,6 +67,9 @@ public enum L10n {
             fallback: "Paste a product link and pick the price on the page — "
                 + "we'll watch it and ping you when it drops. Tap + to start."
         )
+        public static func noResults(_ query: String) -> String {
+            L10n.tr("trackerList.noResults", query, fallback: "No matches for \u{201C}%@\u{201D}")
+        }
     }
 
     // MARK: - TrackerDetail
