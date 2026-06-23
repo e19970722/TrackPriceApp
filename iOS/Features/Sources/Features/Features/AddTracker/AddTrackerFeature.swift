@@ -155,6 +155,7 @@ public struct AddTrackerFeature {
                 let withScheme = raw.lowercased().hasPrefix("http") ? raw : "https://\(raw)"
                 guard let url = URL(string: withScheme) else { return .none }
                 state.currentURL = url
+                state.isSelecting = false
                 state.step = .webView
                 return .none
 
@@ -195,6 +196,7 @@ public struct AddTrackerFeature {
                 return .none
 
             case .backToURLEntry:
+                state.isSelecting = false
                 state.step = .urlEntry
                 return .none
 

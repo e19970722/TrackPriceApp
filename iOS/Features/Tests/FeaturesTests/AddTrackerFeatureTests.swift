@@ -122,6 +122,17 @@ struct AddTrackerFeatureTests {
         }
     }
 
+    @Test("Going back to URL entry resets selection mode")
+    func backToURLEntryResetsSelection() async {
+        var state = webViewState()
+        state.isSelecting = true
+        let store = TestStore(initialState: state) { AddTrackerFeature() }
+        await store.send(.backToURLEntry) {
+            $0.isSelecting = false
+            $0.step = .urlEntry
+        }
+    }
+
     // MARK: - Save success
 
     @Test("Saving a non-met target creates the tracker and dismisses")
