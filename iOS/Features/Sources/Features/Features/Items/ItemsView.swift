@@ -77,7 +77,7 @@ extension ItemsView {
             errorView(message: error)
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
-        } else if store.items.isEmpty {
+        } else if store.showsEmptyState {
             emptyStateView
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
@@ -183,19 +183,11 @@ extension ItemsView {
     }
 
     private var emptyStateView: some View {
-        VStack(spacing: RipeSpacing.s4) {
-            Image(systemName: "refrigerator")
-                .iconFont(.emptyState)
-                .foregroundStyle(Color(.ripeInk3))
-            Text(L10n.Expiry.listEmptyTitle)
-                .customFont(.bold19)
-                .foregroundStyle(Color(.ripeInk))
-            Text(L10n.Expiry.listEmptyMessage)
-                .customFont(.semibold15)
-                .foregroundStyle(Color(.ripeInk2))
-        }
-        .frame(maxWidth: .infinity, minHeight: 200)
-        .padding(.horizontal, RipeSpacing.s5)
+        RipeEmptyState(
+            icon: "clock",
+            title: L10n.Expiry.listEmptyTitle,
+            message: L10n.Expiry.listEmptyMessage
+        )
     }
 
     private var fabButton: some View {

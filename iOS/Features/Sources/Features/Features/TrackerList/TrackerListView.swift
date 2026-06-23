@@ -178,8 +178,12 @@ extension TrackerListView {
             errorView(message: error)
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
-        } else if filteredTrackers.isEmpty {
+        } else if store.showsEmptyState {
             emptyStateView
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+        } else if filteredTrackers.isEmpty {
+            noResultsView(query: searchText)
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
         } else {
@@ -290,16 +294,23 @@ extension TrackerListView {
     }
 
     private var emptyStateView: some View {
-        VStack(spacing: RipeSpacing.s4) {
-            Image(systemName: "tag.slash")
+        RipeEmptyState(
+            icon: "tag",
+            title: L10n.TrackerList.emptyTitle,
+            message: L10n.TrackerList.emptyMessage
+        )
+    }
+
+    private func noResultsView(query: String) -> some View {
+        VStack(spacing: RipeSpacing.s3) {
+            Image(systemName: "magnifyingglass")
                 .iconFont(.emptyState)
                 .foregroundStyle(Color(.ripeInk3))
-            Text(L10n.TrackerList.emptyTitle)
-                .customFont(.bold19)
-                .foregroundStyle(Color(.ripeInk))
-            Text(L10n.TrackerList.emptyMessage)
+            Text(L10n.TrackerList.noResults(query))
                 .customFont(.semibold15)
                 .foregroundStyle(Color(.ripeInk2))
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
         }
         .frame(maxWidth: .infinity, minHeight: 200)
         .padding(.horizontal, RipeSpacing.s5)

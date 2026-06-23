@@ -17,6 +17,12 @@ public struct TrackerListFeature {
         public var selectedSegment: Segment = .trackers
         public var items: ItemsFeature.State = .init()
         public init() {}
+
+        /// True when the Prices segment has no trackers to show and is neither
+        /// loading nor in an error state — i.e. the full empty state applies.
+        public var showsEmptyState: Bool {
+            trackers.isEmpty && !isLoading && errorMessage == nil
+        }
     }
 
     public enum Action {

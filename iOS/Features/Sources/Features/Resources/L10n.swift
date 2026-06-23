@@ -61,11 +61,15 @@ public enum L10n {
         public static let title = L10n.tr("trackerList.title", fallback: "Tracks")
         public static let deleteAction = L10n.tr("trackerList.deleteAction", fallback: "Delete")
         public static let errorMessage = L10n.tr("trackerList.errorMessage", fallback: "Failed to load trackers")
-        public static let emptyTitle = L10n.tr("trackerList.emptyTitle", fallback: "No Trackers Yet")
+        public static let emptyTitle = L10n.tr("trackerList.emptyTitle", fallback: "No price tracks yet")
         public static let emptyMessage = L10n.tr(
             "trackerList.emptyMessage",
-            fallback: "Tap + to start tracking a price."
+            fallback: "Paste a product link and pick the price on the page — "
+                + "we'll watch it and ping you when it drops. Tap + to start."
         )
+        public static func noResults(_ query: String) -> String {
+            L10n.tr("trackerList.noResults", query, fallback: "No matches for \u{201C}%@\u{201D}")
+        }
     }
 
     // MARK: - TrackerDetail
@@ -259,10 +263,11 @@ public enum L10n {
         // ItemsView
         public static let listTitle = L10n.tr("expiry.listTitle", fallback: "Items")
         public static let listErrorMessage = L10n.tr("expiry.listErrorMessage", fallback: "Failed to load items")
-        public static let listEmptyTitle = L10n.tr("expiry.listEmptyTitle", fallback: "No Items Yet")
+        public static let listEmptyTitle = L10n.tr("expiry.listEmptyTitle", fallback: "No expiry tracks yet")
         public static let listEmptyMessage = L10n.tr(
             "expiry.listEmptyMessage",
-            fallback: "Tap + to track an expiry date."
+            fallback: "Add an item with its expiry date and we'll remind you "
+                + "before it goes off. Tap + to start."
         )
 
         // ReminderView

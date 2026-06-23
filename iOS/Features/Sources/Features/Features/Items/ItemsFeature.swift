@@ -409,6 +409,12 @@ public struct ItemsFeature {
         public init(items: [Item]) {
             self.items = items
         }
+
+        /// True when the Expire Dates segment has no items to show and is neither
+        /// loading nor in an error state — i.e. the full empty state applies.
+        public var showsEmptyState: Bool {
+            items.isEmpty && !isLoading && errorMessage == nil
+        }
     }
 
     public enum Action {
