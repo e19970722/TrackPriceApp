@@ -163,6 +163,15 @@ public struct AddItemFeature {
         case saved(Item)
     }
 
+    /// One pushed screen in the flow's `NavigationStack`. `chooseMethod` is the
+    /// root and therefore has no route.
+    public enum Route: Hashable {
+        case scanLabel
+        case itemDetails
+        case reminder
+        case saved
+    }
+
     @ObservableState
     public struct State: Equatable {
         public var step: Step = .chooseMethod
@@ -202,6 +211,38 @@ public struct AddItemFeature {
             self.isDateFromScan = isDateFromScan
             self.remindDaysBefore = remindDaysBefore
             self.remindOnDay = remindOnDay
+        }
+
+        /// Drives the flow's `NavigationStack`, derived purely from `step` (and
+        /// `isDateFromScan` for the scan branch). `chooseMethod` is the root, so it
+        /// maps to an empty path.
+        public var navigationPath: [Route] {
+            // The item-details screen sits one level deeper when reached via scan.
+            let itemDetailsPath: [Route] = isDateFromScan ? [.scanLabel, .itemDetails] : [.itemDetails]
+            switch step {
+            case .chooseMethod:
+                return []
+            case .scanLabel:
+                return [.scanLabel]
+            case .itemDetails:
+                return itemDetailsPath
+            case .reminder:
+                return itemDetailsPath + [.reminder]
+            case .saved:
+                return itemDetailsPath + [.reminder, .saved]
+            }
+        }
+
+        /// The draft `Item` carried by the `.reminder` step, for the reminder destination.
+        public var draftItem: Item? {
+            guard case let .reminder(draft) = step else { return nil }
+            return draft
+        }
+
+        /// The persisted `Item` carried by the `.saved` step, for the saved destination.
+        public var savedItem: Item? {
+            guard case let .saved(item) = step else { return nil }
+            return item
         }
     }
 

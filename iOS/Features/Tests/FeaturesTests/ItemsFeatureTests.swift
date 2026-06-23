@@ -291,6 +291,71 @@ final class AddItemFeatureTests: XCTestCase {
     }
 }
 
+// MARK: - AddItemFeatureNavigationPathTests
+
+@MainActor
+final class AddItemFeatureNavigationPathTests: XCTestCase {
+    private func state(step: AddItemFeature.Step, isDateFromScan: Bool = false) -> AddItemFeature.State {
+        var state = AddItemFeature.State(isDateFromScan: isDateFromScan)
+        state.step = step
+        return state
+    }
+
+    func testChooseMethodMapsToEmptyPath() {
+        XCTAssertEqual(state(step: .chooseMethod).navigationPath, [])
+    }
+
+    func testScanLabelMapsToScanLabelPath() {
+        XCTAssertEqual(state(step: .scanLabel).navigationPath, [.scanLabel])
+    }
+
+    func testItemDetailsManualEntryMapsToItemDetailsPath() {
+        let path = state(step: .itemDetails(scannedDate: nil, ocrString: nil), isDateFromScan: false).navigationPath
+        XCTAssertEqual(path, [.itemDetails])
+    }
+
+    func testItemDetailsFromScanMapsToScanThenItemDetailsPath() {
+        let path = state(step: .itemDetails(scannedDate: Date(), ocrString: "BB"), isDateFromScan: true).navigationPath
+        XCTAssertEqual(path, [.scanLabel, .itemDetails])
+    }
+
+    func testReminderManualEntryMapsToItemDetailsThenReminderPath() {
+        let draft = Item(name: "Milk", bestBeforeDate: Date().addingTimeInterval(86400))
+        let path = state(step: .reminder(draft), isDateFromScan: false).navigationPath
+        XCTAssertEqual(path, [.itemDetails, .reminder])
+    }
+
+    func testReminderFromScanMapsToScanItemDetailsReminderPath() {
+        let draft = Item(name: "Milk", bestBeforeDate: Date().addingTimeInterval(86400))
+        let path = state(step: .reminder(draft), isDateFromScan: true).navigationPath
+        XCTAssertEqual(path, [.scanLabel, .itemDetails, .reminder])
+    }
+
+    func testSavedManualEntryMapsToFullPath() {
+        let item = Item(name: "Eggs", bestBeforeDate: Date().addingTimeInterval(86400))
+        let path = state(step: .saved(item), isDateFromScan: false).navigationPath
+        XCTAssertEqual(path, [.itemDetails, .reminder, .saved])
+    }
+
+    func testSavedFromScanMapsToFullPathWithScan() {
+        let item = Item(name: "Eggs", bestBeforeDate: Date().addingTimeInterval(86400))
+        let path = state(step: .saved(item), isDateFromScan: true).navigationPath
+        XCTAssertEqual(path, [.scanLabel, .itemDetails, .reminder, .saved])
+    }
+
+    func testDraftItemAccessorReturnsReminderDraft() {
+        let draft = Item(name: "Milk", bestBeforeDate: Date().addingTimeInterval(86400))
+        XCTAssertEqual(state(step: .reminder(draft)).draftItem, draft)
+        XCTAssertNil(state(step: .chooseMethod).draftItem)
+    }
+
+    func testSavedItemAccessorReturnsSavedItem() {
+        let item = Item(name: "Eggs", bestBeforeDate: Date().addingTimeInterval(86400))
+        XCTAssertEqual(state(step: .saved(item)).savedItem, item)
+        XCTAssertNil(state(step: .chooseMethod).savedItem)
+    }
+}
+
 // MARK: - ItemsFeatureTests
 
 @MainActor

@@ -1,7 +1,10 @@
 import ComposableArchitecture
 import SwiftUI
 
-/// Routes between the steps of the add-item flow based on `AddItemFeature.State.step`.
+/// Hosts the add-item flow in a single state-driven `NavigationStack`, pushing
+/// and popping steps natively (including interactive swipe-back). The pushed path
+/// is derived from `AddItemFeature.State.step`; pops are mapped back to reducer
+/// actions via `pathBinding`.
 public struct AddItemFlowView: View {
     @Perception.Bindable var store: StoreOf<AddItemFeature>
 
@@ -13,7 +16,10 @@ public struct AddItemFlowView: View {
 
     public var body: some View {
         WithPerceptionTracking {
-            stepContent
+            NavigationStack(path: pathBinding) {
+                ChooseMethodView(store: store)
+                    .navigationDestination(for: AddItemFeature.Route.self, destination: destinationView)
+            }
         }
     }
 }
@@ -21,55 +27,61 @@ public struct AddItemFlowView: View {
 // MARK: - Subviews
 
 extension AddItemFlowView {
-    @ViewBuilder
-    private var stepContent: some View {
-        switch store.step {
-        case .chooseMethod:
-            ChooseMethodView(store: store)
-
-        case .scanLabel:
-            NavigationStack {
+    private func destinationView(for route: AddItemFeature.Route) -> some View {
+        WithPerceptionTracking {
+            switch route {
+            case .scanLabel:
                 ScanLabelView(store: store)
-                    .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button("Cancel") { store.send(.dismiss) }
-                        }
-                    }
-            }
 
-        case .itemDetails:
-            NavigationStack {
+            case .itemDetails:
                 ItemDetailsView(store: store)
-                    .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button(action: { store.send(.backTapped) }) {
-                                Image(systemName: "chevron.left")
-                                    .fontWeight(.semibold)
-                            }
-                            .tint(Color(.ripeInk))
-                        }
-                    }
-            }
 
-        case let .reminder(draft):
-            NavigationStack {
-                ReminderView(store: store, draftItem: draft)
-                    .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button(action: { store.send(.backTapped) }) {
-                                Image(systemName: "chevron.left")
-                                    .fontWeight(.semibold)
-                            }
-                            .tint(Color(.ripeInk))
-                        }
-                    }
-            }
+            case .reminder:
+                reminderDestination
 
-        case let .saved(item):
-            NavigationStack {
-                SavedView(store: store, savedItem: item)
+            case .saved:
+                savedDestination
             }
         }
+    }
+
+    @ViewBuilder
+    private var reminderDestination: some View {
+        if let draft = store.draftItem {
+            ReminderView(store: store, draftItem: draft)
+        }
+    }
+
+    @ViewBuilder
+    private var savedDestination: some View {
+        if let item = store.savedItem {
+            SavedView(store: store, savedItem: item)
+                .navigationBarBackButtonHidden(true)
+        }
+    }
+}
+
+// MARK: - Helpers
+
+extension AddItemFlowView {
+    /// Drives the `NavigationStack` from `store.step`. Pushes are state-driven, so
+    /// the setter only reacts when the user pops (path shrinks) via the system back
+    /// button or interactive swipe: a single-level pop maps to `.backTapped` (which
+    /// moves the step one level back), and a pop straight to the root dismisses the
+    /// flow.
+    private var pathBinding: Binding<[AddItemFeature.Route]> {
+        Binding(
+            get: { store.navigationPath },
+            set: { newPath in
+                let oldDepth = store.navigationPath.count
+                guard newPath.count < oldDepth else { return }
+                if newPath.isEmpty {
+                    store.send(.dismiss)
+                } else {
+                    store.send(.backTapped)
+                }
+            }
+        )
     }
 }
 

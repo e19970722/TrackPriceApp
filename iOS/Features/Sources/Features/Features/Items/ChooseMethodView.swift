@@ -12,17 +12,15 @@ public struct ChooseMethodView: View {
 
     public var body: some View {
         WithPerceptionTracking {
-            NavigationStack {
-                ZStack {
-                    Color(.ripeBg).ignoresSafeArea()
-                    methodSelectionContent
-                }
-                .navigationTitle(L10n.Expiry.newItemNavTitle)
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        cancelButton
-                    }
+            ZStack {
+                Color(.ripeBg).ignoresSafeArea()
+                methodSelectionContent
+            }
+            .navigationTitle(L10n.Expiry.newItemNavTitle)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    cancelButton
                 }
             }
             .tint(Color(.ripeInk2))
@@ -123,5 +121,7 @@ extension ChooseMethodView {
 // MARK: - Preview
 
 #Preview {
-    ChooseMethodView(store: Store(initialState: AddItemFeature.State()) { AddItemFeature() })
+    NavigationStack {
+        ChooseMethodView(store: Store(initialState: AddItemFeature.State()) { AddItemFeature() })
+    }
 }
