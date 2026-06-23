@@ -18,6 +18,17 @@ public enum RipeSpacing {
     public static let s7: CGFloat = 32
 }
 
+public enum RipeSectionEmpty {
+    public static let gap: CGFloat               = 14
+    public static let horizontalPadding: CGFloat = 18
+    public static let tileSize: CGFloat          = 48
+    public static let tileRadius: CGFloat        = 14
+    public static let iconSize: CGFloat          = 22
+    public static let lineSpacing: CGFloat       = 6 // ~1.45 line height at 13.5pt
+    public static let defaultHeight: CGFloat     = 92
+    public static let trendHeight: CGFloat       = 84
+}
+
 public struct RipeShadow {
     public let color: Color
     public let radius: CGFloat

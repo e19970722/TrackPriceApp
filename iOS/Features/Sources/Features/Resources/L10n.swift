@@ -53,6 +53,21 @@ public enum L10n {
         public static let seeAll = L10n.tr("home.seeAll", fallback: "See all")
         public static let sectionPriceTargets = L10n.tr("home.sectionPriceTargets", fallback: "Price Reach Targets")
         public static let shopNow = L10n.tr("home.shopNow", fallback: "Shop now")
+        public static let emptyOnTrend = L10n.tr(
+            "home.emptyOnTrend",
+            fallback: "Follow markets to see what's trending up or down."
+        )
+        public static let emptyExpireSoon = L10n.tr(
+            "home.emptyExpireSoon",
+            fallback: "Add an expiry date and items running out soon land here."
+        )
+        public static let emptyPriceTargets = L10n.tr(
+            "home.emptyPriceTargets",
+            fallback: "Set a target price and we'll flag the moment it's hit."
+        )
+        public static func priceTargetHits(_ count: Int) -> String {
+            L10n.tr("home.priceTargetHits", count, fallback: "\(count) hits")
+        }
     }
 
     // MARK: - TrackerList

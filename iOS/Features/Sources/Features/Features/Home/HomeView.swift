@@ -43,22 +43,26 @@ extension HomeView {
     // MARK: 1 — Greeting header
 
     private var greetingHeaderSection: some View {
-        HStack(alignment: .center) {
-            greetingTextStack
-            Spacer()
-            avatarThumbnailView
+        WithPerceptionTracking {
+            HStack(alignment: .center) {
+                greetingTextStack
+                Spacer()
+                avatarThumbnailView
+            }
+            .padding(.horizontal, RipeSpacing.s5)
         }
-        .padding(.horizontal, RipeSpacing.s5)
     }
 
     private var greetingTextStack: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(L10n.Home.greeting)
-                .customFont(.semibold13)
-                .foregroundStyle(Color(.ripeInk2))
-            Text(store.userName)
-                .customFont(.extrabold30)
-                .foregroundStyle(Color(.ripeInk))
+        WithPerceptionTracking {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(L10n.Home.greeting)
+                    .customFont(.semibold13)
+                    .foregroundStyle(Color(.ripeInk2))
+                Text(store.userName)
+                    .customFont(.extrabold30)
+                    .foregroundStyle(Color(.ripeInk))
+            }
         }
     }
 
@@ -74,25 +78,42 @@ extension HomeView {
     // MARK: 2 — On Trend Tracks
 
     private var trendTracksSection: some View {
-        VStack(alignment: .leading, spacing: RipeSpacing.s3) {
-            SectionLabel(title: L10n.Home.sectionOnTrend, action: L10n.Home.markets)
-                .padding(.horizontal, RipeSpacing.s5)
-            trendTracksScrollRail
+        WithPerceptionTracking {
+            VStack(alignment: .leading, spacing: RipeSpacing.s3) {
+                SectionLabel(title: L10n.Home.sectionOnTrend, action: L10n.Home.markets)
+                    .padding(.horizontal, RipeSpacing.s5)
+                if store.trendItems.isEmpty {
+                    trendTracksEmptyView
+                } else {
+                    trendTracksScrollRail
+                }
+            }
         }
+    }
+
+    private var trendTracksEmptyView: some View {
+        SectionEmpty(
+            systemImage: "sparkles",
+            text: L10n.Home.emptyOnTrend,
+            height: RipeSectionEmpty.trendHeight
+        )
+        .padding(.horizontal, RipeSpacing.s5)
     }
 
     private var trendTracksScrollRail: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(alignment: .top, spacing: RipeSpacing.s4) {
-                ForEach(trendItems) { item in
-                    trendItemCell(item)
+        WithPerceptionTracking {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(alignment: .top, spacing: RipeSpacing.s4) {
+                    ForEach(store.trendItems) { item in
+                        trendItemCell(item)
+                    }
                 }
+                .padding(.horizontal, RipeSpacing.s5)
             }
-            .padding(.horizontal, RipeSpacing.s5)
         }
     }
 
-    private func trendItemCell(_ item: TrendItem) -> some View {
+    private func trendItemCell(_ item: HomeFeature.TrendItem) -> some View {
         VStack(alignment: .center, spacing: 7) {
             trendThumbnailWithBadge(item)
             Text(item.name)
@@ -106,7 +127,7 @@ extension HomeView {
         .frame(width: 58)
     }
 
-    private func trendThumbnailWithBadge(_ item: TrendItem) -> some View {
+    private func trendThumbnailWithBadge(_ item: HomeFeature.TrendItem) -> some View {
         ZStack(alignment: .bottomTrailing) {
             MonoThumbnail(
                 label: item.name,
@@ -134,11 +155,31 @@ extension HomeView {
     // MARK: 3 — Expire Soon
 
     private var expireSoonSection: some View {
-        VStack(alignment: .leading, spacing: RipeSpacing.s3) {
-            SectionLabel(title: L10n.Home.sectionExpireSoon, action: L10n.Home.seeAll)
-                .padding(.horizontal, RipeSpacing.s5)
+        WithPerceptionTracking {
+            VStack(alignment: .leading, spacing: RipeSpacing.s3) {
+                SectionLabel(title: L10n.Home.sectionExpireSoon, action: L10n.Home.seeAll)
+                    .padding(.horizontal, RipeSpacing.s5)
+                if store.expireItems.isEmpty {
+                    expireSoonEmptyView
+                } else {
+                    expireSoonList
+                }
+            }
+        }
+    }
+
+    private var expireSoonEmptyView: some View {
+        SectionEmpty(
+            systemImage: "clock",
+            text: L10n.Home.emptyExpireSoon
+        )
+        .padding(.horizontal, RipeSpacing.s5)
+    }
+
+    private var expireSoonList: some View {
+        WithPerceptionTracking {
             VStack(spacing: 12) {
-                ForEach(expireItems) { item in
+                ForEach(store.expireItems) { item in
                     expireItemCard(item)
                 }
             }
@@ -146,7 +187,7 @@ extension HomeView {
         }
     }
 
-    private func expireItemCard(_ item: ExpireItem) -> some View {
+    private func expireItemCard(_ item: HomeFeature.ExpireItem) -> some View {
         RipeCard {
             HStack(spacing: RipeSpacing.s3) {
                 MonoThumbnail(
@@ -161,7 +202,7 @@ extension HomeView {
         }
     }
 
-    private func expireItemTextStack(_ item: ExpireItem) -> some View {
+    private func expireItemTextStack(_ item: HomeFeature.ExpireItem) -> some View {
         VStack(alignment: .leading, spacing: 3) {
             Text(item.name)
                 .customFont(.bold17)
@@ -175,20 +216,47 @@ extension HomeView {
     // MARK: 4 — Price Reach Targets
 
     private var priceTargetsSection: some View {
-        VStack(alignment: .leading, spacing: RipeSpacing.s3) {
-            SectionLabel(title: L10n.Home.sectionPriceTargets, action: "3 hits")
+        WithPerceptionTracking {
+            VStack(alignment: .leading, spacing: RipeSpacing.s3) {
+                SectionLabel(
+                    title: L10n.Home.sectionPriceTargets,
+                    action: L10n.Home.priceTargetHits(store.priceTargetHitCount)
+                )
                 .padding(.horizontal, RipeSpacing.s5)
-            priceTargetCard
-                .padding(.horizontal, RipeSpacing.s5)
+                if store.priceTargets.isEmpty {
+                    priceTargetsEmptyView
+                } else {
+                    priceTargetsList
+                }
+            }
         }
     }
 
-    private var priceTargetCard: some View {
+    private var priceTargetsEmptyView: some View {
+        SectionEmpty(
+            systemImage: "tag",
+            text: L10n.Home.emptyPriceTargets
+        )
+        .padding(.horizontal, RipeSpacing.s5)
+    }
+
+    private var priceTargetsList: some View {
+        WithPerceptionTracking {
+            VStack(spacing: 12) {
+                ForEach(store.priceTargets) { target in
+                    priceTargetCard(target)
+                }
+            }
+            .padding(.horizontal, RipeSpacing.s5)
+        }
+    }
+
+    private func priceTargetCard(_ target: HomeFeature.PriceTarget) -> some View {
         RipeCard(padding: 0) {
             VStack(spacing: 0) {
-                priceTargetTopArea
+                priceTargetTopArea(target)
                 priceTargetDivider
-                priceTargetFooterRow
+                priceTargetFooterRow(target)
             }
             .background(
                 RoundedRectangle(cornerRadius: RipeRadius.card, style: .continuous)
@@ -197,59 +265,59 @@ extension HomeView {
         }
     }
 
-    private var priceTargetTopArea: some View {
+    private func priceTargetTopArea(_ target: HomeFeature.PriceTarget) -> some View {
         HStack(alignment: .top, spacing: RipeSpacing.s3) {
             MonoThumbnail(
-                label: "Olive Oil",
+                label: target.name,
                 categoryColor: Color(.ripeGood),
                 size: 56,
                 systemImage: "basket"
             )
-            priceTargetDetailStack
+            priceTargetDetailStack(target)
         }
         .padding(18)
     }
 
-    private var priceTargetDetailStack: some View {
+    private func priceTargetDetailStack(_ target: HomeFeature.PriceTarget) -> some View {
         VStack(alignment: .leading, spacing: RipeSpacing.s2) {
-            priceTargetNameRow
-            priceTargetStoreRow
-            priceTargetPriceRow
+            priceTargetNameRow(target)
+            priceTargetStoreRow(target)
+            priceTargetPriceRow(target)
         }
     }
 
-    private var priceTargetNameRow: some View {
+    private func priceTargetNameRow(_ target: HomeFeature.PriceTarget) -> some View {
         HStack(spacing: RipeSpacing.s2) {
-            Text("Olive Oil")
+            Text(target.name)
                 .customFont(.bold17)
                 .foregroundStyle(Color(.ripeInk))
             RipeChip(label: "target hit", tone: .good, systemImage: "checkmark")
         }
     }
 
-    private var priceTargetStoreRow: some View {
+    private func priceTargetStoreRow(_ target: HomeFeature.PriceTarget) -> some View {
         HStack(spacing: 4) {
             Image(systemName: "bag")
                 .iconFont(.caption)
                 .foregroundStyle(Color(.ripeInk2))
-            Text("Trader Joe's · 500 ml")
+            Text(target.store)
                 .customFont(.medium12)
                 .foregroundStyle(Color(.ripeInk2))
         }
     }
 
-    private var priceTargetPriceRow: some View {
+    private func priceTargetPriceRow(_ target: HomeFeature.PriceTarget) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: RipeSpacing.s2) {
-            Text("$8.99")
+            Text(target.currentPrice)
                 .customFont(.bold22)
                 .monospacedDigit()
                 .foregroundStyle(Color(.ripeGood))
-            Text("$10.10")
+            Text(target.previousPrice)
                 .customFont(.bold17)
                 .monospacedDigit()
                 .foregroundStyle(Color(.ripeInk3))
                 .strikethrough(true, color: Color(.ripeInk3))
-            DeltaBadge(direction: .down, value: "11%")
+            DeltaBadge(direction: .down, value: target.deltaValue)
         }
     }
 
@@ -258,9 +326,9 @@ extension HomeView {
             .overlay(Color(.ripeLine))
     }
 
-    private var priceTargetFooterRow: some View {
+    private func priceTargetFooterRow(_ target: HomeFeature.PriceTarget) -> some View {
         HStack {
-            Text("Target was $9.00")
+            Text(target.targetLabel)
                 .customFont(.medium13)
                 .foregroundStyle(Color(.ripeInk2))
             Spacer()
@@ -277,52 +345,12 @@ extension HomeView {
     }
 }
 
-// MARK: - Helpers
-
-extension HomeView {
-    private struct TrendItem: Identifiable {
-        let id = UUID()
-        let name: String
-        let direction: PriceDirection
-        let delta: String
-        let color: Color
-    }
-
-    private var trendItems: [TrendItem] {
-        let colors: [Color] = [
-            Color(.ripeCat1),
-            Color(.ripeCat2),
-            Color(.ripeCat3),
-            Color(.ripeCat4),
-            Color(.ripeCat5),
-        ]
-        return [
-            TrendItem(name: "Coffee", direction: .up, delta: "6%", color: colors[0]),
-            TrendItem(name: "Olive Oil", direction: .down, delta: "11%", color: colors[1]),
-            TrendItem(name: "Eggs", direction: .up, delta: "4%", color: colors[2]),
-            TrendItem(name: "Butter", direction: .down, delta: "8%", color: colors[3]),
-            TrendItem(name: "Detergent", direction: .down, delta: "12%", color: colors[4]),
-        ]
-    }
-
-    private struct ExpireItem: Identifiable {
-        let id = UUID()
-        let name: String
-        let meta: String
-        let chipLabel: String
-        let color: Color
-    }
-
-    private var expireItems: [ExpireItem] {
-        [
-            ExpireItem(name: "Greek Yogurt", meta: "2 cups · Fridge", chipLabel: "2d left", color: Color(.ripeCat3)),
-            ExpireItem(name: "Eggs", meta: "6 left · Fridge", chipLabel: "3d left", color: Color(.ripeCat2)),
-        ]
-    }
-}
-
 // MARK: - Preview
 
-#Preview {
+#Preview("Home Empty") {
     HomeView(store: Store(initialState: HomeFeature.State()) { HomeFeature() })
+}
+
+#Preview("Home Filled") {
+    HomeView(store: Store(initialState: .sample) { HomeFeature() })
 }
