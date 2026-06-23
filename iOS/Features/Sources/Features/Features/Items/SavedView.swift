@@ -14,10 +14,18 @@ public struct SavedView: View {
 
     public var body: some View {
         WithPerceptionTracking {
-            ZStack {
-                Color(.ripeBg).ignoresSafeArea()
-                savedContentView
+            VStack(spacing: RipeSpacing.s6) {
+                Spacer()
+                successIconView
+                confirmationTextStack
+                Spacer()
+                actionButtonsView
             }
+            .padding(.horizontal, RipeSpacing.s5)
+            .padding(.bottom, RipeSpacing.s7)
+            .background(
+                Color(.ripeBg).ignoresSafeArea()
+            )
             .navigationBarBackButtonHidden(true)
         }
     }
@@ -26,18 +34,6 @@ public struct SavedView: View {
 // MARK: - Subviews
 
 extension SavedView {
-    private var savedContentView: some View {
-        VStack(spacing: RipeSpacing.s6) {
-            Spacer()
-            successIconView
-            confirmationTextStack
-            Spacer()
-            actionButtonsView
-        }
-        .padding(.horizontal, RipeSpacing.s5)
-        .padding(.bottom, RipeSpacing.s7)
-    }
-
     private var successIconView: some View {
         ZStack {
             Circle()

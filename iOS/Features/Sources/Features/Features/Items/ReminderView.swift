@@ -19,12 +19,27 @@ public struct ReminderView: View {
 
     public var body: some View {
         WithPerceptionTracking {
-            ZStack {
-                Color(.ripeBg).ignoresSafeArea()
-                mainContent
+            ScrollView {
+                VStack(alignment: .leading, spacing: RipeSpacing.s5) {
+                    itemSummaryCard
+                    remindSectionLabel
+                    daysReadoutView
+                    sliderSection
+                    reminderBannerView
+                    alsoAlertOnDayRow
+                }
+                .padding(.horizontal, RipeSpacing.s5)
+                .padding(.top, RipeSpacing.s5)
+                .padding(.bottom, RipeSpacing.s5)
             }
-            .navigationTitle(L10n.Expiry.reminderNavTitle)
-            .navigationBarTitleDisplayMode(.inline)
+            .safeAreaInset(edge: .bottom) {
+                bottomButton
+            }
+            .ripeFlowScreen(
+                title: L10n.Expiry.reminderNavTitle,
+                leadingTitle: L10n.Common.back,
+                onLeading: { store.send(.backTapped) }
+            )
         }
     }
 }
@@ -32,36 +47,10 @@ public struct ReminderView: View {
 // MARK: - Subviews
 
 extension ReminderView {
-    private var mainContent: some View {
-        VStack(spacing: 0) {
-            scrollContent
-            bottomCTAStack
-                .padding(.horizontal, RipeSpacing.s5)
-                .padding(.bottom, RipeSpacing.s7)
-        }
-    }
-
-    private var scrollContent: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: RipeSpacing.s5) {
-                itemSummaryCard
-                remindSectionLabel
-                daysReadoutView
-                sliderSection
-                reminderBannerView
-                alsoAlertOnDayRow
-            }
+    private var bottomButton: some View {
+        saveButton
             .padding(.horizontal, RipeSpacing.s5)
-            .padding(.top, RipeSpacing.s5)
-            .padding(.bottom, RipeSpacing.s5)
-        }
-    }
-
-    private var bottomCTAStack: some View {
-        VStack(spacing: RipeSpacing.s3) {
-            saveButton
-            backButton
-        }
+            .padding(.bottom, RipeSpacing.s7)
     }
 
     // MARK: Item summary card
@@ -275,16 +264,6 @@ extension ReminderView {
             )
             .disabled(store.isSaving || isReminderInPast)
         }
-    }
-
-    private var backButton: some View {
-        RipeButton(
-            title: L10n.Common.back,
-            variant: .outline,
-            size: .lg,
-            fullWidth: true,
-            action: { store.send(.backTapped) }
-        )
     }
 }
 
