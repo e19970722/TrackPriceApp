@@ -2,13 +2,13 @@ import ComposableArchitecture
 import SwiftUI
 
 public struct ItemDetailsView: View {
-    @Perception.Bindable var store: StoreOf<AddItemFeature>
+    @Perception.Bindable var store: StoreOf<AddExpiryTrackerFeature>
     @FocusState private var focusedField: Field?
     @State private var draftBestBeforeDate = Date()
 
     enum Field: Hashable { case name, locationCustom, quantity }
 
-    public init(store: StoreOf<AddItemFeature>) {
+    public init(store: StoreOf<AddExpiryTrackerFeature>) {
         self.store = store
     }
 
@@ -16,24 +16,26 @@ public struct ItemDetailsView: View {
 
     public var body: some View {
         WithPerceptionTracking {
-            ZStack {
-                Color(.ripeBg)
-                    .ignoresSafeArea()
-                mainContent
-            }
-            .navigationTitle(L10n.Expiry.navTitleItemDetails)
-            .navigationBarTitleDisplayMode(.inline)
-            .onAppear {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    focusedField = .name
+            scrollFormView
+                .safeAreaInset(edge: .bottom) {
+                    bottomButton
                 }
-            }
-            .sheet(isPresented: Binding(
-                get: { store.isDatePickerPresented },
-                set: { store.send(.datePickerPresented($0)) }
-            )) {
-                datePickerSheet
-            }
+                .ripeFlowScreen(
+                    title: L10n.Expiry.navTitleItemDetails,
+                    leadingTitle: L10n.Common.back,
+                    onLeading: { store.send(.backTapped) }
+                )
+                .onAppear {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        focusedField = .name
+                    }
+                }
+                .sheet(isPresented: Binding(
+                    get: { store.isDatePickerPresented },
+                    set: { store.send(.datePickerPresented($0)) }
+                )) {
+                    datePickerSheet
+                }
         }
     }
 }
@@ -41,15 +43,6 @@ public struct ItemDetailsView: View {
 // MARK: - Subviews
 
 extension ItemDetailsView {
-    private var mainContent: some View {
-        VStack(spacing: 0) {
-            scrollFormView
-            actionButtonsView
-                .padding(.horizontal, RipeSpacing.s5)
-                .padding(.bottom, RipeSpacing.s7)
-        }
-    }
-
     private var scrollFormView: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: RipeSpacing.s5) {
@@ -213,13 +206,12 @@ extension ItemDetailsView {
         }
     }
 
-    // MARK: Action buttons
+    // MARK: Bottom button
 
-    private var actionButtonsView: some View {
-        VStack(spacing: RipeSpacing.s3) {
-            continueButton
-            backButton
-        }
+    private var bottomButton: some View {
+        continueButton
+            .padding(.horizontal, RipeSpacing.s5)
+            .padding(.bottom, RipeSpacing.s7)
     }
 
     private var continueButton: some View {
@@ -231,16 +223,6 @@ extension ItemDetailsView {
             action: { store.send(.continueTapped) }
         )
         .disabled(store.itemName.trimmingCharacters(in: .whitespaces).isEmpty)
-    }
-
-    private var backButton: some View {
-        RipeButton(
-            title: L10n.Common.back,
-            variant: .outline,
-            size: .lg,
-            fullWidth: true,
-            action: { store.send(.backTapped) }
-        )
     }
 }
 
@@ -259,11 +241,11 @@ extension ItemDetailsView {
 #Preview {
     NavigationStack {
         ItemDetailsView(store: Store(
-            initialState: AddItemFeature.State(
+            initialState: AddExpiryTrackerFeature.State(
                 itemName: "Greek Yogurt",
                 bestBeforeDate: Date().addingTimeInterval(5 * 86400),
                 isDateFromScan: true
             )
-        ) { AddItemFeature() })
+        ) { AddExpiryTrackerFeature() })
     }
 }

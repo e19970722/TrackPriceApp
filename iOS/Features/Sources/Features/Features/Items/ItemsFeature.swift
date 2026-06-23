@@ -151,16 +151,25 @@ public struct ItemDetailFeature {
     }
 }
 
-// MARK: - AddItemFeature
+// MARK: - AddExpiryTrackerFeature
 
 @Reducer
-public struct AddItemFeature {
+public struct AddExpiryTrackerFeature {
     public enum Step: Equatable {
         case chooseMethod
         case scanLabel
         case itemDetails(scannedDate: Date?, ocrString: String?)
         case reminder(Item)
         case saved(Item)
+    }
+
+    /// One pushed screen in the flow's `NavigationStack`. `chooseMethod` is the
+    /// root and therefore has no route.
+    public enum Route: Hashable {
+        case scanLabel
+        case itemDetails
+        case reminder
+        case saved
     }
 
     @ObservableState
@@ -202,6 +211,38 @@ public struct AddItemFeature {
             self.isDateFromScan = isDateFromScan
             self.remindDaysBefore = remindDaysBefore
             self.remindOnDay = remindOnDay
+        }
+
+        /// Drives the flow's `NavigationStack`, derived purely from `step` (and
+        /// `isDateFromScan` for the scan branch). `chooseMethod` is the root, so it
+        /// maps to an empty path.
+        public var navigationPath: [Route] {
+            // The item-details screen sits one level deeper when reached via scan.
+            let itemDetailsPath: [Route] = isDateFromScan ? [.scanLabel, .itemDetails] : [.itemDetails]
+            switch step {
+            case .chooseMethod:
+                return []
+            case .scanLabel:
+                return [.scanLabel]
+            case .itemDetails:
+                return itemDetailsPath
+            case .reminder:
+                return itemDetailsPath + [.reminder]
+            case .saved:
+                return itemDetailsPath + [.reminder, .saved]
+            }
+        }
+
+        /// The draft `Item` carried by the `.reminder` step, for the reminder destination.
+        public var draftItem: Item? {
+            guard case let .reminder(draft) = step else { return nil }
+            return draft
+        }
+
+        /// The persisted `Item` carried by the `.saved` step, for the saved destination.
+        public var savedItem: Item? {
+            guard case let .saved(item) = step else { return nil }
+            return item
         }
     }
 
@@ -360,7 +401,7 @@ public struct ItemsFeature {
         public var items: [Item] = []
         public var isLoading: Bool = false
         public var errorMessage: String?
-        @Presents public var addItem: AddItemFeature.State?
+        @Presents public var addItem: AddExpiryTrackerFeature.State?
         @Presents public var selectedItem: ItemDetailFeature.State?
 
         public init() {}
@@ -376,7 +417,7 @@ public struct ItemsFeature {
         case itemsLoaded([Item])
         case loadFailed(String)
         case addItemButtonTapped
-        case addItem(PresentationAction<AddItemFeature.Action>)
+        case addItem(PresentationAction<AddExpiryTrackerFeature.Action>)
         case itemRowTapped(Item)
         case selectedItem(PresentationAction<ItemDetailFeature.Action>)
     }
@@ -411,7 +452,7 @@ public struct ItemsFeature {
                 return .none
 
             case .addItemButtonTapped:
-                state.addItem = AddItemFeature.State()
+                state.addItem = AddExpiryTrackerFeature.State()
                 return .none
 
             case .addItem(.presented(.dismiss)):
@@ -443,7 +484,7 @@ public struct ItemsFeature {
             }
         }
         .ifLet(\.$addItem, action: \.addItem) {
-            AddItemFeature()
+            AddExpiryTrackerFeature()
         }
         .ifLet(\.$selectedItem, action: \.selectedItem) {
             ItemDetailFeature()

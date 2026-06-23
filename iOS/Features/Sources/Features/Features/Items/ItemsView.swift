@@ -22,7 +22,7 @@ public struct ItemsView: View {
                     .overlay(alignment: .bottomTrailing) { optionalFab }
             }
             .fullScreenCover(item: $store.scope(state: \.addItem, action: \.addItem)) { addStore in
-                AddItemFlowView(store: addStore)
+                AddExpiryTrackerView(store: addStore)
             }
             .sheet(item: $store.scope(state: \.selectedItem, action: \.selectedItem)) { detailStore in
                 ItemDetailView(store: detailStore)

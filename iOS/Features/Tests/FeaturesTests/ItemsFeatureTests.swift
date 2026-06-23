@@ -117,13 +117,13 @@ final class ItemModelTests: XCTestCase {
     }
 }
 
-// MARK: - AddItemFeatureTests
+// MARK: - AddExpiryTrackerFeatureTests
 
 @MainActor
-final class AddItemFeatureTests: XCTestCase {
+final class AddExpiryTrackerFeatureTests: XCTestCase {
     func testScanLabelTappedAdvancesToScanStep() async {
-        let store = TestStore(initialState: AddItemFeature.State()) {
-            AddItemFeature()
+        let store = TestStore(initialState: AddExpiryTrackerFeature.State()) {
+            AddExpiryTrackerFeature()
         }
         await store.send(.scanLabelTapped) {
             $0.step = .scanLabel
@@ -131,8 +131,8 @@ final class AddItemFeatureTests: XCTestCase {
     }
 
     func testEnterManuallyTappedAdvancesToItemDetails() async {
-        let store = TestStore(initialState: AddItemFeature.State()) {
-            AddItemFeature()
+        let store = TestStore(initialState: AddExpiryTrackerFeature.State()) {
+            AddExpiryTrackerFeature()
         }
         await store.send(.enterManuallyTapped) {
             $0.step = .itemDetails(scannedDate: nil, ocrString: nil)
@@ -141,10 +141,10 @@ final class AddItemFeatureTests: XCTestCase {
 
     func testDateScannedPopulatesStateAndAdvances() async {
         let scannedDate = Date(timeIntervalSinceReferenceDate: 1_000_000)
-        var initial = AddItemFeature.State()
+        var initial = AddExpiryTrackerFeature.State()
         initial.step = .scanLabel
         let store = TestStore(initialState: initial) {
-            AddItemFeature()
+            AddExpiryTrackerFeature()
         }
         await store.send(.dateScanned(scannedDate, ocrString: "BB 01 JAN 2027")) {
             $0.bestBeforeDate = scannedDate
@@ -154,10 +154,10 @@ final class AddItemFeatureTests: XCTestCase {
     }
 
     func testScanAgainReturnsToScanStep() async {
-        var initial = AddItemFeature.State()
+        var initial = AddExpiryTrackerFeature.State()
         initial.step = .itemDetails(scannedDate: nil, ocrString: nil)
         let store = TestStore(initialState: initial) {
-            AddItemFeature()
+            AddExpiryTrackerFeature()
         }
         await store.send(.scanAgainTapped) {
             $0.step = .scanLabel
@@ -166,7 +166,7 @@ final class AddItemFeatureTests: XCTestCase {
 
     func testContinueTappedBuildsReminderStep() async {
         let bestBefore = Date(timeIntervalSinceReferenceDate: 2_000_000)
-        var initial = AddItemFeature.State(
+        var initial = AddExpiryTrackerFeature.State(
             itemName: "Milk",
             quantity: "1 litre",
             location: .fridge,
@@ -175,7 +175,7 @@ final class AddItemFeatureTests: XCTestCase {
         initial.step = .itemDetails(scannedDate: nil, ocrString: nil)
 
         let store = TestStore(initialState: initial) {
-            AddItemFeature()
+            AddExpiryTrackerFeature()
         }
         // The reducer creates an Item with addedDate: Date() which varies at runtime.
         // Turn off exhaustive state checking and assert only the meaningful fields.
@@ -194,8 +194,8 @@ final class AddItemFeatureTests: XCTestCase {
     }
 
     func testRemindDaysBeforeChangedUpdatesState() async {
-        let store = TestStore(initialState: AddItemFeature.State()) {
-            AddItemFeature()
+        let store = TestStore(initialState: AddExpiryTrackerFeature.State()) {
+            AddExpiryTrackerFeature()
         }
         await store.send(.remindDaysBeforeChanged(7)) {
             $0.remindDaysBefore = 7
@@ -204,11 +204,11 @@ final class AddItemFeatureTests: XCTestCase {
 
     func testBestBeforeDateChangedUpdatesStateAndClearsScanFlag() async {
         let newDate = Date(timeIntervalSinceReferenceDate: 4_000_000)
-        var initial = AddItemFeature.State(isDateFromScan: true)
+        var initial = AddExpiryTrackerFeature.State(isDateFromScan: true)
         initial.step = .itemDetails(scannedDate: Date(), ocrString: "BB")
 
         let store = TestStore(initialState: initial) {
-            AddItemFeature()
+            AddExpiryTrackerFeature()
         }
 
         await store.send(.bestBeforeDateChanged(newDate)) {
@@ -226,12 +226,12 @@ final class AddItemFeatureTests: XCTestCase {
             bestBeforeDate: bestBefore
         )
 
-        var initial = AddItemFeature.State(itemName: "Yogurt", bestBeforeDate: bestBefore)
+        var initial = AddExpiryTrackerFeature.State(itemName: "Yogurt", bestBeforeDate: bestBefore)
         let draft = Item(name: "Yogurt", location: .fridge, bestBeforeDate: bestBefore)
         initial.step = .reminder(draft)
 
         let store = TestStore(initialState: initial) {
-            AddItemFeature()
+            AddExpiryTrackerFeature()
         } withDependencies: {
             $0.apiClient.createItem = { _ in savedItem }
         }
@@ -253,12 +253,12 @@ final class AddItemFeatureTests: XCTestCase {
             }
         }
 
-        var initial = AddItemFeature.State(itemName: "Milk")
+        var initial = AddExpiryTrackerFeature.State(itemName: "Milk")
         let draft = Item(name: "Milk", location: .fridge, bestBeforeDate: Date().addingTimeInterval(86400))
         initial.step = .reminder(draft)
 
         let store = TestStore(initialState: initial) {
-            AddItemFeature()
+            AddExpiryTrackerFeature()
         } withDependencies: {
             $0.apiClient.createItem = { _ in throw FakeError() }
         }
@@ -274,11 +274,11 @@ final class AddItemFeatureTests: XCTestCase {
 
     func testAddAnotherResetsState() async {
         let item = Item(name: "Eggs", location: .fridge, bestBeforeDate: Date().addingTimeInterval(86400))
-        var initial = AddItemFeature.State(itemName: "Eggs")
+        var initial = AddExpiryTrackerFeature.State(itemName: "Eggs")
         initial.step = .saved(item)
 
         let store = TestStore(initialState: initial) {
-            AddItemFeature()
+            AddExpiryTrackerFeature()
         }
         // bestBeforeDate is set to Date() inside the reducer.
         // Use non-exhaustive mode to assert only the stable parts of the reset.
@@ -288,6 +288,71 @@ final class AddItemFeatureTests: XCTestCase {
         XCTAssertEqual(store.state.itemName, "")
         XCTAssertEqual(store.state.location, .fridge)
         XCTAssertFalse(store.state.isSaving)
+    }
+}
+
+// MARK: - AddItemFeatureNavigationPathTests
+
+@MainActor
+final class AddItemFeatureNavigationPathTests: XCTestCase {
+    private func state(step: AddItemFeature.Step, isDateFromScan: Bool = false) -> AddItemFeature.State {
+        var state = AddItemFeature.State(isDateFromScan: isDateFromScan)
+        state.step = step
+        return state
+    }
+
+    func testChooseMethodMapsToEmptyPath() {
+        XCTAssertEqual(state(step: .chooseMethod).navigationPath, [])
+    }
+
+    func testScanLabelMapsToScanLabelPath() {
+        XCTAssertEqual(state(step: .scanLabel).navigationPath, [.scanLabel])
+    }
+
+    func testItemDetailsManualEntryMapsToItemDetailsPath() {
+        let path = state(step: .itemDetails(scannedDate: nil, ocrString: nil), isDateFromScan: false).navigationPath
+        XCTAssertEqual(path, [.itemDetails])
+    }
+
+    func testItemDetailsFromScanMapsToScanThenItemDetailsPath() {
+        let path = state(step: .itemDetails(scannedDate: Date(), ocrString: "BB"), isDateFromScan: true).navigationPath
+        XCTAssertEqual(path, [.scanLabel, .itemDetails])
+    }
+
+    func testReminderManualEntryMapsToItemDetailsThenReminderPath() {
+        let draft = Item(name: "Milk", bestBeforeDate: Date().addingTimeInterval(86400))
+        let path = state(step: .reminder(draft), isDateFromScan: false).navigationPath
+        XCTAssertEqual(path, [.itemDetails, .reminder])
+    }
+
+    func testReminderFromScanMapsToScanItemDetailsReminderPath() {
+        let draft = Item(name: "Milk", bestBeforeDate: Date().addingTimeInterval(86400))
+        let path = state(step: .reminder(draft), isDateFromScan: true).navigationPath
+        XCTAssertEqual(path, [.scanLabel, .itemDetails, .reminder])
+    }
+
+    func testSavedManualEntryMapsToFullPath() {
+        let item = Item(name: "Eggs", bestBeforeDate: Date().addingTimeInterval(86400))
+        let path = state(step: .saved(item), isDateFromScan: false).navigationPath
+        XCTAssertEqual(path, [.itemDetails, .reminder, .saved])
+    }
+
+    func testSavedFromScanMapsToFullPathWithScan() {
+        let item = Item(name: "Eggs", bestBeforeDate: Date().addingTimeInterval(86400))
+        let path = state(step: .saved(item), isDateFromScan: true).navigationPath
+        XCTAssertEqual(path, [.scanLabel, .itemDetails, .reminder, .saved])
+    }
+
+    func testDraftItemAccessorReturnsReminderDraft() {
+        let draft = Item(name: "Milk", bestBeforeDate: Date().addingTimeInterval(86400))
+        XCTAssertEqual(state(step: .reminder(draft)).draftItem, draft)
+        XCTAssertNil(state(step: .chooseMethod).draftItem)
+    }
+
+    func testSavedItemAccessorReturnsSavedItem() {
+        let item = Item(name: "Eggs", bestBeforeDate: Date().addingTimeInterval(86400))
+        XCTAssertEqual(state(step: .saved(item)).savedItem, item)
+        XCTAssertNil(state(step: .chooseMethod).savedItem)
     }
 }
 
@@ -342,7 +407,7 @@ final class ItemsFeatureTests: XCTestCase {
         let store = TestStore(initialState: ItemsFeature.State()) {
             ItemsFeature()
         }
-        // AddItemFeature.State() captures Date() for bestBeforeDate inside the reducer.
+        // AddExpiryTrackerFeature.State() captures Date() for bestBeforeDate inside the reducer.
         // Use non-exhaustive mode and assert that addItem becomes non-nil.
         store.exhaustivity = .off
         await store.send(.addItemButtonTapped)

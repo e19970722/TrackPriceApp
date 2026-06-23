@@ -3,14 +3,14 @@ import PhotosUI
 import SwiftUI
 
 public struct ReminderView: View {
-    @Perception.Bindable var store: StoreOf<AddItemFeature>
+    @Perception.Bindable var store: StoreOf<AddExpiryTrackerFeature>
     let draftItem: Item
     private let milestoneMarks: [Int] = [1, 3, 7, 30, 60]
 
     @State private var photoItem: PhotosPickerItem?
     @State private var photoImage: Image?
 
-    public init(store: StoreOf<AddItemFeature>, draftItem: Item) {
+    public init(store: StoreOf<AddExpiryTrackerFeature>, draftItem: Item) {
         self.store = store
         self.draftItem = draftItem
     }
@@ -19,12 +19,27 @@ public struct ReminderView: View {
 
     public var body: some View {
         WithPerceptionTracking {
-            ZStack {
-                Color(.ripeBg).ignoresSafeArea()
-                mainContent
+            ScrollView {
+                VStack(alignment: .leading, spacing: RipeSpacing.s5) {
+                    itemSummaryCard
+                    remindSectionLabel
+                    daysReadoutView
+                    sliderSection
+                    reminderBannerView
+                    alsoAlertOnDayRow
+                }
+                .padding(.horizontal, RipeSpacing.s5)
+                .padding(.top, RipeSpacing.s5)
+                .padding(.bottom, RipeSpacing.s5)
             }
-            .navigationTitle(L10n.Expiry.reminderNavTitle)
-            .navigationBarTitleDisplayMode(.inline)
+            .safeAreaInset(edge: .bottom) {
+                bottomButton
+            }
+            .ripeFlowScreen(
+                title: L10n.Expiry.reminderNavTitle,
+                leadingTitle: L10n.Common.back,
+                onLeading: { store.send(.backTapped) }
+            )
         }
     }
 }
@@ -32,36 +47,10 @@ public struct ReminderView: View {
 // MARK: - Subviews
 
 extension ReminderView {
-    private var mainContent: some View {
-        VStack(spacing: 0) {
-            scrollContent
-            bottomCTAStack
-                .padding(.horizontal, RipeSpacing.s5)
-                .padding(.bottom, RipeSpacing.s7)
-        }
-    }
-
-    private var scrollContent: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: RipeSpacing.s5) {
-                itemSummaryCard
-                remindSectionLabel
-                daysReadoutView
-                sliderSection
-                reminderBannerView
-                alsoAlertOnDayRow
-            }
+    private var bottomButton: some View {
+        saveButton
             .padding(.horizontal, RipeSpacing.s5)
-            .padding(.top, RipeSpacing.s5)
-            .padding(.bottom, RipeSpacing.s5)
-        }
-    }
-
-    private var bottomCTAStack: some View {
-        VStack(spacing: RipeSpacing.s3) {
-            saveButton
-            backButton
-        }
+            .padding(.bottom, RipeSpacing.s7)
     }
 
     // MARK: Item summary card
@@ -276,16 +265,6 @@ extension ReminderView {
             .disabled(store.isSaving || isReminderInPast)
         }
     }
-
-    private var backButton: some View {
-        RipeButton(
-            title: L10n.Common.back,
-            variant: .outline,
-            size: .lg,
-            fullWidth: true,
-            action: { store.send(.backTapped) }
-        )
-    }
 }
 
 // MARK: - Helpers
@@ -350,7 +329,7 @@ extension ReminderView {
     )
     NavigationStack {
         ReminderView(
-            store: Store(initialState: AddItemFeature.State()) { AddItemFeature() },
+            store: Store(initialState: AddExpiryTrackerFeature.State()) { AddExpiryTrackerFeature() },
             draftItem: draft
         )
     }
