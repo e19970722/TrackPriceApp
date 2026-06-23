@@ -218,18 +218,11 @@ extension ReminderView {
 
     private var reminderBannerView: some View {
         WithPerceptionTracking {
-            HStack(spacing: RipeSpacing.s3) {
-                Image(systemName: isReminderInPast ? "exclamationmark.octagon.fill" : "bell.fill")
-                    .iconFont(.bodyIcon)
-                    .foregroundStyle(isReminderInPast ? Color(.ripeDanger) : Color(.ripeWarn))
-                Text(isReminderInPast ? reminderPastHintText : reminderBannerText)
-                    .customFont(.semibold15)
-                    .foregroundStyle(Color(.ripeInk))
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(RipeSpacing.s4)
-            .background(isReminderInPast ? Color(.ripeDangerSoft) : Color(.ripeWarnSoft))
-            .clipShape(RoundedRectangle(cornerRadius: RipeRadius.control, style: .continuous))
+            RipeBanner(
+                message: isReminderInPast ? reminderPastHintText : reminderBannerText,
+                systemImage: isReminderInPast ? "exclamationmark.octagon.fill" : "bell.fill",
+                tone: isReminderInPast ? .danger : .warning
+            )
         }
     }
 

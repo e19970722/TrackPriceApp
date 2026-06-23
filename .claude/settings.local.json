@@ -41,7 +41,27 @@
       "Skill(update-config)",
       "Bash(DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swiftlint lint --config /Users/yenlin/TrackPriceApp/iOS/.swiftlint.yml --quiet)",
       "Bash(DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swiftlint lint --config /Users/yenlin/TrackPriceApp/iOS/.swiftlint.yml)",
-      "Bash(DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -scheme TrackPriceApp -destination 'generic/platform=iOS Simulator' build)"
+      "Bash(DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -scheme TrackPriceApp -destination 'generic/platform=iOS Simulator' build)",
+      "Bash(swiftformat iOS/ --config iOS/.swiftformat)",
+      "Bash(export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer)",
+      "Bash(swiftlint lint *)",
+      "Bash(open -a Simulator)",
+      "Bash(swiftformat Features/Sources/Features/Components/Ripe/RipeFlowScreen.swift Features/Sources/Features/Features/AddTracker/URLEntryView.swift Features/Sources/Features/Features/AddTracker/WebBrowserView.swift Features/Sources/Features/Features/AddTracker/SetTargetView.swift --config .swiftformat)",
+      "Bash(xcrun xctrace *)",
+      "Bash(DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer swiftlint lint *)",
+      "Bash(DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild test -scheme Features -destination 'platform=iOS Simulator,name=iPhone 16 Pro' -only-testing:FeaturesTests/AddTrackerFeatureTests)",
+      "Bash(DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild test -scheme Features -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.4' -only-testing:FeaturesTests/AddTrackerFeatureTests)",
+      "Bash(DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild test -scheme Features -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.4' -only-testing:FeaturesTests/AddTrackerFeatureTests -skipMacroValidation)",
+      "Bash(DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild -list -project TrackPriceApp.xcodeproj)",
+      "Bash(DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild build -project TrackPriceApp.xcodeproj -scheme TrackPriceApp -destination 'platform=iOS Simulator,name=iPhone 16 Pro' -skipMacroValidation)",
+      "Bash(DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild build -project TrackPriceApp.xcodeproj -scheme TrackPriceApp -destination 'platform=iOS Simulator,id=E7569FEC-BB95-4355-B3B7-BBB900F8D170' -skipMacroValidation)",
+      "Bash(swiftformat Features/Sources/Features/Components/ConfirmPriceSheet.swift --config .swiftformat)",
+      "Bash(DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun simctl list devices available)",
+      "Bash(swiftformat iOS/Features/Sources/Features/Features/AddTracker/AddTrackerFeature.swift iOS/Features/Tests/FeaturesTests/AddTrackerFeatureTests.swift --config iOS/.swiftformat)",
+      "Bash(swiftformat Features/Sources/Features/Components/RipeBanner.swift Features/Sources/Features/Features/Items/ReminderView.swift Features/Sources/Features/Features/AddTracker/SetTargetView.swift --config .swiftformat)",
+      "Bash(swiftlint version *)",
+      "Bash(DEVELOPER_DIR=$\\(xcode-select -p\\) swiftlint lint --config .swiftlint.yml Features/Sources/Features/Components/RipeBanner.swift)",
+      "Read(//Applications/**)"
     ]
   }
 }
