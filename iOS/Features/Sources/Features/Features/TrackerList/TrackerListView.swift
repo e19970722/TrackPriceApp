@@ -290,19 +290,11 @@ extension TrackerListView {
     }
 
     private var emptyStateView: some View {
-        VStack(spacing: RipeSpacing.s4) {
-            Image(systemName: "tag.slash")
-                .iconFont(.emptyState)
-                .foregroundStyle(Color(.ripeInk3))
-            Text(L10n.TrackerList.emptyTitle)
-                .customFont(.bold19)
-                .foregroundStyle(Color(.ripeInk))
-            Text(L10n.TrackerList.emptyMessage)
-                .customFont(.semibold15)
-                .foregroundStyle(Color(.ripeInk2))
-        }
-        .frame(maxWidth: .infinity, minHeight: 200)
-        .padding(.horizontal, RipeSpacing.s5)
+        RipeEmptyState(
+            icon: "tag",
+            title: L10n.TrackerList.emptyTitle,
+            message: L10n.TrackerList.emptyMessage
+        )
     }
 
     private var fabButton: some View {

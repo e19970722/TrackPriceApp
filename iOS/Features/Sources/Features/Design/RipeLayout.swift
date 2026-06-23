@@ -18,6 +18,25 @@ public enum RipeSpacing {
     public static let s7: CGFloat = 32
 }
 
+public enum RipeEmptyStateLayout {
+    /// Side length of the square illustration tile.
+    public static let tileSize: CGFloat = 96
+    /// Corner radius of the illustration tile.
+    public static let tileRadius: CGFloat = 28
+    /// SF Symbol point size for the centered icon.
+    public static let iconSize: CGFloat = 40
+    /// Max width of the body copy before it wraps.
+    public static let bodyMaxWidth: CGFloat = 260
+    /// Line spacing applied to the multiline body copy (~1.5 line height at 15pt).
+    public static let bodyLineSpacing: CGFloat = 6
+    /// Vertical gap between the tile, title and body block.
+    public static let verticalSpacing: CGFloat = 16
+    /// Vertical gap between the title and body copy.
+    public static let textSpacing: CGFloat = 8
+    /// Minimum height the empty state occupies inside a list row.
+    public static let minHeight: CGFloat = 320
+}
+
 public struct RipeShadow {
     public let color: Color
     public let radius: CGFloat
