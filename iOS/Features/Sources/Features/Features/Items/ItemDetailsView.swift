@@ -2,13 +2,13 @@ import ComposableArchitecture
 import SwiftUI
 
 public struct ItemDetailsView: View {
-    @Perception.Bindable var store: StoreOf<AddItemFeature>
+    @Perception.Bindable var store: StoreOf<AddExpiryTrackerFeature>
     @FocusState private var focusedField: Field?
     @State private var draftBestBeforeDate = Date()
 
     enum Field: Hashable { case name, locationCustom, quantity }
 
-    public init(store: StoreOf<AddItemFeature>) {
+    public init(store: StoreOf<AddExpiryTrackerFeature>) {
         self.store = store
     }
 
@@ -259,11 +259,11 @@ extension ItemDetailsView {
 #Preview {
     NavigationStack {
         ItemDetailsView(store: Store(
-            initialState: AddItemFeature.State(
+            initialState: AddExpiryTrackerFeature.State(
                 itemName: "Greek Yogurt",
                 bestBeforeDate: Date().addingTimeInterval(5 * 86400),
                 isDateFromScan: true
             )
-        ) { AddItemFeature() })
+        ) { AddExpiryTrackerFeature() })
     }
 }

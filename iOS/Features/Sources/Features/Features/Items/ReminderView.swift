@@ -3,14 +3,14 @@ import PhotosUI
 import SwiftUI
 
 public struct ReminderView: View {
-    @Perception.Bindable var store: StoreOf<AddItemFeature>
+    @Perception.Bindable var store: StoreOf<AddExpiryTrackerFeature>
     let draftItem: Item
     private let milestoneMarks: [Int] = [1, 3, 7, 30, 60]
 
     @State private var photoItem: PhotosPickerItem?
     @State private var photoImage: Image?
 
-    public init(store: StoreOf<AddItemFeature>, draftItem: Item) {
+    public init(store: StoreOf<AddExpiryTrackerFeature>, draftItem: Item) {
         self.store = store
         self.draftItem = draftItem
     }
@@ -350,7 +350,7 @@ extension ReminderView {
     )
     NavigationStack {
         ReminderView(
-            store: Store(initialState: AddItemFeature.State()) { AddItemFeature() },
+            store: Store(initialState: AddExpiryTrackerFeature.State()) { AddExpiryTrackerFeature() },
             draftItem: draft
         )
     }

@@ -2,9 +2,9 @@ import ComposableArchitecture
 import SwiftUI
 
 public struct ChooseMethodView: View {
-    @Perception.Bindable var store: StoreOf<AddItemFeature>
+    @Perception.Bindable var store: StoreOf<AddExpiryTrackerFeature>
 
-    public init(store: StoreOf<AddItemFeature>) {
+    public init(store: StoreOf<AddExpiryTrackerFeature>) {
         self.store = store
     }
 
@@ -122,6 +122,6 @@ extension ChooseMethodView {
 
 #Preview {
     NavigationStack {
-        ChooseMethodView(store: Store(initialState: AddItemFeature.State()) { AddItemFeature() })
+        ChooseMethodView(store: Store(initialState: AddExpiryTrackerFeature.State()) { AddExpiryTrackerFeature() })
     }
 }

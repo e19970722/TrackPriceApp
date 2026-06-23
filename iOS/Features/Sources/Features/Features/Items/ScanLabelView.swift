@@ -7,12 +7,12 @@ import Vision
 // MARK: - ScanLabelView
 
 public struct ScanLabelView: View {
-    @Perception.Bindable var store: StoreOf<AddItemFeature>
+    @Perception.Bindable var store: StoreOf<AddExpiryTrackerFeature>
     @State private var isFlashOn: Bool = false
     @State private var scanLineOffset: CGFloat = -120
     @State private var selectedPhotoItem: PhotosPickerItem?
 
-    public init(store: StoreOf<AddItemFeature>) {
+    public init(store: StoreOf<AddExpiryTrackerFeature>) {
         self.store = store
     }
 
@@ -429,5 +429,5 @@ enum DatePatternParser {
 // MARK: - Preview
 
 #Preview {
-    ScanLabelView(store: Store(initialState: AddItemFeature.State()) { AddItemFeature() })
+    ScanLabelView(store: Store(initialState: AddExpiryTrackerFeature.State()) { AddExpiryTrackerFeature() })
 }

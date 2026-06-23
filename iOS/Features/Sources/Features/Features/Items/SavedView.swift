@@ -2,10 +2,10 @@ import ComposableArchitecture
 import SwiftUI
 
 public struct SavedView: View {
-    @Perception.Bindable var store: StoreOf<AddItemFeature>
+    @Perception.Bindable var store: StoreOf<AddExpiryTrackerFeature>
     let savedItem: Item
 
-    public init(store: StoreOf<AddItemFeature>, savedItem: Item) {
+    public init(store: StoreOf<AddExpiryTrackerFeature>, savedItem: Item) {
         self.store = store
         self.savedItem = savedItem
     }
@@ -111,7 +111,7 @@ extension SavedView {
     )
     NavigationStack {
         SavedView(
-            store: Store(initialState: AddItemFeature.State()) { AddItemFeature() },
+            store: Store(initialState: AddExpiryTrackerFeature.State()) { AddExpiryTrackerFeature() },
             savedItem: item
         )
     }

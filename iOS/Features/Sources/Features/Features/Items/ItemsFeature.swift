@@ -151,10 +151,10 @@ public struct ItemDetailFeature {
     }
 }
 
-// MARK: - AddItemFeature
+// MARK: - AddExpiryTrackerFeature
 
 @Reducer
-public struct AddItemFeature {
+public struct AddExpiryTrackerFeature {
     public enum Step: Equatable {
         case chooseMethod
         case scanLabel
@@ -401,7 +401,7 @@ public struct ItemsFeature {
         public var items: [Item] = []
         public var isLoading: Bool = false
         public var errorMessage: String?
-        @Presents public var addItem: AddItemFeature.State?
+        @Presents public var addItem: AddExpiryTrackerFeature.State?
         @Presents public var selectedItem: ItemDetailFeature.State?
 
         public init() {}
@@ -417,7 +417,7 @@ public struct ItemsFeature {
         case itemsLoaded([Item])
         case loadFailed(String)
         case addItemButtonTapped
-        case addItem(PresentationAction<AddItemFeature.Action>)
+        case addItem(PresentationAction<AddExpiryTrackerFeature.Action>)
         case itemRowTapped(Item)
         case selectedItem(PresentationAction<ItemDetailFeature.Action>)
     }
@@ -452,7 +452,7 @@ public struct ItemsFeature {
                 return .none
 
             case .addItemButtonTapped:
-                state.addItem = AddItemFeature.State()
+                state.addItem = AddExpiryTrackerFeature.State()
                 return .none
 
             case .addItem(.presented(.dismiss)):
@@ -484,7 +484,7 @@ public struct ItemsFeature {
             }
         }
         .ifLet(\.$addItem, action: \.addItem) {
-            AddItemFeature()
+            AddExpiryTrackerFeature()
         }
         .ifLet(\.$selectedItem, action: \.selectedItem) {
             ItemDetailFeature()

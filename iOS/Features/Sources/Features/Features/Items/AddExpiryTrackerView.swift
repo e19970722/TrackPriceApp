@@ -1,14 +1,11 @@
 import ComposableArchitecture
 import SwiftUI
 
-/// Hosts the add-item flow in a single state-driven `NavigationStack`, pushing
-/// and popping steps natively (including interactive swipe-back). The pushed path
-/// is derived from `AddItemFeature.State.step`; pops are mapped back to reducer
-/// actions via `pathBinding`.
-public struct AddItemFlowView: View {
-    @Perception.Bindable var store: StoreOf<AddItemFeature>
+/// Routes between the steps of the add-item flow based on `AddExpiryTrackerFeature.State.step`.
+public struct AddExpiryTrackerView: View {
+    @Perception.Bindable var store: StoreOf<AddExpiryTrackerFeature>
 
-    public init(store: StoreOf<AddItemFeature>) {
+    public init(store: StoreOf<AddExpiryTrackerFeature>) {
         self.store = store
     }
 
@@ -18,7 +15,7 @@ public struct AddItemFlowView: View {
         WithPerceptionTracking {
             NavigationStack(path: pathBinding) {
                 ChooseMethodView(store: store)
-                    .navigationDestination(for: AddItemFeature.Route.self, destination: destinationView)
+                    .navigationDestination(for: AddExpiryTrackerFeature.Route.self, destination: destinationView)
             }
         }
     }
@@ -26,8 +23,8 @@ public struct AddItemFlowView: View {
 
 // MARK: - Subviews
 
-extension AddItemFlowView {
-    private func destinationView(for route: AddItemFeature.Route) -> some View {
+extension AddExpiryTrackerView {
+    private func destinationView(for route: AddExpiryTrackerFeature.Route) -> some View {
         WithPerceptionTracking {
             switch route {
             case .scanLabel:
@@ -63,13 +60,13 @@ extension AddItemFlowView {
 
 // MARK: - Helpers
 
-extension AddItemFlowView {
+extension AddExpiryTrackerView {
     /// Drives the `NavigationStack` from `store.step`. Pushes are state-driven, so
     /// the setter only reacts when the user pops (path shrinks) via the system back
     /// button or interactive swipe: a single-level pop maps to `.backTapped` (which
     /// moves the step one level back), and a pop straight to the root dismisses the
     /// flow.
-    private var pathBinding: Binding<[AddItemFeature.Route]> {
+    private var pathBinding: Binding<[AddExpiryTrackerFeature.Route]> {
         Binding(
             get: { store.navigationPath },
             set: { newPath in
@@ -88,5 +85,5 @@ extension AddItemFlowView {
 // MARK: - Preview
 
 #Preview {
-    AddItemFlowView(store: Store(initialState: AddItemFeature.State()) { AddItemFeature() })
+    AddExpiryTrackerView(store: Store(initialState: AddExpiryTrackerFeature.State()) { AddExpiryTrackerFeature() })
 }
