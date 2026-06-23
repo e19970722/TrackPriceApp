@@ -29,6 +29,7 @@ public struct TrackerListFeature {
         case onAppear
         case trackersLoaded([Tracker])
         case loadFailed(String)
+        case errorToastDismissed
         case addTrackerButtonTapped
         case addTracker(PresentationAction<AddPriceTrackerFeature.Action>)
         case trackerRowTapped(Tracker)
@@ -70,6 +71,10 @@ public struct TrackerListFeature {
             case let .loadFailed(msg):
                 state.isLoading = false
                 state.errorMessage = msg
+                return .none
+
+            case .errorToastDismissed:
+                state.errorMessage = nil
                 return .none
 
             case .addTrackerButtonTapped:

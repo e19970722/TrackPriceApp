@@ -25,6 +25,7 @@ public struct TrackerListView: View {
                 .onTapGesture { isSearchFocused = false }
                 fabButton
             }
+            .overlay(alignment: .bottom) { errorToast }
             .fullScreenCover(item: $store.scope(state: \.addTracker, action: \.addTracker)) { addStore in
                 AddPriceTrackerView(store: addStore)
             }
@@ -174,10 +175,6 @@ extension TrackerListView {
             loadingView
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
-        } else if let error = store.errorMessage {
-            errorView(message: error)
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
         } else if store.showsEmptyState {
             emptyStateView
                 .listRowBackground(Color.clear)
@@ -271,26 +268,23 @@ extension TrackerListView {
             .foregroundStyle(Color(.ripeInk2))
     }
 
-    private func errorView(message: String) -> some View {
-        VStack(spacing: RipeSpacing.s3) {
-            Image(systemName: "exclamationmark.triangle")
-                .iconFont(.emptyState)
-                .foregroundStyle(Color(.ripeInk3))
-            Text(L10n.TrackerList.errorMessage)
-                .customFont(.bold19)
-                .foregroundStyle(Color(.ripeInk))
-            Text(message)
-                .customFont(.semibold15)
-                .foregroundStyle(Color(.ripeInk2))
-                .multilineTextAlignment(.center)
+    private var errorToast: some View {
+        WithPerceptionTracking {
+            if let message = store.errorMessage {
+                RipeToast(
+                    message: message,
+                    onDismiss: { store.send(.errorToastDismissed) },
+                    onRetry: {
+                        store.send(.errorToastDismissed)
+                        store.send(.onAppear)
+                    }
+                )
                 .padding(.horizontal, RipeSpacing.s5)
-            Button(L10n.Common.retry) {
-                store.send(.onAppear)
+                .padding(.bottom, RipeSpacing.s3)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
             }
-            .buttonStyle(.bordered)
         }
-        .frame(maxWidth: .infinity, minHeight: 200)
-        .padding(.horizontal, RipeSpacing.s5)
+        .animation(.easeInOut(duration: 0.25), value: store.errorMessage != nil)
     }
 
     private var emptyStateView: some View {
