@@ -65,8 +65,10 @@ public enum L10n {
             "home.emptyPriceTargets",
             fallback: "Set a target price and we'll flag the moment it's hit."
         )
+        /// Uniform "N hits" wording (including "1 hits") is intentional to match the
+        /// design ("0 hits", "3 hits"); not pluralized on purpose.
         public static func priceTargetHits(_ count: Int) -> String {
-            L10n.tr("home.priceTargetHits", count, fallback: "\(count) hits")
+            L10n.tr("home.priceTargetHits", count, fallback: "%d hits")
         }
     }
 
