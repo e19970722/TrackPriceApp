@@ -176,7 +176,7 @@ extension SetTargetView {
     }
 
     private var infoBannerView: some View {
-        InfoBanner(message: alertRuleMessage)
+        RipeBanner(message: alertRuleMessage, systemImage: "bell.fill", tone: .info)
     }
 
     private func errorText(_ message: String) -> some View {
