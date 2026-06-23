@@ -8,7 +8,7 @@ import SwiftUI
 /// (frame 3), and the confirm-price bottom sheet once an element is picked
 /// (frame 4).
 struct WebBrowserView: View {
-    @Perception.Bindable var store: StoreOf<AddTrackerFeature>
+    @Perception.Bindable var store: StoreOf<AddPriceTrackerFeature>
 
     // MARK: - Body
 
@@ -135,12 +135,12 @@ extension WebBrowserView {
 #Preview {
     WebBrowserView(store: Store(
         initialState: {
-            var state = AddTrackerFeature.State()
+            var state = AddPriceTrackerFeature.State()
             state.step = .webView
             state.currentURL = URL(string: "https://store.com/product")
             return state
         }()
     ) {
-        AddTrackerFeature()
+        AddPriceTrackerFeature()
     })
 }

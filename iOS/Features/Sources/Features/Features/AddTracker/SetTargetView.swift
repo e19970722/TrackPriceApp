@@ -9,7 +9,7 @@ import SwiftUI
 /// already-meets-target warning dialog (frame 6) when the current price already
 /// satisfies the chosen target.
 struct SetTargetView: View {
-    @Perception.Bindable var store: StoreOf<AddTrackerFeature>
+    @Perception.Bindable var store: StoreOf<AddPriceTrackerFeature>
     @FocusState private var focusedField: Field?
 
     enum Field: Hashable { case name, targetPrice }
@@ -249,7 +249,7 @@ extension SetTargetView {
 #Preview {
     SetTargetView(store: Store(
         initialState: {
-            var state = AddTrackerFeature.State()
+            var state = AddPriceTrackerFeature.State()
             let info = ElementInfo(
                 interactions: [
                     InteractionStep(
@@ -270,6 +270,6 @@ extension SetTargetView {
             return state
         }()
     ) {
-        AddTrackerFeature()
+        AddPriceTrackerFeature()
     })
 }

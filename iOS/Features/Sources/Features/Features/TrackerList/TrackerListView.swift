@@ -26,7 +26,7 @@ public struct TrackerListView: View {
                 fabButton
             }
             .fullScreenCover(item: $store.scope(state: \.addTracker, action: \.addTracker)) { addStore in
-                AddTrackerView(store: addStore)
+                AddPriceTrackerView(store: addStore)
             }
             .sheet(item: $store.scope(state: \.selectedTracker, action: \.trackerDetail)) { detailStore in
                 TrackerDetailView(store: detailStore)

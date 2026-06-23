@@ -8,7 +8,7 @@ import UIKit
 /// field with a globe icon and inline Paste chip, a hint, and a bottom dock with
 /// the Next CTA.
 struct URLEntryView: View {
-    @Perception.Bindable var store: StoreOf<AddTrackerFeature>
+    @Perception.Bindable var store: StoreOf<AddPriceTrackerFeature>
     @FocusState private var isURLFieldFocused: Bool
 
     // MARK: - Body
@@ -128,7 +128,7 @@ extension URLEntryView {
 // MARK: - Preview
 
 #Preview {
-    URLEntryView(store: Store(initialState: AddTrackerFeature.State()) {
-        AddTrackerFeature()
+    URLEntryView(store: Store(initialState: AddPriceTrackerFeature.State()) {
+        AddPriceTrackerFeature()
     })
 }

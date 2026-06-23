@@ -27,10 +27,10 @@ public struct ElementInfo: Equatable {
     }
 }
 
-// MARK: - AddTrackerFeature
+// MARK: - AddPriceTrackerFeature
 
 @Reducer
-public struct AddTrackerFeature {
+public struct AddPriceTrackerFeature {
     /// The screen currently shown in the flow.
     /// - `webView` browses the page; `isSelecting` arms element picking (frame 3).
     /// - `confirmation` is rendered as a sheet over the webview (frame 4).

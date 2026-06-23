@@ -12,7 +12,7 @@ public struct TrackerListFeature {
         public var trackers: [Tracker] = []
         public var isLoading = false
         public var errorMessage: String?
-        @Presents public var addTracker: AddTrackerFeature.State?
+        @Presents public var addTracker: AddPriceTrackerFeature.State?
         @Presents public var selectedTracker: TrackerDetailFeature.State?
         public var selectedSegment: Segment = .trackers
         public var items: ItemsFeature.State = .init()
@@ -24,7 +24,7 @@ public struct TrackerListFeature {
         case trackersLoaded([Tracker])
         case loadFailed(String)
         case addTrackerButtonTapped
-        case addTracker(PresentationAction<AddTrackerFeature.Action>)
+        case addTracker(PresentationAction<AddPriceTrackerFeature.Action>)
         case trackerRowTapped(Tracker)
         case trackerDetail(PresentationAction<TrackerDetailFeature.Action>)
         case deleteTracker(IndexSet)
@@ -67,7 +67,7 @@ public struct TrackerListFeature {
                 return .none
 
             case .addTrackerButtonTapped:
-                state.addTracker = AddTrackerFeature.State()
+                state.addTracker = AddPriceTrackerFeature.State()
                 return .none
 
             case .addTracker(.dismiss), .addTracker(.presented(.trackerCreated)):
@@ -115,7 +115,7 @@ public struct TrackerListFeature {
                 return .none
             }
         }
-        .ifLet(\.$addTracker, action: \.addTracker) { AddTrackerFeature() }
+        .ifLet(\.$addTracker, action: \.addTracker) { AddPriceTrackerFeature() }
         .ifLet(\.$selectedTracker, action: \.trackerDetail) { TrackerDetailFeature() }
     }
 }

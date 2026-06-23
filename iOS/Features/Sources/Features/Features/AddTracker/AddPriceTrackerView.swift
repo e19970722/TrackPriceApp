@@ -1,12 +1,12 @@
 import ComposableArchitecture
 import SwiftUI
 
-// MARK: - AddTrackerView
+// MARK: - AddPriceTrackerView
 
-public struct AddTrackerView: View {
-    @Perception.Bindable var store: StoreOf<AddTrackerFeature>
+public struct AddPriceTrackerView: View {
+    @Perception.Bindable var store: StoreOf<AddPriceTrackerFeature>
 
-    public init(store: StoreOf<AddTrackerFeature>) {
+    public init(store: StoreOf<AddPriceTrackerFeature>) {
         self.store = store
     }
 
@@ -16,7 +16,7 @@ public struct AddTrackerView: View {
         WithPerceptionTracking {
             NavigationStack(path: pathBinding) {
                 URLEntryView(store: store)
-                    .navigationDestination(for: AddTrackerFeature.Route.self, destination: destinationView)
+                    .navigationDestination(for: AddPriceTrackerFeature.Route.self, destination: destinationView)
             }
         }
     }
@@ -24,8 +24,8 @@ public struct AddTrackerView: View {
 
 // MARK: - Subviews
 
-extension AddTrackerView {
-    private func destinationView(for route: AddTrackerFeature.Route) -> some View {
+extension AddPriceTrackerView {
+    private func destinationView(for route: AddPriceTrackerFeature.Route) -> some View {
         WithPerceptionTracking {
             switch route {
             case .webView:
@@ -39,12 +39,12 @@ extension AddTrackerView {
 
 // MARK: - Helpers
 
-extension AddTrackerView {
+extension AddPriceTrackerView {
     /// Drives the `NavigationStack` from `store.step`. Pushes are state-driven, so
     /// the setter only reacts when the user pops (path shrinks) via the system
     /// back button or interactive swipe, mapping the new depth to the matching
     /// reducer action to keep state in sync.
-    private var pathBinding: Binding<[AddTrackerFeature.Route]> {
+    private var pathBinding: Binding<[AddPriceTrackerFeature.Route]> {
         Binding(
             get: { store.navigationPath },
             set: { newPath in
@@ -66,7 +66,7 @@ extension AddTrackerView {
 // MARK: - Preview
 
 #Preview {
-    AddTrackerView(store: Store(initialState: AddTrackerFeature.State()) {
-        AddTrackerFeature()
+    AddPriceTrackerView(store: Store(initialState: AddPriceTrackerFeature.State()) {
+        AddPriceTrackerFeature()
     })
 }

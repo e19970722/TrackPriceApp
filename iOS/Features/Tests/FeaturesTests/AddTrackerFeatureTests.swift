@@ -47,8 +47,8 @@ struct AddTrackerFeatureTests {
 
     @Test("URL entry advances to the web view")
     func loadURLAdvancesToWebView() async {
-        let store = TestStore(initialState: AddTrackerFeature.State()) {
-            AddTrackerFeature()
+        let store = TestStore(initialState: AddPriceTrackerFeature.State()) {
+            AddPriceTrackerFeature()
         }
         await store.send(.urlInputChanged("store.com/product")) {
             $0.urlInput = "store.com/product"
@@ -63,7 +63,7 @@ struct AddTrackerFeatureTests {
     func pickElementThenConfirm() async {
         let info = priceElement(price: 129)
         let store = TestStore(initialState: webViewState()) {
-            AddTrackerFeature()
+            AddPriceTrackerFeature()
         }
         await store.send(.pickElementTapped) { $0.isSelecting = true }
         await store.send(.elementPicked(info)) {
@@ -76,7 +76,7 @@ struct AddTrackerFeatureTests {
     func cancelSelection() async {
         var state = webViewState()
         state.isSelecting = true
-        let store = TestStore(initialState: state) { AddTrackerFeature() }
+        let store = TestStore(initialState: state) { AddPriceTrackerFeature() }
         await store.send(.selectionCancelled) { $0.isSelecting = false }
     }
 
@@ -84,7 +84,7 @@ struct AddTrackerFeatureTests {
     func confirmPrefillsTargetSetup() async {
         let info = priceElement(price: 129)
         let store = TestStore(initialState: confirmationState(info)) {
-            AddTrackerFeature()
+            AddPriceTrackerFeature()
         }
         await store.send(.confirmationConfirmed) {
             $0.trackerName = "Sony WH-1000XM5"
@@ -101,7 +101,7 @@ struct AddTrackerFeatureTests {
     func rejectReturnsToWebView() async {
         let info = priceElement(price: 129)
         let store = TestStore(initialState: confirmationState(info)) {
-            AddTrackerFeature()
+            AddPriceTrackerFeature()
         }
         await store.send(.confirmationRejected) { $0.step = .webView }
     }
@@ -110,7 +110,7 @@ struct AddTrackerFeatureTests {
     func rejectRetainsSheetContentThenReArmsSelection() async {
         let info = priceElement(price: 129)
         let store = TestStore(initialState: confirmationState(info)) {
-            AddTrackerFeature()
+            AddPriceTrackerFeature()
         }
         await store.send(.confirmationRejected) {
             $0.dismissingSheetInfo = info
@@ -126,7 +126,7 @@ struct AddTrackerFeatureTests {
     func backToURLEntryResetsSelection() async {
         var state = webViewState()
         state.isSelecting = true
-        let store = TestStore(initialState: state) { AddTrackerFeature() }
+        let store = TestStore(initialState: state) { AddPriceTrackerFeature() }
         await store.send(.backToURLEntry) {
             $0.isSelecting = false
             $0.step = .urlEntry
@@ -144,7 +144,7 @@ struct AddTrackerFeatureTests {
 
         let created = sampleTracker()
         let store = TestStore(initialState: state) {
-            AddTrackerFeature()
+            AddPriceTrackerFeature()
         } withDependencies: {
             $0.apiClient.createTracker = { _ in created }
         }
@@ -165,7 +165,7 @@ struct AddTrackerFeatureTests {
         state.targetPriceInput = "99.00"
         state.targetDirection = .below
 
-        let store = TestStore(initialState: state) { AddTrackerFeature() }
+        let store = TestStore(initialState: state) { AddPriceTrackerFeature() }
         await store.send(.saveTapped) { $0.showsAlreadyMetWarning = true }
     }
 
@@ -176,7 +176,7 @@ struct AddTrackerFeatureTests {
         state.targetPriceInput = "99.00"
         state.showsAlreadyMetWarning = true
 
-        let store = TestStore(initialState: state) { AddTrackerFeature() }
+        let store = TestStore(initialState: state) { AddPriceTrackerFeature() }
         await store.send(.alreadyMetWarningCancelled) { $0.showsAlreadyMetWarning = false }
     }
 
@@ -189,7 +189,7 @@ struct AddTrackerFeatureTests {
 
         let created = sampleTracker()
         let store = TestStore(initialState: state) {
-            AddTrackerFeature()
+            AddPriceTrackerFeature()
         } withDependencies: {
             $0.apiClient.createTracker = { _ in created }
         }
@@ -222,21 +222,21 @@ struct AddTrackerFeatureTests {
 
     // MARK: - State helpers
 
-    private func webViewState() -> AddTrackerFeature.State {
-        var state = AddTrackerFeature.State()
+    private func webViewState() -> AddPriceTrackerFeature.State {
+        var state = AddPriceTrackerFeature.State()
         state.step = .webView
         state.currentURL = URL(string: "https://store.com/product")
         return state
     }
 
-    private func confirmationState(_ info: ElementInfo) -> AddTrackerFeature.State {
+    private func confirmationState(_ info: ElementInfo) -> AddPriceTrackerFeature.State {
         var state = webViewState()
         state.step = .confirmation(info)
         return state
     }
 
-    private func targetSetupState(_ info: ElementInfo) -> AddTrackerFeature.State {
-        var state = AddTrackerFeature.State()
+    private func targetSetupState(_ info: ElementInfo) -> AddPriceTrackerFeature.State {
+        var state = AddPriceTrackerFeature.State()
         state.currentURL = URL(string: "https://store.com/sony")
         state.step = .targetSetup(info)
         state.trackerName = "Sony WH-1000XM5"
