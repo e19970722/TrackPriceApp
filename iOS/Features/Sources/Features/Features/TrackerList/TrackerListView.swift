@@ -25,6 +25,8 @@ public struct TrackerListView: View {
                 .onTapGesture { isSearchFocused = false }
                 fabButton
             }
+            .overlay(alignment: .bottom) { expiryErrorToast }
+            .overlay(alignment: .bottom) { pricesErrorToast }
             .fullScreenCover(item: $store.scope(state: \.addTracker, action: \.addTracker)) { addStore in
                 AddPriceTrackerView(store: addStore)
             }
@@ -150,7 +152,8 @@ extension TrackerListView {
             ItemsView(
                 store: store.scope(state: \.items, action: \.items),
                 showsHeader: false,
-                showsFab: false
+                showsFab: false,
+                showsErrorToast: false
             )
         }
     }
@@ -174,12 +177,12 @@ extension TrackerListView {
             loadingView
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
-        } else if let error = store.errorMessage {
-            errorView(message: error)
+        } else if store.trackers.isEmpty {
+            emptyStateView
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
         } else if filteredTrackers.isEmpty {
-            emptyStateView
+            noResultsView(query: searchText)
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
         } else {
@@ -267,42 +270,81 @@ extension TrackerListView {
             .foregroundStyle(Color(.ripeInk2))
     }
 
-    private func errorView(message: String) -> some View {
+    private var emptyStateView: some View {
+        RipeEmptyState(
+            icon: "tag",
+            title: L10n.TrackerList.emptyTitle,
+            message: L10n.TrackerList.emptyMessage
+        )
+    }
+
+    private func noResultsView(query: String) -> some View {
         VStack(spacing: RipeSpacing.s3) {
-            Image(systemName: "exclamationmark.triangle")
+            Image(systemName: "magnifyingglass")
                 .iconFont(.emptyState)
                 .foregroundStyle(Color(.ripeInk3))
-            Text(L10n.TrackerList.errorMessage)
-                .customFont(.bold19)
-                .foregroundStyle(Color(.ripeInk))
-            Text(message)
+            Text(L10n.TrackerList.noResults(query))
                 .customFont(.semibold15)
                 .foregroundStyle(Color(.ripeInk2))
                 .multilineTextAlignment(.center)
-                .padding(.horizontal, RipeSpacing.s5)
-            Button(L10n.Common.retry) {
-                store.send(.onAppear)
-            }
-            .buttonStyle(.bordered)
+                .lineLimit(2)
         }
         .frame(maxWidth: .infinity, minHeight: 200)
         .padding(.horizontal, RipeSpacing.s5)
     }
 
-    private var emptyStateView: some View {
-        VStack(spacing: RipeSpacing.s4) {
-            Image(systemName: "tag.slash")
-                .iconFont(.emptyState)
-                .foregroundStyle(Color(.ripeInk3))
-            Text(L10n.TrackerList.emptyTitle)
-                .customFont(.bold19)
-                .foregroundStyle(Color(.ripeInk))
-            Text(L10n.TrackerList.emptyMessage)
-                .customFont(.semibold15)
-                .foregroundStyle(Color(.ripeInk2))
+    private var expiryErrorToast: some View {
+        WithPerceptionTracking {
+            ZStack(alignment: .bottom) {
+                if store.selectedSegment == .items, let message = store.items.errorMessage {
+                    RipeToast(
+                        message: message,
+                        onDismiss: { store.send(.items(.errorToastDismissed)) },
+                        onRetry: {
+                            store.send(.items(.errorToastDismissed))
+                            store.send(.items(.fetchItems))
+                        }
+                    )
+                    .padding(.horizontal, RipeSpacing.s5)
+                    .padding(.bottom, RipeSpacing.s4)
+                    .transition(.move(edge: .bottom).combined(with: .opacity).combined(with: .scale(
+                        scale: 0.9,
+                        anchor: .bottom
+                    )))
+                }
+            }
+            .animation(
+                .spring(response: 0.35, dampingFraction: 0.7),
+                value: store.selectedSegment == .items && store.items.errorMessage != nil
+            )
         }
-        .frame(maxWidth: .infinity, minHeight: 200)
-        .padding(.horizontal, RipeSpacing.s5)
+    }
+
+    private var pricesErrorToast: some View {
+        WithPerceptionTracking {
+            ZStack(alignment: .bottom) {
+                if store.selectedSegment == .trackers, let message = store.errorMessage {
+                    RipeToast(
+                        message: message,
+                        onDismiss: { store.send(.errorToastDismissed) },
+                        onRetry: {
+                            store.send(.errorToastDismissed)
+                            store.send(.onAppear)
+                        }
+                    )
+                    .padding(.horizontal, RipeSpacing.s5)
+                    .padding(.bottom, RipeSpacing.s4)
+                    .transition(.move(edge: .bottom).combined(with: .opacity).combined(with: .scale(
+                        scale: 0.9,
+                        anchor: .bottom
+                    )))
+                }
+            }
+            .animation(
+                .spring(response: 0.35, dampingFraction: 0.7),
+                value: store.selectedSegment == .trackers && store.errorMessage != nil
+            )
+        }
     }
 
     private var fabButton: some View {

@@ -84,24 +84,7 @@ extension MonoThumbnail {
     @ViewBuilder
     private var stripeTextureOverlayView: some View {
         if showStripeTexture {
-            Canvas { context, size in
-                let stripeWidth: CGFloat = 3
-                let gap: CGFloat = 5
-                let step = stripeWidth + gap
-                let diag = sqrt(size.width * size.width + size.height * size.height)
-                var offset: CGFloat = -diag
-                while offset < diag * 2 {
-                    let path = Path { path in
-                        path.move(to: CGPoint(x: offset, y: 0))
-                        path.addLine(to: CGPoint(x: offset + diag, y: diag))
-                        path.addLine(to: CGPoint(x: offset + diag + stripeWidth, y: diag))
-                        path.addLine(to: CGPoint(x: offset + stripeWidth, y: 0))
-                        path.closeSubpath()
-                    }
-                    context.fill(path, with: .color(.white.opacity(0.07)))
-                    offset += step
-                }
-            }
+            DiagonalStripes(color: .white.opacity(0.07))
         }
     }
 }

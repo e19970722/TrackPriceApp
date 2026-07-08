@@ -409,6 +409,12 @@ public struct ItemsFeature {
         public init(items: [Item]) {
             self.items = items
         }
+
+        /// True when the Expire Dates segment has no items to show and is neither
+        /// loading nor in an error state — i.e. the full empty state applies.
+        public var showsEmptyState: Bool {
+            items.isEmpty && !isLoading && errorMessage == nil
+        }
     }
 
     public enum Action {
@@ -416,6 +422,7 @@ public struct ItemsFeature {
         case fetchItems
         case itemsLoaded([Item])
         case loadFailed(String)
+        case errorToastDismissed
         case addItemButtonTapped
         case addItem(PresentationAction<AddExpiryTrackerFeature.Action>)
         case itemRowTapped(Item)
@@ -449,6 +456,10 @@ public struct ItemsFeature {
             case let .loadFailed(message):
                 state.isLoading = false
                 state.errorMessage = message
+                return .none
+
+            case .errorToastDismissed:
+                state.errorMessage = nil
                 return .none
 
             case .addItemButtonTapped:

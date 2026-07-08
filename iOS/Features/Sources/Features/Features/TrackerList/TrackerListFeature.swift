@@ -17,12 +17,19 @@ public struct TrackerListFeature {
         public var selectedSegment: Segment = .trackers
         public var items: ItemsFeature.State = .init()
         public init() {}
+
+        /// True when the Prices segment has no trackers to show and is neither
+        /// loading nor in an error state — i.e. the full empty state applies.
+        public var showsEmptyState: Bool {
+            trackers.isEmpty && !isLoading && errorMessage == nil
+        }
     }
 
     public enum Action {
         case onAppear
         case trackersLoaded([Tracker])
         case loadFailed(String)
+        case errorToastDismissed
         case addTrackerButtonTapped
         case addTracker(PresentationAction<AddPriceTrackerFeature.Action>)
         case trackerRowTapped(Tracker)
@@ -64,6 +71,10 @@ public struct TrackerListFeature {
             case let .loadFailed(msg):
                 state.isLoading = false
                 state.errorMessage = msg
+                return .none
+
+            case .errorToastDismissed:
+                state.errorMessage = nil
                 return .none
 
             case .addTrackerButtonTapped:
