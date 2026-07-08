@@ -26,6 +26,7 @@ public struct TrackerListView: View {
                 fabButton
             }
             .overlay(alignment: .bottom) { expiryErrorToast }
+            .overlay(alignment: .bottom) { pricesErrorToast }
             .fullScreenCover(item: $store.scope(state: \.addTracker, action: \.addTracker)) { addStore in
                 AddPriceTrackerView(store: addStore)
             }
@@ -176,11 +177,7 @@ extension TrackerListView {
             loadingView
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
-        } else if let error = store.errorMessage {
-            errorView(message: error)
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-        } else if store.showsEmptyState {
+        } else if store.trackers.isEmpty {
             emptyStateView
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
@@ -273,28 +270,6 @@ extension TrackerListView {
             .foregroundStyle(Color(.ripeInk2))
     }
 
-    private func errorView(message: String) -> some View {
-        VStack(spacing: RipeSpacing.s3) {
-            Image(systemName: "exclamationmark.triangle")
-                .iconFont(.emptyState)
-                .foregroundStyle(Color(.ripeInk3))
-            Text(L10n.TrackerList.errorMessage)
-                .customFont(.bold19)
-                .foregroundStyle(Color(.ripeInk))
-            Text(message)
-                .customFont(.semibold15)
-                .foregroundStyle(Color(.ripeInk2))
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, RipeSpacing.s5)
-            Button(L10n.Common.retry) {
-                store.send(.onAppear)
-            }
-            .buttonStyle(.bordered)
-        }
-        .frame(maxWidth: .infinity, minHeight: 200)
-        .padding(.horizontal, RipeSpacing.s5)
-    }
-
     private var emptyStateView: some View {
         RipeEmptyState(
             icon: "tag",
@@ -341,6 +316,33 @@ extension TrackerListView {
             .animation(
                 .spring(response: 0.35, dampingFraction: 0.7),
                 value: store.selectedSegment == .items && store.items.errorMessage != nil
+            )
+        }
+    }
+
+    private var pricesErrorToast: some View {
+        WithPerceptionTracking {
+            ZStack(alignment: .bottom) {
+                if store.selectedSegment == .trackers, let message = store.errorMessage {
+                    RipeToast(
+                        message: message,
+                        onDismiss: { store.send(.errorToastDismissed) },
+                        onRetry: {
+                            store.send(.errorToastDismissed)
+                            store.send(.onAppear)
+                        }
+                    )
+                    .padding(.horizontal, RipeSpacing.s5)
+                    .padding(.bottom, RipeSpacing.s4)
+                    .transition(.move(edge: .bottom).combined(with: .opacity).combined(with: .scale(
+                        scale: 0.9,
+                        anchor: .bottom
+                    )))
+                }
+            }
+            .animation(
+                .spring(response: 0.35, dampingFraction: 0.7),
+                value: store.selectedSegment == .trackers && store.errorMessage != nil
             )
         }
     }
