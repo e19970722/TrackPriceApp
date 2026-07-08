@@ -87,6 +87,12 @@ public struct AddPriceTrackerFeature {
             }
         }
 
+        /// Whether the confirm-price sheet is presented over the webview.
+        public var isConfirmationPresented: Bool {
+            guard case .confirmation = step else { return false }
+            return true
+        }
+
         /// The element confirmed during target setup, if any.
         public var confirmedElement: ElementInfo? {
             switch step {
@@ -124,7 +130,9 @@ public struct AddPriceTrackerFeature {
         case confirmationConfirmed
         case confirmationRejected
         case backToURLEntry
+        case confirmSheetPresented(Bool)
         case confirmSheetDismissed
+        case navigationPathChanged([Route])
         case saveTapped
         case alreadyMetWarningCancelled
         case alreadyMetWarningConfirmed
@@ -199,6 +207,27 @@ public struct AddPriceTrackerFeature {
                 state.isSelecting = false
                 state.step = .urlEntry
                 return .none
+
+            case let .confirmSheetPresented(isPresented):
+                // The sheet is presented purely from state; only a dismissal while
+                // still on the confirmation step (swipe-down) needs handling, and it
+                // behaves exactly like rejecting the picked element.
+                guard !isPresented, case .confirmation = state.step else { return .none }
+                return .send(.confirmationRejected)
+
+            case let .navigationPathChanged(newPath):
+                // Pushes are state-driven, so only react when the user pops (path
+                // shrinks) via the system back button or interactive swipe, mapping
+                // the new depth to the matching action to keep `step` in sync.
+                guard newPath.count < state.navigationPath.count else { return .none }
+                switch newPath.count {
+                case 1:
+                    return .send(.confirmationRejected)
+                case 0:
+                    return .send(.backToURLEntry)
+                default:
+                    return .none
+                }
 
             case .confirmSheetDismissed:
                 state.dismissingSheetInfo = nil

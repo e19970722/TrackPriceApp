@@ -22,10 +22,7 @@ public struct SettingsView: View {
                 .background(Color(.ripeBg).ignoresSafeArea())
                 .confirmationDialog(
                     L10n.Settings.signOutConfirmTitle,
-                    isPresented: Binding(
-                        get: { store.isSignOutConfirmationPresented },
-                        set: { _ in store.send(.signOutCancelled) }
-                    ),
+                    isPresented: $store.isSignOutConfirmationPresented.sending(\.signOutConfirmationPresented),
                     titleVisibility: .visible
                 ) {
                     Button(L10n.Settings.signOutConfirmButton, role: .destructive) {

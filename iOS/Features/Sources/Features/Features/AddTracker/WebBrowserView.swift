@@ -34,7 +34,7 @@ struct WebBrowserView: View {
                 }
             }
             .sheet(
-                isPresented: confirmationSheetBinding,
+                isPresented: $store.isConfirmationPresented.sending(\.confirmSheetPresented),
                 onDismiss: { store.send(.confirmSheetDismissed) },
                 content: { confirmationSheetContent }
             )
@@ -109,24 +109,6 @@ extension WebBrowserView {
         )
         .presentationDetents([.medium])
         .presentationDragIndicator(.hidden)
-    }
-}
-
-// MARK: - Helpers
-
-extension WebBrowserView {
-    private var confirmationSheetBinding: Binding<Bool> {
-        Binding(
-            get: {
-                if case .confirmation = store.step { return true }
-                return false
-            },
-            set: { isPresented in
-                if !isPresented, case .confirmation = store.step {
-                    store.send(.confirmationRejected)
-                }
-            }
-        )
     }
 }
 

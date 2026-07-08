@@ -191,6 +191,13 @@ public struct AddExpiryTrackerFeature {
         public var remindDaysBefore: Int = 3
         public var remindOnDay: Bool = false
 
+        /// `Slider`-compatible `Double` projection of `remindDaysBefore`, so the
+        /// reminder slider can bind through `$store` and stay perception-tracked.
+        public var remindDaysBeforeSliderValue: Double {
+            get { Double(remindDaysBefore) }
+            set { remindDaysBefore = Int(newValue.rounded()) }
+        }
+
         public init() {}
 
         public init(
@@ -259,6 +266,7 @@ public struct AddExpiryTrackerFeature {
         case incrementQuantity
         case decrementQuantity
         case backTapped
+        case navigationPathChanged([Route])
         case saveItemTapped
         case itemSaved(Item)
         case saveFailed(String)
@@ -346,6 +354,14 @@ public struct AddExpiryTrackerFeature {
                     break
                 }
                 return .none
+
+            case let .navigationPathChanged(newPath):
+                // Pushes are state-driven, so only react when the user pops (path
+                // shrinks) via the system back button or interactive swipe: a
+                // single-level pop maps to `.backTapped` (which moves the step one
+                // level back), and a pop straight to the root dismisses the flow.
+                guard newPath.count < state.navigationPath.count else { return .none }
+                return .send(newPath.isEmpty ? .dismiss : .backTapped)
 
             case .saveItemTapped:
                 state.isSaving = true
