@@ -45,6 +45,31 @@ extension SettingsView {
             ) {
                 signOutDialogButtons
             }
+            .overlay(alignment: .bottom) { errorToastView }
+    }
+
+    private var errorToastView: some View {
+        WithPerceptionTracking {
+            ZStack(alignment: .bottom) {
+                if let message = store.errorMessage {
+                    RipeToast(
+                        message: message,
+                        onDismiss: { store.send(.errorToastDismissed) },
+                        onRetry: { store.send(.errorToastRetryTapped) }
+                    )
+                    .padding(.horizontal, RipeSpacing.s5)
+                    .padding(.bottom, RipeSpacing.s4)
+                    .transition(.move(edge: .bottom).combined(with: .opacity).combined(with: .scale(
+                        scale: 0.9,
+                        anchor: .bottom
+                    )))
+                }
+            }
+            .animation(
+                .spring(response: 0.35, dampingFraction: 0.7),
+                value: store.errorMessage != nil
+            )
+        }
     }
 
     private var scrollContentView: some View {

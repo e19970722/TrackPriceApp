@@ -41,9 +41,14 @@ struct SettingsFeatureTests {
         }
     }
 
-    @Test("Task failure is silent and leaves default preferences")
-    func taskFailureKeepsDefaults() async {
-        struct FakeError: Error {}
+    private struct FakeError: LocalizedError {
+        var errorDescription: String? {
+            "Could not reach the server"
+        }
+    }
+
+    @Test("Task failure surfaces the error toast and leaves default preferences")
+    func taskFailureShowsToastAndKeepsDefaults() async {
         let store = TestStore(initialState: SettingsFeature.State()) {
             SettingsFeature()
         } withDependencies: {
@@ -51,7 +56,81 @@ struct SettingsFeatureTests {
         }
 
         await store.send(.task)
-        await store.receive(\.meResponse.failure)
+        await store.receive(\.meResponse.failure) {
+            $0.errorMessage = FakeError().localizedDescription
+        }
+    }
+
+    @Test("Dismissing the error toast clears the message and any stashed retry payload")
+    func errorToastDismissClears() async {
+        var toggled = NotificationPreferences.default
+        toggled.priceDrops = false
+
+        var state = SettingsFeature.State()
+        state.errorMessage = "Could not reach the server"
+        state.failedPreferencesUpdate = toggled
+
+        let store = TestStore(initialState: state) {
+            SettingsFeature()
+        }
+
+        await store.send(.errorToastDismissed) {
+            $0.errorMessage = nil
+            $0.failedPreferencesUpdate = nil
+        }
+    }
+
+    @Test("Retry after a load failure re-fetches /users/me")
+    func errorToastRetryRefetchesMe() async {
+        let user = Self.makeUser()
+        var state = SettingsFeature.State()
+        state.errorMessage = "Could not reach the server"
+
+        let store = TestStore(initialState: state) {
+            SettingsFeature()
+        } withDependencies: {
+            $0.apiClient.fetchMe = { user }
+        }
+
+        await store.send(.errorToastRetryTapped) {
+            $0.errorMessage = nil
+        }
+        await store.receive(\.meResponse.success) {
+            $0.user = user
+            $0.preferences = user.notificationPreferences
+        }
+    }
+
+    @Test("Retry after a preference failure re-applies the attempted preferences")
+    func errorToastRetryReappliesFailedPreferences() async {
+        let user = Self.makeUser()
+        var toggled = NotificationPreferences.default
+        toggled.weeklyDigest = true
+        var updatedUser = user
+        updatedUser.notificationPreferences = toggled
+
+        var state = SettingsFeature.State()
+        state.user = user
+        state.preferences = user.notificationPreferences
+        state.errorMessage = "Could not reach the server"
+        state.failedPreferencesUpdate = toggled
+
+        let store = TestStore(initialState: state) {
+            SettingsFeature()
+        } withDependencies: {
+            $0.apiClient.updateNotificationPreferences = { _ in updatedUser }
+        }
+
+        await store.send(.errorToastRetryTapped) {
+            $0.errorMessage = nil
+            $0.failedPreferencesUpdate = nil
+        }
+        await store.receive(\.preferenceToggled) {
+            $0.preferences = toggled
+        }
+        await store.receive(\.preferencesUpdateResponse) {
+            $0.user = updatedUser
+        }
     }
 
     @Test("Toggling a preference updates optimistically and PATCHes the full object")
@@ -79,15 +158,14 @@ struct SettingsFeatureTests {
         await store.send(.preferenceToggled(toggled)) {
             $0.preferences = toggled
         }
-        await store.receive(\.preferencesUpdateResponse.success) {
+        await store.receive(\.preferencesUpdateResponse) {
             $0.user = updatedUser
         }
         #expect(sentPreferences.value == toggled)
     }
 
-    @Test("A failed preference update silently reverts to the last-known server values")
-    func preferenceToggleFailureReverts() async {
-        struct FakeError: Error {}
+    @Test("A failed preference update reverts, surfaces the toast, and stashes the attempt for retry")
+    func preferenceToggleFailureRevertsAndShowsToast() async {
         let user = Self.makeUser()
         var toggled = NotificationPreferences.default
         toggled.weeklyDigest = true
@@ -105,8 +183,10 @@ struct SettingsFeatureTests {
         await store.send(.preferenceToggled(toggled)) {
             $0.preferences = toggled
         }
-        await store.receive(\.preferencesUpdateResponse.failure) {
+        await store.receive(\.preferencesUpdateResponse) {
             $0.preferences = user.notificationPreferences
+            $0.errorMessage = FakeError().localizedDescription
+            $0.failedPreferencesUpdate = toggled
         }
     }
 
