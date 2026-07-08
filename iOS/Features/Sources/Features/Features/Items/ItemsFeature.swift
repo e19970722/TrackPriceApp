@@ -422,6 +422,7 @@ public struct ItemsFeature {
         case fetchItems
         case itemsLoaded([Item])
         case loadFailed(String)
+        case errorToastDismissed
         case addItemButtonTapped
         case addItem(PresentationAction<AddExpiryTrackerFeature.Action>)
         case itemRowTapped(Item)
@@ -455,6 +456,10 @@ public struct ItemsFeature {
             case let .loadFailed(message):
                 state.isLoading = false
                 state.errorMessage = message
+                return .none
+
+            case .errorToastDismissed:
+                state.errorMessage = nil
                 return .none
 
             case .addItemButtonTapped:

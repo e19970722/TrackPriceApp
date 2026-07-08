@@ -5,11 +5,18 @@ public struct ItemsView: View {
     @Perception.Bindable var store: StoreOf<ItemsFeature>
     private let showsHeader: Bool
     private let showsFab: Bool
+    private let showsErrorToast: Bool
 
-    public init(store: StoreOf<ItemsFeature>, showsHeader: Bool = true, showsFab: Bool = true) {
+    public init(
+        store: StoreOf<ItemsFeature>,
+        showsHeader: Bool = true,
+        showsFab: Bool = true,
+        showsErrorToast: Bool = true
+    ) {
         self.store = store
         self.showsHeader = showsHeader
         self.showsFab = showsFab
+        self.showsErrorToast = showsErrorToast
     }
 
     // MARK: - Body
@@ -21,6 +28,7 @@ public struct ItemsView: View {
                 contentList
                     .overlay(alignment: .bottomTrailing) { optionalFab }
             }
+            .overlay(alignment: .bottom) { errorToast }
             .fullScreenCover(item: $store.scope(state: \.addItem, action: \.addItem)) { addStore in
                 AddExpiryTrackerView(store: addStore)
             }
@@ -69,15 +77,7 @@ extension ItemsView {
 
     @ViewBuilder
     private var itemsContent: some View {
-        if store.isLoading {
-            loadingView
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-        } else if let error = store.errorMessage {
-            errorView(message: error)
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-        } else if store.showsEmptyState {
+        if store.items.isEmpty {
             emptyStateView
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
@@ -155,31 +155,28 @@ extension ItemsView {
         }
     }
 
-    private var loadingView: some View {
-        ProgressView("Loading items\u{2026}")
-            .frame(maxWidth: .infinity, minHeight: 200)
-            .customFont(.semibold15)
-            .foregroundStyle(Color(.ripeInk2))
-    }
-
-    private func errorView(message: String) -> some View {
-        VStack(spacing: RipeSpacing.s3) {
-            Image(systemName: "exclamationmark.triangle")
-                .iconFont(.emptyState)
-                .foregroundStyle(Color(.ripeInk3))
-            Text(L10n.Expiry.listErrorMessage)
-                .customFont(.bold19)
-                .foregroundStyle(Color(.ripeInk))
-            Text(message)
-                .customFont(.semibold15)
-                .foregroundStyle(Color(.ripeInk2))
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, RipeSpacing.s5)
-            Button(L10n.Common.retry) { store.send(.fetchItems) }
-                .buttonStyle(.bordered)
+    private var errorToast: some View {
+        WithPerceptionTracking {
+            ZStack(alignment: .bottom) {
+                if showsErrorToast, let message = store.errorMessage {
+                    RipeToast(
+                        message: message,
+                        onDismiss: { store.send(.errorToastDismissed) },
+                        onRetry: {
+                            store.send(.errorToastDismissed)
+                            store.send(.fetchItems)
+                        }
+                    )
+                    .padding(.horizontal, RipeSpacing.s5)
+                    .padding(.bottom, RipeSpacing.s4)
+                    .transition(.move(edge: .bottom).combined(with: .opacity).combined(with: .scale(
+                        scale: 0.9,
+                        anchor: .bottom
+                    )))
+                }
+            }
+            .animation(.spring(response: 0.35, dampingFraction: 0.7), value: store.errorMessage)
         }
-        .frame(maxWidth: .infinity, minHeight: 200)
-        .padding(.horizontal, RipeSpacing.s5)
     }
 
     private var emptyStateView: some View {
