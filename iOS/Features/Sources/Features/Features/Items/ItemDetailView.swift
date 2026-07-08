@@ -3,15 +3,6 @@ import SwiftUI
 
 public struct ItemDetailView: View {
     @Perception.Bindable var store: StoreOf<ItemDetailFeature>
-    @FocusState private var focusedEditField: EditField?
-    @State private var editName: String = ""
-    @State private var editQuantityCount: Int = 1
-    @State private var editLocation: ItemLocation = .fridge
-    @State private var editLocationCustom: String = ""
-    @State private var editBestBeforeDate: Date = .init()
-    @State private var isEditDatePickerPresented: Bool = false
-
-    enum EditField: Hashable { case name, locationCustom }
 
     public init(store: StoreOf<ItemDetailFeature>) {
         self.store = store
@@ -27,33 +18,15 @@ public struct ItemDetailView: View {
                         .ignoresSafeArea()
                     scrollContentView
                 }
-                .navigationTitle(store.isEditing ? L10n.Expiry.navTitleEdit : store.item.name)
+                .navigationTitle(store.item.name)
                 .navigationBarTitleDisplayMode(.inline)
-                .onAppear {
-                    guard store.isEditing else { return }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        focusedEditField = .name
-                    }
-                }
                 .toolbar {
-                    if store.isEditing {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button(L10n.Common.cancel) { store.send(.cancelEditTapped) }
-                        }
-                        ToolbarItem(placement: .confirmationAction) {
-                            Button(store.isSavingEdit ? "Saving\u{2026}" : "Save") {
-                                commitEdit()
-                            }
-                            .disabled(editName.trimmingCharacters(in: .whitespaces).isEmpty || store.isSavingEdit)
-                        }
-                    } else {
-                        ToolbarItem(placement: .confirmationAction) {
-                            Button("Edit") { beginEditing() }
-                        }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button(L10n.Common.edit) { store.send(.editButtonTapped) }
                     }
                 }
-                .sheet(isPresented: $isEditDatePickerPresented) {
-                    editDatePickerSheet
+                .sheet(item: $store.scope(state: \.editItem, action: \.editItem)) { editStore in
+                    editItemSheet(store: editStore)
                 }
             }
         }
@@ -66,27 +39,26 @@ extension ItemDetailView {
     private var scrollContentView: some View {
         ScrollView {
             VStack(spacing: RipeSpacing.s4) {
-                if store.isEditing {
-                    editNameCard
-                    editStoredInCard
-                    editQuantityCard
-                    editBestBeforeDateCard
-                } else {
-                    headerCard
-                    countdownSection
-                    freshnessBarCard
-                    statsGridCard
-                    reminderRowCard
-                    dangerButtonsView
-                }
+                headerCard
+                countdownSection
+                freshnessBarCard
+                statsGridCard
+                reminderRowCard
+                dangerButtonsView
             }
             .padding(.horizontal, RipeSpacing.s5)
             .padding(.top, RipeSpacing.s4)
             .padding(.bottom, RipeSpacing.s7)
-            .contentShape(Rectangle())
-            .onTapGesture { focusedEditField = nil }
         }
-        .scrollDismissesKeyboard(.immediately)
+    }
+
+    // MARK: Edit sheet
+
+    /// Reuses the add-flow item-details form (in edit mode) to edit this item.
+    private func editItemSheet(store editStore: StoreOf<AddExpiryTrackerFeature>) -> some View {
+        NavigationStack {
+            ItemDetailsView(store: editStore)
+        }
     }
 
     // MARK: Header card
@@ -347,178 +319,6 @@ extension ItemDetailView {
         .background(Color(.ripeDangerSoft))
         .clipShape(Capsule())
     }
-
-    // MARK: Edit form
-
-    private var editNameCard: some View {
-        VStack(alignment: .leading, spacing: RipeSpacing.s2) {
-            fieldLabel(L10n.Expiry.fieldItemName)
-            RipeCard {
-                TextField("e.g. Greek Yogurt", text: $editName)
-                    .customFont(.semibold15)
-                    .foregroundStyle(Color(.ripeInk))
-                    .focused($focusedEditField, equals: .name)
-            }
-        }
-    }
-
-    private var editStoredInCard: some View {
-        VStack(alignment: .leading, spacing: RipeSpacing.s2) {
-            fieldLabel(L10n.Expiry.fieldStoredIn)
-            editLocationButtonRow
-            if editLocation == .custom {
-                editCustomLocationTextField
-            }
-        }
-    }
-
-    private var editLocationButtonRow: some View {
-        HStack(spacing: RipeSpacing.s2) {
-            ForEach([ItemLocation.fridge, .pantry, .freezer, .custom], id: \.self) { loc in
-                editLocationButton(loc)
-            }
-        }
-    }
-
-    private func editLocationButton(_ loc: ItemLocation) -> some View {
-        let isSelected = editLocation == loc
-        let image = loc == .custom ? "pencil" : loc.systemImage
-        let label = loc == .custom ? "Others" : loc.displayName
-        return Button {
-            editLocation = loc
-            if loc == .custom { focusedEditField = .locationCustom }
-        } label: {
-            VStack(spacing: 4) {
-                Image(systemName: image)
-                    .iconFont(.md)
-                Text(label)
-                    .customFont(.bold17)
-            }
-            .foregroundStyle(isSelected ? Color(.ripeAccentInk) : Color(.ripeInk3))
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
-            .background(isSelected ? Color(.ripeAccent) : Color(.ripeSurface2))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-        }
-        .buttonStyle(.plain)
-        .animation(.easeInOut(duration: 0.15), value: editLocation)
-    }
-
-    private var editCustomLocationTextField: some View {
-        TextField("Custom spot", text: $editLocationCustom)
-            .customFont(.semibold15)
-            .foregroundStyle(Color(.ripeInk))
-            .focused($focusedEditField, equals: .locationCustom)
-            .tint(Color(.ripeAccent))
-            .padding(.horizontal, RipeSpacing.s3)
-            .padding(.vertical, 12)
-            .background(Color(.ripeSurface2))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-
-    private var editQuantityCard: some View {
-        VStack(alignment: .leading, spacing: RipeSpacing.s2) {
-            fieldLabel(L10n.Expiry.fieldQuantity)
-            RipeCard {
-                HStack {
-                    editDecrementButton
-                    Spacer(minLength: 0)
-                    Text("\(editQuantityCount)")
-                        .customFont(.bold22)
-                        .foregroundStyle(Color(.ripeInk))
-                        .monospacedDigit()
-                    Spacer(minLength: 0)
-                    editIncrementButton
-                }
-            }
-        }
-    }
-
-    private var editDecrementButton: some View {
-        Button {
-            editQuantityCount = max(1, editQuantityCount - 1)
-        } label: {
-            ZStack {
-                Circle().fill(Color(.ripeSurface2))
-                Image(systemName: "minus")
-                    .iconFont(.quantity)
-                    .foregroundStyle(editQuantityCount <= 1 ? Color(.ripeInk3) : Color(.ripeInk))
-            }
-            .frame(width: 40, height: 40)
-            .contentShape(Circle())
-        }
-        .buttonStyle(.plain)
-        .disabled(editQuantityCount <= 1)
-    }
-
-    private var editIncrementButton: some View {
-        Button {
-            editQuantityCount += 1
-        } label: {
-            ZStack {
-                Circle().fill(Color(.ripeAccent))
-                Image(systemName: "plus")
-                    .iconFont(.quantity)
-                    .foregroundStyle(Color(.ripeAccentInk))
-            }
-            .frame(width: 40, height: 40)
-            .contentShape(Circle())
-        }
-        .buttonStyle(.plain)
-    }
-
-    private var editBestBeforeDateCard: some View {
-        VStack(alignment: .leading, spacing: RipeSpacing.s2) {
-            fieldLabel(L10n.Expiry.fieldBestBeforeDate)
-            Button {
-                isEditDatePickerPresented = true
-            } label: {
-                RipeCard {
-                    HStack {
-                        Text(shortDate(editBestBeforeDate))
-                            .customFont(.semibold15)
-                            .foregroundStyle(Color(.ripeInk))
-                        Spacer()
-                        Image(systemName: "calendar")
-                            .foregroundStyle(Color(.ripeInk3))
-                    }
-                }
-            }
-            .buttonStyle(.plain)
-            .contentShape(Rectangle())
-        }
-    }
-
-    private var editDatePickerSheet: some View {
-        NavigationStack {
-            VStack {
-                DatePicker(
-                    L10n.Expiry.fieldBestBeforeDate,
-                    selection: $editBestBeforeDate,
-                    displayedComponents: .date
-                )
-                .datePickerStyle(.graphical)
-                .tint(Color(.ripeAccent))
-                .padding(RipeSpacing.s5)
-            }
-            .navigationTitle(L10n.Expiry.navTitleSelectDate)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(L10n.Common.done) { isEditDatePickerPresented = false }
-                }
-            }
-        }
-        .presentationDetents([.medium])
-    }
-
-    private func fieldLabel(_ title: String) -> some View {
-        Text(title)
-            .customFont(.semibold13)
-            .foregroundStyle(Color(.ripeInk3))
-            .textCase(.uppercase)
-            .tracking(0.5)
-    }
 }
 
 // MARK: - Helpers
@@ -556,28 +356,6 @@ extension ItemDetailView {
             .foregroundStyle(Color(.ripeInk3))
             .tracking(0.5)
             .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    private func beginEditing() {
-        editName = store.item.name
-        editQuantityCount = Int(store.item.quantity ?? "1") ?? 1
-        editLocation = store.item.location
-        editLocationCustom = store.item.locationCustom ?? ""
-        editBestBeforeDate = store.item.bestBeforeDate
-        store.send(.editButtonTapped)
-    }
-
-    private func commitEdit() {
-        let input = ItemIn(
-            name: editName.trimmingCharacters(in: .whitespaces),
-            quantity: String(editQuantityCount),
-            location: editLocation,
-            locationCustom: editLocation == .custom ? editLocationCustom : nil,
-            bestBeforeDate: editBestBeforeDate.dateOnly,
-            remindDaysBefore: store.item.remindDaysBefore,
-            remindOnDay: store.item.remindOnDay
-        )
-        store.send(.saveEditTapped(input))
     }
 }
 

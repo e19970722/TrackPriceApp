@@ -41,6 +41,7 @@ public enum L10n {
         public static let done = L10n.tr("common.done", fallback: "Done")
         public static let back = L10n.tr("common.back", fallback: "Back")
         public static let retry = L10n.tr("common.retry", fallback: "Retry")
+        public static let edit = L10n.tr("common.edit", fallback: "Edit")
     }
 
     // MARK: - Home

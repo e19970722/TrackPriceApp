@@ -15,8 +15,7 @@ public struct ItemDetailFeature {
         public var isDeleting: Bool = false
         public var isMarkingUsed: Bool = false
         public var isEditingReminder: Bool = false
-        public var isEditing: Bool = false
-        public var isSavingEdit: Bool = false
+        @Presents public var editItem: AddExpiryTrackerFeature.State?
 
         public init(item: Item) {
             self.item = item
@@ -37,14 +36,13 @@ public struct ItemDetailFeature {
         case delegate(Delegate)
         case dismissTapped
         case editButtonTapped
-        case cancelEditTapped
-        case saveEditTapped(ItemIn)
-        case editSaved(Item)
+        case editItem(PresentationAction<AddExpiryTrackerFeature.Action>)
     }
 
     public enum Delegate {
         case itemDeleted
         case itemMarkedUsed
+        case itemUpdated(Item)
     }
 
     @Dependency(\.apiClient) var apiClient
@@ -104,35 +102,21 @@ public struct ItemDetailFeature {
             case .operationFailed:
                 state.isDeleting = false
                 state.isMarkingUsed = false
-                state.isSavingEdit = false
                 return .none
 
             case .dismissTapped:
                 return .run { _ in await dismiss() }
 
             case .editButtonTapped:
-                state.isEditing = true
+                state.editItem = AddExpiryTrackerFeature.State(editing: state.item)
                 return .none
 
-            case .cancelEditTapped:
-                state.isEditing = false
-                return .none
-
-            case let .saveEditTapped(input):
-                state.isSavingEdit = true
-                return .run { [id = state.item.id] send in
-                    do {
-                        let updated = try await apiClient.updateItem(id, input)
-                        await send(.editSaved(updated))
-                    } catch {
-                        await send(.operationFailed(error.localizedDescription))
-                    }
-                }
-
-            case let .editSaved(updated):
+            case let .editItem(.presented(.delegate(.itemUpdated(updated)))):
                 state.item = updated
-                state.isEditing = false
-                state.isSavingEdit = false
+                state.editItem = nil
+                return .send(.delegate(.itemUpdated(updated)))
+
+            case .editItem:
                 return .none
 
             case let .reminderUpdated(updatedItem):
@@ -148,6 +132,9 @@ public struct ItemDetailFeature {
                 return .none
             }
         }
+        .ifLet(\.$editItem, action: \.editItem) {
+            AddExpiryTrackerFeature()
+        }
     }
 }
 
@@ -155,6 +142,13 @@ public struct ItemDetailFeature {
 
 @Reducer
 public struct AddExpiryTrackerFeature {
+    /// Whether the feature creates a brand-new item (full add flow) or edits an
+    /// existing one (item-details form only, saved through the update API).
+    public enum Mode: Equatable {
+        case add
+        case edit(Item)
+    }
+
     public enum Step: Equatable {
         case chooseMethod
         case scanLabel
@@ -174,6 +168,7 @@ public struct AddExpiryTrackerFeature {
 
     @ObservableState
     public struct State: Equatable {
+        public var mode: Mode = .add
         public var step: Step = .chooseMethod
         public var isSaving: Bool = false
         public var saveError: String?
@@ -218,6 +213,38 @@ public struct AddExpiryTrackerFeature {
             self.isDateFromScan = isDateFromScan
             self.remindDaysBefore = remindDaysBefore
             self.remindOnDay = remindOnDay
+        }
+
+        /// Edit mode: prefills the item-details form from an existing item and
+        /// jumps straight to the `.itemDetails` step.
+        public init(editing item: Item) {
+            mode = .edit(item)
+            step = .itemDetails(scannedDate: nil, ocrString: nil)
+            itemName = item.name
+            quantity = item.quantity ?? "1"
+            location = item.location
+            locationCustom = item.locationCustom ?? ""
+            bestBeforeDate = item.bestBeforeDate
+            remindDaysBefore = item.remindDaysBefore
+            remindOnDay = item.remindOnDay
+        }
+
+        public var isEditing: Bool {
+            guard case .edit = mode else { return false }
+            return true
+        }
+
+        /// The API request body built from the current form fields.
+        var itemInput: ItemIn {
+            ItemIn(
+                name: itemName.trimmingCharacters(in: .whitespaces),
+                quantity: quantity.isEmpty ? nil : quantity,
+                location: location,
+                locationCustom: locationCustom.isEmpty ? nil : locationCustom,
+                bestBeforeDate: bestBeforeDate.dateOnly,
+                remindDaysBefore: remindDaysBefore,
+                remindOnDay: remindOnDay
+            )
         }
 
         /// Drives the flow's `NavigationStack`, derived purely from `step` (and
@@ -269,10 +296,16 @@ public struct AddExpiryTrackerFeature {
         case navigationPathChanged([Route])
         case saveItemTapped
         case itemSaved(Item)
+        case itemUpdated(Item)
         case saveFailed(String)
         case viewItemTapped(Item)
         case addAnotherTapped
         case dismiss
+        case delegate(Delegate)
+    }
+
+    public enum Delegate: Equatable {
+        case itemUpdated(Item)
     }
 
     @Dependency(\.apiClient) var apiClient
@@ -306,6 +339,20 @@ public struct AddExpiryTrackerFeature {
                 return .none
 
             case .continueTapped:
+                // Edit mode has no reminder step: the primary button saves the
+                // changes straight through the update API.
+                if case let .edit(original) = state.mode {
+                    state.isSaving = true
+                    state.saveError = nil
+                    return .run { [id = original.id, input = state.itemInput] send in
+                        do {
+                            let updated = try await apiClient.updateItem(id, input)
+                            await send(.itemUpdated(updated))
+                        } catch {
+                            await send(.saveFailed(error.localizedDescription))
+                        }
+                    }
+                }
                 let draft = Item(
                     name: state.itemName,
                     quantity: state.quantity.isEmpty ? nil : state.quantity,
@@ -366,16 +413,7 @@ public struct AddExpiryTrackerFeature {
             case .saveItemTapped:
                 state.isSaving = true
                 state.saveError = nil
-                let input = ItemIn(
-                    name: state.itemName,
-                    quantity: state.quantity.isEmpty ? nil : state.quantity,
-                    location: state.location,
-                    locationCustom: state.locationCustom.isEmpty ? nil : state.locationCustom,
-                    bestBeforeDate: state.bestBeforeDate.dateOnly,
-                    remindDaysBefore: state.remindDaysBefore,
-                    remindOnDay: state.remindOnDay
-                )
-                return .run { send in
+                return .run { [input = state.itemInput] send in
                     do {
                         let saved = try await apiClient.createItem(input)
                         await send(.itemSaved(saved))
@@ -388,6 +426,10 @@ public struct AddExpiryTrackerFeature {
                 state.isSaving = false
                 state.step = .saved(item)
                 return .none
+
+            case let .itemUpdated(item):
+                state.isSaving = false
+                return .send(.delegate(.itemUpdated(item)))
 
             case let .saveFailed(message):
                 state.isSaving = false
@@ -403,6 +445,9 @@ public struct AddExpiryTrackerFeature {
 
             case .dismiss:
                 return .run { _ in await dismiss() }
+
+            case .delegate:
+                return .none
             }
         }
     }
@@ -504,6 +549,9 @@ public struct ItemsFeature {
             case .selectedItem(.presented(.delegate(.itemDeleted))),
                  .selectedItem(.presented(.delegate(.itemMarkedUsed))):
                 state.selectedItem = nil
+                return .send(.fetchItems)
+
+            case .selectedItem(.presented(.delegate(.itemUpdated))):
                 return .send(.fetchItems)
 
             case .selectedItem:

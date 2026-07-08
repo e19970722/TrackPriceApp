@@ -273,6 +273,98 @@ final class AddExpiryTrackerFeatureTests: XCTestCase {
         }
     }
 
+    func testEditingInitPrefillsFormFromItem() {
+        let item = Item(
+            name: "Greek Yogurt",
+            quantity: "2 cups",
+            location: .custom,
+            locationCustom: "Wine fridge",
+            bestBeforeDate: Date(timeIntervalSinceReferenceDate: 6_000_000),
+            remindDaysBefore: 5,
+            remindOnDay: true
+        )
+
+        let state = AddExpiryTrackerFeature.State(editing: item)
+
+        XCTAssertEqual(state.mode, .edit(item))
+        XCTAssertTrue(state.isEditing)
+        XCTAssertEqual(state.step, .itemDetails(scannedDate: nil, ocrString: nil))
+        XCTAssertEqual(state.itemName, "Greek Yogurt")
+        XCTAssertEqual(state.quantity, "2 cups")
+        XCTAssertEqual(state.location, .custom)
+        XCTAssertEqual(state.locationCustom, "Wine fridge")
+        XCTAssertEqual(state.bestBeforeDate, item.bestBeforeDate)
+        XCTAssertEqual(state.remindDaysBefore, 5)
+        XCTAssertTrue(state.remindOnDay)
+    }
+
+    func testContinueTappedInEditModeUpdatesItemAndEmitsDelegate() async {
+        let original = Item(
+            name: "Milk",
+            quantity: "1 litre",
+            location: .fridge,
+            bestBeforeDate: Date(timeIntervalSinceReferenceDate: 7_000_000),
+            remindDaysBefore: 4,
+            remindOnDay: true
+        )
+        var updated = original
+        updated.name = "Oat Milk"
+
+        var initial = AddExpiryTrackerFeature.State(editing: original)
+        initial.itemName = "Oat Milk"
+
+        let receivedID = LockIsolated<UUID?>(nil)
+        let receivedInput = LockIsolated<ItemIn?>(nil)
+        let store = TestStore(initialState: initial) {
+            AddExpiryTrackerFeature()
+        } withDependencies: {
+            $0.apiClient.updateItem = { id, input in
+                receivedID.setValue(id)
+                receivedInput.setValue(input)
+                return updated
+            }
+        }
+
+        await store.send(.continueTapped) {
+            $0.isSaving = true
+            $0.saveError = nil
+        }
+        await store.receive(\.itemUpdated) {
+            $0.isSaving = false
+        }
+        await store.receive(\.delegate)
+
+        XCTAssertEqual(receivedID.value, original.id)
+        XCTAssertEqual(receivedInput.value?.name, "Oat Milk")
+        // Reminder settings are not editable from the item-details form and must
+        // be preserved from the existing item.
+        XCTAssertEqual(receivedInput.value?.remindDaysBefore, 4)
+        XCTAssertEqual(receivedInput.value?.remindOnDay, true)
+    }
+
+    func testContinueTappedInEditModeHandlesNetworkError() async {
+        struct FakeError: Error, LocalizedError {
+            var errorDescription: String? {
+                "Network down"
+            }
+        }
+
+        let original = Item(name: "Milk", bestBeforeDate: Date().addingTimeInterval(86400))
+        let store = TestStore(initialState: AddExpiryTrackerFeature.State(editing: original)) {
+            AddExpiryTrackerFeature()
+        } withDependencies: {
+            $0.apiClient.updateItem = { _, _ in throw FakeError() }
+        }
+
+        await store.send(.continueTapped) {
+            $0.isSaving = true
+        }
+        await store.receive(\.saveFailed) {
+            $0.isSaving = false
+            $0.saveError = "Network down"
+        }
+    }
+
     func testAddAnotherResetsState() async {
         let item = Item(name: "Eggs", location: .fridge, bestBeforeDate: Date().addingTimeInterval(86400))
         var initial = AddExpiryTrackerFeature.State(itemName: "Eggs")
@@ -427,6 +519,31 @@ final class ItemsFeatureTests: XCTestCase {
             $0.selectedItem = ItemDetailFeature.State(item: item)
         }
     }
+
+    func testItemUpdatedDelegateRefreshesItems() async {
+        let item = Item(name: "Yogurt", bestBeforeDate: Date().addingTimeInterval(3 * 86400))
+        var updated = item
+        updated.name = "Greek Yogurt"
+
+        var initial = ItemsFeature.State(items: [item])
+        initial.selectedItem = ItemDetailFeature.State(item: item)
+
+        let store = TestStore(initialState: initial) {
+            ItemsFeature()
+        } withDependencies: {
+            $0.apiClient.fetchItems = { [updated] }
+        }
+
+        await store.send(.selectedItem(.presented(.delegate(.itemUpdated(updated)))))
+        await store.receive(\.fetchItems) {
+            $0.isLoading = true
+            $0.errorMessage = nil
+        }
+        await store.receive(\.itemsLoaded) {
+            $0.isLoading = false
+            $0.items = [updated]
+        }
+    }
 }
 
 // MARK: - AddExpiryTrackerBindingNavigationTests
@@ -529,6 +646,37 @@ final class ItemDetailFeatureTests: XCTestCase {
         }
         await store.receive(\.markUsedSucceeded) {
             $0.isMarkingUsed = false
+        }
+        await store.receive(\.delegate)
+    }
+
+    func testEditButtonTappedPresentsEditForm() async {
+        let item = Item(name: "Yogurt", bestBeforeDate: Date().addingTimeInterval(3 * 86400))
+
+        let store = TestStore(initialState: ItemDetailFeature.State(item: item)) {
+            ItemDetailFeature()
+        }
+
+        await store.send(.editButtonTapped) {
+            $0.editItem = AddExpiryTrackerFeature.State(editing: item)
+        }
+    }
+
+    func testEditDelegateUpdatesItemDismissesFormAndNotifiesParent() async {
+        let item = Item(name: "Yogurt", bestBeforeDate: Date().addingTimeInterval(3 * 86400))
+        var updated = item
+        updated.name = "Greek Yogurt"
+
+        var initial = ItemDetailFeature.State(item: item)
+        initial.editItem = AddExpiryTrackerFeature.State(editing: item)
+
+        let store = TestStore(initialState: initial) {
+            ItemDetailFeature()
+        }
+
+        await store.send(.editItem(.presented(.delegate(.itemUpdated(updated))))) {
+            $0.item = updated
+            $0.editItem = nil
         }
         await store.receive(\.delegate)
     }
