@@ -21,6 +21,9 @@ public struct ItemDetailView: View {
                 .navigationTitle(store.item.name)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button(L10n.Common.close) { store.send(.closeButtonTapped) }
+                    }
                     ToolbarItem(placement: .confirmationAction) {
                         Button(L10n.Common.edit) { store.send(.editButtonTapped) }
                     }

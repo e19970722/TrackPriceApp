@@ -34,7 +34,7 @@ public struct ItemDetailFeature {
         case reminderUpdated(Item)
         case reminderEditDismissed
         case delegate(Delegate)
-        case dismissTapped
+        case closeButtonTapped
         case editButtonTapped
         case editItem(PresentationAction<AddExpiryTrackerFeature.Action>)
     }
@@ -104,7 +104,7 @@ public struct ItemDetailFeature {
                 state.isMarkingUsed = false
                 return .none
 
-            case .dismissTapped:
+            case .closeButtonTapped:
                 return .run { _ in await dismiss() }
 
             case .editButtonTapped:

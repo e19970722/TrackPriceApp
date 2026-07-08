@@ -38,6 +38,7 @@ public enum L10n {
 
     public enum Common {
         public static let cancel = L10n.tr("common.cancel", fallback: "Cancel")
+        public static let close = L10n.tr("common.close", fallback: "Close")
         public static let done = L10n.tr("common.done", fallback: "Done")
         public static let back = L10n.tr("common.back", fallback: "Back")
         public static let retry = L10n.tr("common.retry", fallback: "Retry")
