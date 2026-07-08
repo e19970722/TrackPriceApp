@@ -155,6 +155,10 @@ extension TrackerDetailView {
     @ViewBuilder
     private var priceLineChart: some View {
         if #available(iOS 16.0, *) {
+            // `AxisValueLabel`'s content closure is evaluated outside the `body`
+            // tracking scope and cannot be wrapped in `WithPerceptionTracking`, so
+            // capture the symbol here, where the read is tracked.
+            let currencySymbol = store.tracker.currencySymbol
             Chart {
                 ForEach(store.history) { snapshot in
                     LineMark(
@@ -193,7 +197,7 @@ extension TrackerDetailView {
                     AxisGridLine()
                     AxisValueLabel {
                         if let price = value.as(Double.self) {
-                            Text("\(store.tracker.currencySymbol)\(String(format: "%.0f", price))")
+                            Text("\(currencySymbol)\(String(format: "%.0f", price))")
                                 .customFont(.medium10)
                         }
                     }
@@ -232,14 +236,18 @@ extension TrackerDetailView {
 
     private var statsGridView: some View {
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-            StatCell(title: L10n.TrackerDetail.statUrl, value: store.tracker.url, truncate: true)
-            StatCell(title: L10n.TrackerDetail.statCreated, value: formattedDate(store.tracker.createdAt))
-            if let lastChecked = store.tracker.lastCheckedAt {
-                StatCell(title: L10n.TrackerDetail.statLastChecked, value: formattedDate(lastChecked))
-            } else {
-                StatCell(title: L10n.TrackerDetail.statLastChecked, value: L10n.TrackerDetail.lastCheckedNever)
+            // `LazyVGrid` evaluates its content lazily, outside the `body` tracking
+            // scope, so the store reads below need their own `WithPerceptionTracking`.
+            WithPerceptionTracking {
+                StatCell(title: L10n.TrackerDetail.statUrl, value: store.tracker.url, truncate: true)
+                StatCell(title: L10n.TrackerDetail.statCreated, value: formattedDate(store.tracker.createdAt))
+                if let lastChecked = store.tracker.lastCheckedAt {
+                    StatCell(title: L10n.TrackerDetail.statLastChecked, value: formattedDate(lastChecked))
+                } else {
+                    StatCell(title: L10n.TrackerDetail.statLastChecked, value: L10n.TrackerDetail.lastCheckedNever)
+                }
+                StatCell(title: L10n.TrackerDetail.statNextCheck, value: nextCheckLabel(store.tracker.nextCheckedAt))
             }
-            StatCell(title: L10n.TrackerDetail.statNextCheck, value: nextCheckLabel(store.tracker.nextCheckedAt))
         }
     }
 }
