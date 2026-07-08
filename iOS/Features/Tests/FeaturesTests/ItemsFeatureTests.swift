@@ -332,7 +332,7 @@ final class AddExpiryTrackerFeatureTests: XCTestCase {
         await store.receive(\.itemUpdated) {
             $0.isSaving = false
         }
-        await store.receive(\.delegate)
+        await store.receive(\.delegate.itemUpdated, updated)
 
         XCTAssertEqual(receivedID.value, original.id)
         XCTAssertEqual(receivedInput.value?.name, "Oat Milk")
@@ -340,6 +340,45 @@ final class AddExpiryTrackerFeatureTests: XCTestCase {
         // be preserved from the existing item.
         XCTAssertEqual(receivedInput.value?.remindDaysBefore, 4)
         XCTAssertEqual(receivedInput.value?.remindOnDay, true)
+    }
+
+    func testEditModeSwitchingAwayFromCustomLocationDropsStaleCustomText() async {
+        let original = Item(
+            name: "Riesling",
+            location: .custom,
+            locationCustom: "Wine fridge",
+            bestBeforeDate: Date(timeIntervalSinceReferenceDate: 8_000_000)
+        )
+        var updated = original
+        updated.location = .fridge
+        updated.locationCustom = nil
+
+        // The selector keeps the custom text when switching away from `.custom`,
+        // so the state still carries "Wine fridge" after picking Fridge.
+        var initial = AddExpiryTrackerFeature.State(editing: original)
+        initial.location = .fridge
+
+        let receivedInput = LockIsolated<ItemIn?>(nil)
+        let store = TestStore(initialState: initial) {
+            AddExpiryTrackerFeature()
+        } withDependencies: {
+            $0.apiClient.updateItem = { _, input in
+                receivedInput.setValue(input)
+                return updated
+            }
+        }
+
+        await store.send(.continueTapped) {
+            $0.isSaving = true
+            $0.saveError = nil
+        }
+        await store.receive(\.itemUpdated) {
+            $0.isSaving = false
+        }
+        await store.receive(\.delegate.itemUpdated, updated)
+
+        XCTAssertEqual(receivedInput.value?.location, .fridge)
+        XCTAssertNil(receivedInput.value?.locationCustom)
     }
 
     func testContinueTappedInEditModeHandlesNetworkError() async {
@@ -678,7 +717,26 @@ final class ItemDetailFeatureTests: XCTestCase {
             $0.item = updated
             $0.editItem = nil
         }
-        await store.receive(\.delegate)
+        await store.receive(\.delegate.itemUpdated, updated)
+    }
+
+    func testEditFormCancelDismissesAndClearsEditState() async {
+        let item = Item(name: "Yogurt", bestBeforeDate: Date().addingTimeInterval(3 * 86400))
+
+        var initial = ItemDetailFeature.State(item: item)
+        initial.editItem = AddExpiryTrackerFeature.State(editing: item)
+
+        let store = TestStore(initialState: initial) {
+            ItemDetailFeature()
+        }
+
+        // The Cancel button sends `.dismiss`, whose effect calls the child's
+        // `dismiss` dependency; `ifLet` turns that into `.editItem(.dismiss)`
+        // and clears the presented edit state.
+        await store.send(.editItem(.presented(.dismiss)))
+        await store.receive(\.editItem.dismiss) {
+            $0.editItem = nil
+        }
     }
 
     func testDeleteFailureClearsLoadingState() async {

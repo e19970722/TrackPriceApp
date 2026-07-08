@@ -23,8 +23,12 @@ public struct ItemDetailsView: View {
                 .ripeFlowScreen(
                     title: store.isEditing ? L10n.Expiry.navTitleEdit : L10n.Expiry.navTitleItemDetails,
                     leadingTitle: store.isEditing ? L10n.Common.cancel : L10n.Common.back,
+                    leadingDisabled: store.isSaving,
                     onLeading: { store.send(store.isEditing ? .dismiss : .backTapped) }
                 )
+                // Cancelling mid-save could drop the response of an update the
+                // server already applied, leaving stale UI behind.
+                .interactiveDismissDisabled(store.isSaving)
                 .onAppear {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                         focusedField = .name

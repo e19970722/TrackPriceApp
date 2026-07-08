@@ -6,15 +6,22 @@ extension View {
     func ripeFlowScreen(
         title: String,
         leadingTitle: String,
+        leadingDisabled: Bool = false,
         onLeading: @escaping () -> Void
     ) -> some View {
-        modifier(RipeFlowScreen(title: title, leadingTitle: leadingTitle, onLeading: onLeading))
+        modifier(RipeFlowScreen(
+            title: title,
+            leadingTitle: leadingTitle,
+            leadingDisabled: leadingDisabled,
+            onLeading: onLeading
+        ))
     }
 }
 
 private struct RipeFlowScreen: ViewModifier {
     let title: String
     let leadingTitle: String
+    let leadingDisabled: Bool
     let onLeading: () -> Void
 
     func body(content: Content) -> some View {
@@ -26,6 +33,7 @@ private struct RipeFlowScreen: ViewModifier {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(leadingTitle, action: onLeading)
+                        .disabled(leadingDisabled)
                 }
             }
     }

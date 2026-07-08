@@ -234,13 +234,22 @@ public struct AddExpiryTrackerFeature {
             return true
         }
 
+        /// The item name with surrounding whitespace removed — the single source
+        /// of truth for both the reminder-step draft and the API request body.
+        var trimmedItemName: String {
+            itemName.trimmingCharacters(in: .whitespaces)
+        }
+
         /// The API request body built from the current form fields.
         var itemInput: ItemIn {
+            // `locationCustom` may hold stale text from a previous `.custom`
+            // selection (the selector keeps it when switching away), so only
+            // send it when the custom location is actually selected.
             ItemIn(
-                name: itemName.trimmingCharacters(in: .whitespaces),
+                name: trimmedItemName,
                 quantity: quantity.isEmpty ? nil : quantity,
                 location: location,
-                locationCustom: locationCustom.isEmpty ? nil : locationCustom,
+                locationCustom: location == .custom && !locationCustom.isEmpty ? locationCustom : nil,
                 bestBeforeDate: bestBeforeDate.dateOnly,
                 remindDaysBefore: remindDaysBefore,
                 remindOnDay: remindOnDay
@@ -354,7 +363,7 @@ public struct AddExpiryTrackerFeature {
                     }
                 }
                 let draft = Item(
-                    name: state.itemName,
+                    name: state.trimmedItemName,
                     quantity: state.quantity.isEmpty ? nil : state.quantity,
                     location: state.location,
                     locationCustom: state.locationCustom.isEmpty ? nil : state.locationCustom,
