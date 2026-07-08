@@ -3,17 +3,20 @@ import SwiftUI
 
 public struct ItemsView: View {
     @Perception.Bindable var store: StoreOf<ItemsFeature>
+    private let searchText: String
     private let showsHeader: Bool
     private let showsFab: Bool
     private let showsErrorToast: Bool
 
     public init(
         store: StoreOf<ItemsFeature>,
+        searchText: String = "",
         showsHeader: Bool = true,
         showsFab: Bool = true,
         showsErrorToast: Bool = true
     ) {
         self.store = store
+        self.searchText = searchText
         self.showsHeader = showsHeader
         self.showsFab = showsFab
         self.showsErrorToast = showsErrorToast
@@ -83,8 +86,12 @@ extension ItemsView {
                 emptyStateView
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
+            } else if filteredItems.isEmpty {
+                SearchNoResultsView(query: searchText)
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
             } else {
-                ForEach(store.items) { item in
+                ForEach(filteredItems) { item in
                     itemRow(item)
                 }
             }
@@ -209,6 +216,11 @@ extension ItemsView {
 // MARK: - Helpers
 
 extension ItemsView {
+    private var filteredItems: [Item] {
+        guard !searchText.isEmpty else { return store.items }
+        return store.items.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+    }
+
     private func freshnessColor(_ freshness: Freshness) -> Color {
         switch freshness {
         case .fresh:    Color(.ripeGood)

@@ -151,6 +151,7 @@ extension TrackerListView {
         } else {
             ItemsView(
                 store: store.scope(state: \.items, action: \.items),
+                searchText: searchText,
                 showsHeader: false,
                 showsFab: false,
                 showsErrorToast: false
@@ -184,7 +185,7 @@ extension TrackerListView {
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
             } else if filteredTrackers.isEmpty {
-                noResultsView(query: searchText)
+                SearchNoResultsView(query: searchText)
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
             } else {
@@ -279,21 +280,6 @@ extension TrackerListView {
             title: L10n.TrackerList.emptyTitle,
             message: L10n.TrackerList.emptyMessage
         )
-    }
-
-    private func noResultsView(query: String) -> some View {
-        VStack(spacing: RipeSpacing.s3) {
-            Image(systemName: "magnifyingglass")
-                .iconFont(.emptyState)
-                .foregroundStyle(Color(.ripeInk3))
-            Text(L10n.TrackerList.noResults(query))
-                .customFont(.semibold15)
-                .foregroundStyle(Color(.ripeInk2))
-                .multilineTextAlignment(.center)
-                .lineLimit(2)
-        }
-        .frame(maxWidth: .infinity, minHeight: 200)
-        .padding(.horizontal, RipeSpacing.s5)
     }
 
     private var expiryErrorToast: some View {
