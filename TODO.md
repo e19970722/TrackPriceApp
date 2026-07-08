@@ -27,6 +27,10 @@ Check them off as you go.
 - [ ] Provision a Redis instance
 - [ ] Set up environment variables in the hosting dashboard
 
+## Profile Tab Follow-ups (PRs #109 / #110, merged 2026-07-08)
+- [ ] Run `alembic upgrade head` on the backend deployment — adds the `display_name` and `notify_*` columns required by `/users/me`
+- [ ] Replace placeholder values in iOS `Config.swift`: `supportEmail` (`support@trackprice.app`) and `privacyPolicyURL` (`https://trackprice.app/privacy`) with real ones before release
+
 ## When All Done
 Once the above are complete, let Claude Code know — it will remind you to wire the credentials
 into the backend config and the iOS `Config.xcconfig` before the first end-to-end test.
