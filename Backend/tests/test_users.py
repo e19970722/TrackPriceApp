@@ -24,9 +24,14 @@ def _fake_user() -> MagicMock:
     u = MagicMock(spec=User)
     u.id = FAKE_USER_ID
     u.email = "test@example.com"
+    u.display_name = "Sam Rivers"
     u.subscription_tier = "free"
     u.auth_provider = "apple"
     u.apns_token = None
+    u.notify_price_drops = True
+    u.notify_expiring_soon = True
+    u.notify_running_low = True
+    u.notify_weekly_digest = False
     return u
 
 
@@ -83,8 +88,17 @@ async def test_get_me_returns_user():
     data = response.json()
     assert data["id"] == str(FAKE_USER_ID)
     assert data["email"] == "test@example.com"
+    assert data["display_name"] == "Sam Rivers"
     assert data["subscription_tier"] == "free"
     assert data["auth_provider"] == "apple"
+    assert data["notification_preferences"] == {
+        "price_drops": True,
+        "expiring_soon": True,
+        "running_low": True,
+        "weekly_digest": False,
+    }
+    # Flat columns must not leak into the response body.
+    assert "notify_price_drops" not in data
 
 
 @pytest.mark.asyncio
@@ -105,3 +119,77 @@ async def test_patch_me_updates_apns_token():
     assert user.apns_token == "device-token-123"
     session.commit.assert_awaited_once()
     session.refresh.assert_awaited_once_with(user)
+
+
+@pytest.mark.asyncio
+async def test_patch_me_partial_notification_preferences_merge():
+    """Patching one preference key leaves the others unchanged."""
+    user = _fake_user()
+    session = _mock_db(user)
+    _override_auth(user)
+    _override_db(session)
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.patch(
+            "/users/me",
+            json={"notification_preferences": {"weekly_digest": True}},
+            headers={"Authorization": "Bearer fake"},
+        )
+
+    assert response.status_code == 200
+    assert user.notify_weekly_digest is True
+    # Omitted keys untouched
+    assert user.notify_price_drops is True
+    assert user.notify_expiring_soon is True
+    assert user.notify_running_low is True
+    data = response.json()
+    assert data["notification_preferences"] == {
+        "price_drops": True,
+        "expiring_soon": True,
+        "running_low": True,
+        "weekly_digest": True,
+    }
+
+
+@pytest.mark.asyncio
+async def test_patch_me_disable_price_drops():
+    user = _fake_user()
+    session = _mock_db(user)
+    _override_auth(user)
+    _override_db(session)
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.patch(
+            "/users/me",
+            json={"notification_preferences": {"price_drops": False}},
+            headers={"Authorization": "Bearer fake"},
+        )
+
+    assert response.status_code == 200
+    assert user.notify_price_drops is False
+    assert response.json()["notification_preferences"]["price_drops"] is False
+
+
+@pytest.mark.asyncio
+async def test_patch_me_apns_token_and_preferences_in_one_body():
+    user = _fake_user()
+    session = _mock_db(user)
+    _override_auth(user)
+    _override_db(session)
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.patch(
+            "/users/me",
+            json={
+                "apns_token": "device-token-456",
+                "notification_preferences": {"expiring_soon": False},
+            },
+            headers={"Authorization": "Bearer fake"},
+        )
+
+    assert response.status_code == 200
+    assert user.apns_token == "device-token-456"
+    assert user.notify_expiring_soon is False
+    assert user.notify_price_drops is True
+    data = response.json()
+    assert data["notification_preferences"]["expiring_soon"] is False

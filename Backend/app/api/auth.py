@@ -23,6 +23,9 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 class AppleTokenRequest(BaseModel):
     token: str
+    # Apple only exposes the user's name in the first-sign-in credential,
+    # so the client forwards it explicitly.
+    full_name: Optional[str] = None
 
 
 class GoogleTokenRequest(BaseModel):
@@ -38,6 +41,7 @@ async def _upsert_user(
     auth_provider: str,
     auth_provider_id: str,
     email: Optional[str],
+    display_name: Optional[str],
 ) -> User:
     result = await db.execute(
         select(User).where(
@@ -51,8 +55,22 @@ async def _upsert_user(
             auth_provider=auth_provider,
             auth_provider_id=auth_provider_id,
             email=email,
+            display_name=display_name,
         )
         db.add(user)
+        await db.commit()
+        await db.refresh(user)
+        return user
+
+    # Backfill fields that were unavailable on earlier sign-ins.
+    changed = False
+    if user.email is None and email:
+        user.email = email
+        changed = True
+    if user.display_name is None and display_name:
+        user.display_name = display_name
+        changed = True
+    if changed:
         await db.commit()
         await db.refresh(user)
     return user
@@ -79,7 +97,7 @@ async def apple_sign_in(
             detail="Apple token missing 'sub' claim",
         )
 
-    user = await _upsert_user(db, "apple", apple_sub, email)
+    user = await _upsert_user(db, "apple", apple_sub, email, body.full_name)
     return TokenResponse(token=create_access_token(user.id))
 
 
@@ -97,6 +115,7 @@ async def google_sign_in(
 
     google_sub: Optional[str] = claims.get("sub")
     email: Optional[str] = claims.get("email")
+    name: Optional[str] = claims.get("name")
 
     if not google_sub:
         raise HTTPException(
@@ -104,5 +123,5 @@ async def google_sign_in(
             detail="Google token missing 'sub' claim",
         )
 
-    user = await _upsert_user(db, "google", google_sub, email)
+    user = await _upsert_user(db, "google", google_sub, email, name)
     return TokenResponse(token=create_access_token(user.id))

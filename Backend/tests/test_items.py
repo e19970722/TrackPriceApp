@@ -487,10 +487,10 @@ async def test_reminder_task_sends_advance_push() -> None:
     )
 
     session = _mock_session_multi(advance_items=[item], today_items=[])
-    # Simulate get_apns_token returning a token
+    # Simulate get_push_info returning (apns_token, price_drops, expiring_soon)
     token_result = MagicMock()
-    token_result.scalar_one_or_none.return_value = "device-token-abc"
-    # First execute call → advance items, second → today items, third → apns token
+    token_result.one_or_none.return_value = ("device-token-abc", True, True)
+    # First execute call → advance items, second → today items, third → push info
     session.execute.side_effect = [
         MagicMock(**{"scalars.return_value.all.return_value": [item]}),
         MagicMock(**{"scalars.return_value.all.return_value": []}),
@@ -529,13 +529,13 @@ async def test_reminder_task_sends_today_push() -> None:
     )
 
     token_result = MagicMock()
-    token_result.scalar_one_or_none.return_value = "device-token-xyz"
+    token_result.one_or_none.return_value = ("device-token-xyz", True, True)
 
     session = AsyncMock()
     session.execute.side_effect = [
         MagicMock(**{"scalars.return_value.all.return_value": []}),  # advance items
         MagicMock(**{"scalars.return_value.all.return_value": [item]}),  # today items
-        token_result,  # apns token
+        token_result,  # push info
     ]
 
     with (
@@ -569,12 +569,12 @@ async def test_reminder_task_no_push_when_no_token() -> None:
     )
 
     token_result = MagicMock()
-    token_result.scalar_one_or_none.return_value = None  # no token
+    token_result.one_or_none.return_value = (None, True, True)  # no token
 
     session = AsyncMock()
     session.execute.side_effect = [
         MagicMock(**{"scalars.return_value.all.return_value": [item]}),  # advance items
-        token_result,  # apns token lookup (None → no push)
+        token_result,  # push info lookup (no token → no push)
         MagicMock(**{"scalars.return_value.all.return_value": []}),       # today items
     ]
 

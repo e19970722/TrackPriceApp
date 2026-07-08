@@ -32,7 +32,7 @@ async def _check_reminders() -> None:
         advance_items = await item_repo.get_items_due_for_reminder(db, today)
         for item in advance_items:
             if _throttle_ok(redis_client, item.id, today, suffix="advance"):
-                apns_token = await user_repo.get_apns_token(db, item.user_id)
+                apns_token = await _pushable_token(db, item.user_id)
                 if apns_token:
                     days_left = (item.best_before_date - today).days
                     from app.push_sender import send_item_reminder  # noqa: PLC0415
@@ -44,12 +44,24 @@ async def _check_reminders() -> None:
         today_items = await item_repo.get_items_expiring_today(db, today)
         for item in today_items:
             if _throttle_ok(redis_client, item.id, today, suffix="today"):
-                apns_token = await user_repo.get_apns_token(db, item.user_id)
+                apns_token = await _pushable_token(db, item.user_id)
                 if apns_token:
                     from app.push_sender import send_item_expiring_today  # noqa: PLC0415
 
                     await send_item_expiring_today(apns_token, item)
                     _mark_throttled(redis_client, item.id, today, suffix="today")
+
+
+async def _pushable_token(db, user_id) -> str | None:
+    """Return the user's APNs token, or None when the user has expiring-soon
+    notifications disabled (or has no token)."""
+    push_info = await user_repo.get_push_info(db, user_id)
+    if push_info is None:
+        return None
+    apns_token, _notify_price_drops, notify_expiring_soon = push_info
+    if not notify_expiring_soon:
+        return None
+    return apns_token
 
 
 def _throttle_key(item_id, today: date, suffix: str) -> str:
