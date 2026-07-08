@@ -22,5 +22,9 @@ async def patch_me(
     db: AsyncSession = Depends(get_db),
 ) -> User:
     if body.apns_token is not None:
-        return await user_repo.update_apns_token(db, current_user, body.apns_token)
+        current_user = await user_repo.update_apns_token(db, current_user, body.apns_token)
+    if body.notification_preferences is not None:
+        current_user = await user_repo.update_notification_preferences(
+            db, current_user, body.notification_preferences
+        )
     return current_user

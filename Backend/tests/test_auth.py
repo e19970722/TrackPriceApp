@@ -149,6 +149,105 @@ async def test_apple_sign_in_missing_sub_returns_400():
     assert response.status_code == 400
 
 
+@pytest.mark.asyncio
+async def test_apple_sign_in_stores_full_name_on_create():
+    """full_name from the request body is persisted as display_name on first sign-in."""
+    fake_user = _make_fake_user("apple", "apple-123", "test@example.com")
+    mock_session = _mock_db_session(fake_user)
+
+    async def override_get_db():
+        yield mock_session
+
+    app.dependency_overrides[get_db] = override_get_db
+
+    fake_claims = {"sub": "apple-123", "email": "test@example.com"}
+
+    with patch("app.api.auth.jwt.get_unverified_claims", return_value=fake_claims):
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://test"
+        ) as client:
+            response = await client.post(
+                "/auth/apple",
+                json={"token": "fake.apple.token", "full_name": "Sam Rivers"},
+            )
+
+    assert response.status_code == 200
+    created_user = mock_session.add.call_args[0][0]
+    assert created_user.display_name == "Sam Rivers"
+    assert created_user.email == "test@example.com"
+
+
+@pytest.mark.asyncio
+async def test_apple_sign_in_backfills_display_name_when_null():
+    """An existing user with display_name=None gets it backfilled on re-sign-in."""
+    existing_user = _make_fake_user("apple", "apple-123", "test@example.com")
+    existing_user.display_name = None
+
+    session = AsyncMock()
+    scalar_result = MagicMock()
+    scalar_result.scalar_one_or_none.return_value = existing_user
+    session.execute.return_value = scalar_result
+    session.commit = AsyncMock()
+
+    async def fake_refresh(obj):
+        pass
+
+    session.refresh.side_effect = fake_refresh
+
+    async def override_get_db():
+        yield session
+
+    app.dependency_overrides[get_db] = override_get_db
+
+    fake_claims = {"sub": "apple-123", "email": "test@example.com"}
+
+    with patch("app.api.auth.jwt.get_unverified_claims", return_value=fake_claims):
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://test"
+        ) as client:
+            response = await client.post(
+                "/auth/apple",
+                json={"token": "fake.apple.token", "full_name": "Sam Rivers"},
+            )
+
+    assert response.status_code == 200
+    assert existing_user.display_name == "Sam Rivers"
+    session.add.assert_not_called()
+    session.commit.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_apple_sign_in_does_not_overwrite_existing_display_name():
+    existing_user = _make_fake_user("apple", "apple-123", "test@example.com")
+    existing_user.display_name = "Original Name"
+
+    session = AsyncMock()
+    scalar_result = MagicMock()
+    scalar_result.scalar_one_or_none.return_value = existing_user
+    session.execute.return_value = scalar_result
+    session.commit = AsyncMock()
+
+    async def override_get_db():
+        yield session
+
+    app.dependency_overrides[get_db] = override_get_db
+
+    fake_claims = {"sub": "apple-123", "email": "test@example.com"}
+
+    with patch("app.api.auth.jwt.get_unverified_claims", return_value=fake_claims):
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://test"
+        ) as client:
+            response = await client.post(
+                "/auth/apple",
+                json={"token": "fake.apple.token", "full_name": "Different Name"},
+            )
+
+    assert response.status_code == 200
+    assert existing_user.display_name == "Original Name"
+    session.commit.assert_not_awaited()
+
+
 # ---------------------------------------------------------------------------
 # Google Sign In tests
 # ---------------------------------------------------------------------------
@@ -178,6 +277,32 @@ async def test_google_sign_in_returns_token():
     data = response.json()
     assert "token" in data
     assert isinstance(data["token"], str)
+
+
+@pytest.mark.asyncio
+async def test_google_sign_in_stores_name_claim_on_create():
+    """The Google `name` claim is persisted as display_name on first sign-in."""
+    fake_user = _make_fake_user("google", "google-456", "guser@gmail.com")
+    mock_session = _mock_db_session(fake_user)
+
+    async def override_get_db():
+        yield mock_session
+
+    app.dependency_overrides[get_db] = override_get_db
+
+    fake_claims = {"sub": "google-456", "email": "guser@gmail.com", "name": "G User"}
+
+    with patch("app.api.auth.jwt.get_unverified_claims", return_value=fake_claims):
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://test"
+        ) as client:
+            response = await client.post(
+                "/auth/google", json={"token": "fake.google.token"}
+            )
+
+    assert response.status_code == 200
+    created_user = mock_session.add.call_args[0][0]
+    assert created_user.display_name == "G User"
 
 
 @pytest.mark.asyncio

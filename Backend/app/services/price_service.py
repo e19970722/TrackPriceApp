@@ -46,13 +46,19 @@ async def process_tracker_scrape(tracker_id: UUID) -> None:
             tracker.first_failure_at = None
 
             if should_alert(tracker, price, now):
-                apns_token = await user_repo.get_apns_token(session, tracker.user_id)
-                if apns_token:
-                    from app.push_sender import send_price_alert  # noqa: PLC0415
+                push_info = await user_repo.get_push_info(session, tracker.user_id)
+                apns_token, notify_price_drops = (
+                    (push_info[0], push_info[1]) if push_info else (None, False)
+                )
+                # When the user has price-drop pushes disabled, skip the send and
+                # leave last_notified_at untouched so re-enabling resumes alerts.
+                if notify_price_drops:
+                    if apns_token:
+                        from app.push_sender import send_price_alert  # noqa: PLC0415
 
-                    await send_price_alert(apns_token, tracker, price)
-                tracker.last_notified_at = now
-                tracker.last_notified_price = float(price)
+                        await send_price_alert(apns_token, tracker, price)
+                    tracker.last_notified_at = now
+                    tracker.last_notified_price = float(price)
         else:
             tracker.last_checked_at = now
             tracker.failure_count = (tracker.failure_count or 0) + 1
