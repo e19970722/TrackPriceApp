@@ -1,7 +1,10 @@
+import Perception
 import SwiftUI
 
 /// Styled input container. The caller provides the inner content (icon, text, chevron, etc.)
 /// This shell handles all border, background, and focus-ring styling.
+/// Stores `content` as an escaping closure evaluated in `body` (an untracked scope),
+/// so `body` wraps itself in `WithPerceptionTracking` to keep store reads inside tracked.
 public struct RipeInputShell<Content: View>: View {
     let isFocused: Bool
     @ViewBuilder let content: () -> Content
@@ -17,7 +20,9 @@ public struct RipeInputShell<Content: View>: View {
     // MARK: - Body
 
     public var body: some View {
-        inputShellContainerView
+        WithPerceptionTracking {
+            inputShellContainerView
+        }
     }
 }
 

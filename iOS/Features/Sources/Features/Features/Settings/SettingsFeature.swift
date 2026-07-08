@@ -17,6 +17,7 @@ public struct SettingsFeature {
         case signOutTapped
         case signOutConfirmed
         case signOutCancelled
+        case signOutConfirmationPresented(Bool)
         case openNotificationSettings
         case delegate(Delegate)
 
@@ -45,6 +46,10 @@ public struct SettingsFeature {
 
             case .signOutCancelled:
                 state.isSignOutConfirmationPresented = false
+                return .none
+
+            case let .signOutConfirmationPresented(isPresented):
+                state.isSignOutConfirmationPresented = isPresented
                 return .none
 
             case .openNotificationSettings:

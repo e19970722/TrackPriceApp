@@ -30,10 +30,7 @@ public struct ItemDetailsView: View {
                         focusedField = .name
                     }
                 }
-                .sheet(isPresented: Binding(
-                    get: { store.isDatePickerPresented },
-                    set: { store.send(.datePickerPresented($0)) }
-                )) {
+                .sheet(isPresented: $store.isDatePickerPresented.sending(\.datePickerPresented)) {
                     datePickerSheet
                 }
         }

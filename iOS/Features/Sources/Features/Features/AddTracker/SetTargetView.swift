@@ -73,10 +73,12 @@ extension SetTargetView {
     private var productThumbnailView: some View {
         if let imageUrl = store.confirmedElement?.itemImageUrl, let url = URL(string: imageUrl) {
             AsyncImage(url: url) { phase in
-                if case let .success(image) = phase {
-                    loadedThumbnail(image)
-                } else {
-                    monogramThumbnail
+                WithPerceptionTracking {
+                    if case let .success(image) = phase {
+                        loadedThumbnail(image)
+                    } else {
+                        monogramThumbnail
+                    }
                 }
             }
         } else {

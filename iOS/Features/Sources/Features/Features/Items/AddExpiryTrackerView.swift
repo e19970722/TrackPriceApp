@@ -13,7 +13,7 @@ public struct AddExpiryTrackerView: View {
 
     public var body: some View {
         WithPerceptionTracking {
-            NavigationStack(path: pathBinding) {
+            NavigationStack(path: $store.navigationPath.sending(\.navigationPathChanged)) {
                 ChooseMethodView(store: store)
                     .navigationDestination(for: AddExpiryTrackerFeature.Route.self, destination: destinationView)
             }
@@ -55,30 +55,6 @@ extension AddExpiryTrackerView {
             SavedView(store: store, savedItem: item)
                 .navigationBarBackButtonHidden(true)
         }
-    }
-}
-
-// MARK: - Helpers
-
-extension AddExpiryTrackerView {
-    /// Drives the `NavigationStack` from `store.step`. Pushes are state-driven, so
-    /// the setter only reacts when the user pops (path shrinks) via the system back
-    /// button or interactive swipe: a single-level pop maps to `.backTapped` (which
-    /// moves the step one level back), and a pop straight to the root dismisses the
-    /// flow.
-    private var pathBinding: Binding<[AddExpiryTrackerFeature.Route]> {
-        Binding(
-            get: { store.navigationPath },
-            set: { newPath in
-                let oldDepth = store.navigationPath.count
-                guard newPath.count < oldDepth else { return }
-                if newPath.isEmpty {
-                    store.send(.dismiss)
-                } else {
-                    store.send(.backTapped)
-                }
-            }
-        )
     }
 }
 

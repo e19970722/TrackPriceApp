@@ -163,7 +163,7 @@ extension ReminderView {
     private var sliderSection: some View {
         WithPerceptionTracking {
             VStack(spacing: RipeSpacing.s2) {
-                Slider(value: sliderBinding, in: 1 ... 60, step: 1)
+                Slider(value: $store.remindDaysBeforeSliderValue, in: 1 ... 60, step: 1)
                     .tint(Color(.ripeAccent))
                 sliderMilestoneLabels
             }
@@ -270,13 +270,6 @@ extension ReminderView {
 // MARK: - Helpers
 
 extension ReminderView {
-    private var sliderBinding: Binding<Double> {
-        Binding(
-            get: { Double(store.remindDaysBefore) },
-            set: { store.send(.remindDaysBeforeChanged(Int($0.rounded()))) }
-        )
-    }
-
     private var computedRemindOn: Date {
         Calendar.current.date(
             byAdding: .day,

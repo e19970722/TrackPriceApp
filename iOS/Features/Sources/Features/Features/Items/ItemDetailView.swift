@@ -172,10 +172,14 @@ extension ItemDetailView {
 
     private var freshnessBarView: some View {
         GeometryReader { geo in
-            ZStack(alignment: .leading) {
-                freshnessGradientBar
-                todayMarkerKnob
-                    .offset(x: markerOffset(in: geo.size.width))
+            // `GeometryReader` evaluates its content outside the `body` tracking
+            // scope, and `markerOffset(in:)` reads `store.item`.
+            WithPerceptionTracking {
+                ZStack(alignment: .leading) {
+                    freshnessGradientBar
+                    todayMarkerKnob
+                        .offset(x: markerOffset(in: geo.size.width))
+                }
             }
         }
         .frame(height: 12)
@@ -221,26 +225,30 @@ extension ItemDetailView {
             columns: [GridItem(.flexible()), GridItem(.flexible())],
             spacing: RipeSpacing.s3
         ) {
-            statCard(
-                icon: "calendar",
-                title: L10n.Expiry.statBestBefore,
-                value: shortDate(store.item.bestBeforeDate)
-            )
-            statCard(
-                icon: "leaf",
-                title: L10n.Expiry.statAdded,
-                value: shortDate(store.item.addedDate)
-            )
-            statCard(
-                icon: "bell",
-                title: L10n.Expiry.statReminderTitle,
-                value: L10n.Expiry.reminderDaysBefore(store.item.remindDaysBefore)
-            )
-            statCard(
-                icon: "refrigerator",
-                title: L10n.Expiry.statLocation,
-                value: store.item.locationLabel ?? ""
-            )
+            // `LazyVGrid` evaluates its content lazily, outside the `body` tracking
+            // scope, so the store reads below need their own `WithPerceptionTracking`.
+            WithPerceptionTracking {
+                statCard(
+                    icon: "calendar",
+                    title: L10n.Expiry.statBestBefore,
+                    value: shortDate(store.item.bestBeforeDate)
+                )
+                statCard(
+                    icon: "leaf",
+                    title: L10n.Expiry.statAdded,
+                    value: shortDate(store.item.addedDate)
+                )
+                statCard(
+                    icon: "bell",
+                    title: L10n.Expiry.statReminderTitle,
+                    value: L10n.Expiry.reminderDaysBefore(store.item.remindDaysBefore)
+                )
+                statCard(
+                    icon: "refrigerator",
+                    title: L10n.Expiry.statLocation,
+                    value: store.item.locationLabel ?? ""
+                )
+            }
         }
     }
 

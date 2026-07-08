@@ -171,23 +171,26 @@ extension TrackerListView {
         .scrollDismissesKeyboard(.immediately)
     }
 
-    @ViewBuilder
     private var pricesContent: some View {
-        if store.isLoading {
-            loadingView
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-        } else if store.trackers.isEmpty {
-            emptyStateView
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-        } else if filteredTrackers.isEmpty {
-            noResultsView(query: searchText)
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-        } else {
-            ForEach(filteredTrackers) { tracker in
-                trackerRow(tracker)
+        // `List` evaluates its content lazily, outside the `body` tracking scope,
+        // so the store reads below need their own `WithPerceptionTracking`.
+        WithPerceptionTracking {
+            if store.isLoading {
+                loadingView
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+            } else if store.trackers.isEmpty {
+                emptyStateView
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+            } else if filteredTrackers.isEmpty {
+                noResultsView(query: searchText)
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+            } else {
+                ForEach(filteredTrackers) { tracker in
+                    trackerRow(tracker)
+                }
             }
         }
     }

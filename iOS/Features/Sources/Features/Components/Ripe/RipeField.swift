@@ -1,7 +1,10 @@
+import Perception
 import SwiftUI
 
 /// Label + hint text wrapper that composes around any input.
 /// Supply any input view as the `content` closure.
+/// Stores `content` as an escaping closure evaluated in `body` (an untracked scope),
+/// so `body` wraps itself in `WithPerceptionTracking` to keep store reads inside tracked.
 public struct RipeField<Content: View>: View {
     let label: String?
     let hint: String?
@@ -20,7 +23,9 @@ public struct RipeField<Content: View>: View {
     // MARK: - Body
 
     public var body: some View {
-        fieldContainerView
+        WithPerceptionTracking {
+            fieldContainerView
+        }
     }
 }
 

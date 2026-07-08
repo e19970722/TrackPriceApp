@@ -133,6 +133,71 @@ struct AddTrackerFeatureTests {
         }
     }
 
+    // MARK: - Confirm sheet presentation binding
+
+    @Test("Swiping the confirm sheet down rejects the picked element")
+    func sheetDismissalRejectsConfirmation() async {
+        let info = priceElement(price: 129)
+        let store = TestStore(initialState: confirmationState(info)) {
+            AddPriceTrackerFeature()
+        }
+        await store.send(.confirmSheetPresented(false))
+        await store.receive(\.confirmationRejected) {
+            $0.dismissingSheetInfo = info
+            $0.step = .webView
+        }
+    }
+
+    @Test("Sheet dismissal after confirming the price does not reset the step")
+    func sheetDismissalAfterConfirmIsIgnored() async {
+        let info = priceElement(price: 129)
+        let store = TestStore(initialState: targetSetupState(info)) {
+            AddPriceTrackerFeature()
+        }
+        await store.send(.confirmSheetPresented(false))
+    }
+
+    @Test("isConfirmationPresented reflects the confirmation step")
+    func isConfirmationPresentedComputed() {
+        let info = priceElement(price: 129)
+        #expect(confirmationState(info).isConfirmationPresented)
+        #expect(!webViewState().isConfirmationPresented)
+        #expect(!targetSetupState(info).isConfirmationPresented)
+    }
+
+    // MARK: - Navigation path pops
+
+    @Test("Popping to the web view depth rejects the confirmation")
+    func popToWebViewDepthRejectsConfirmation() async {
+        let info = priceElement(price: 129)
+        let store = TestStore(initialState: targetSetupState(info)) {
+            AddPriceTrackerFeature()
+        }
+        await store.send(.navigationPathChanged([.webView]))
+        await store.receive(\.confirmationRejected) {
+            $0.step = .webView
+        }
+    }
+
+    @Test("Popping to the root returns to URL entry")
+    func popToRootReturnsToURLEntry() async {
+        let store = TestStore(initialState: webViewState()) {
+            AddPriceTrackerFeature()
+        }
+        await store.send(.navigationPathChanged([]))
+        await store.receive(\.backToURLEntry) {
+            $0.step = .urlEntry
+        }
+    }
+
+    @Test("State-driven pushes are ignored by the path observer")
+    func pathPushIsIgnored() async {
+        let store = TestStore(initialState: webViewState()) {
+            AddPriceTrackerFeature()
+        }
+        await store.send(.navigationPathChanged([.webView, .targetSetup]))
+    }
+
     // MARK: - Save success
 
     @Test("Saving a non-met target creates the tracker and dismisses")

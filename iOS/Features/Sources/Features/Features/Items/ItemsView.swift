@@ -75,15 +75,18 @@ extension ItemsView {
         if showsFab { fabButton }
     }
 
-    @ViewBuilder
     private var itemsContent: some View {
-        if store.items.isEmpty {
-            emptyStateView
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-        } else {
-            ForEach(store.items) { item in
-                itemRow(item)
+        // `List` evaluates its content lazily, outside the `body` tracking scope,
+        // so the store reads below need their own `WithPerceptionTracking`.
+        WithPerceptionTracking {
+            if store.items.isEmpty {
+                emptyStateView
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+            } else {
+                ForEach(store.items) { item in
+                    itemRow(item)
+                }
             }
         }
     }

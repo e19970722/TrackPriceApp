@@ -1,5 +1,6 @@
 import ComposableArchitecture
 @testable import Features
+import Testing
 import XCTest
 
 // MARK: - DatePatternParserTests
@@ -425,6 +426,67 @@ final class ItemsFeatureTests: XCTestCase {
         await store.send(.itemRowTapped(item)) {
             $0.selectedItem = ItemDetailFeature.State(item: item)
         }
+    }
+}
+
+// MARK: - AddExpiryTrackerBindingNavigationTests
+
+@MainActor
+@Suite("AddExpiryTrackerFeature bindings & navigation pops")
+struct AddExpiryTrackerBindingNavigationTests {
+    @Test("Slider binding writes through to remindDaysBefore")
+    func sliderBindingUpdatesRemindDaysBefore() async {
+        let store = TestStore(initialState: AddExpiryTrackerFeature.State()) {
+            AddExpiryTrackerFeature()
+        }
+        await store.send(.binding(.set(\.remindDaysBeforeSliderValue, 7))) {
+            $0.remindDaysBefore = 7
+        }
+    }
+
+    @Test("Slider values are rounded to whole days")
+    func sliderValueIsRounded() {
+        var state = AddExpiryTrackerFeature.State()
+        state.remindDaysBeforeSliderValue = 6.6
+        #expect(state.remindDaysBefore == 7)
+        #expect(state.remindDaysBeforeSliderValue == 7)
+    }
+
+    @Test("Popping one level maps to backTapped")
+    func popOneLevelSendsBackTapped() async {
+        let draft = Item(name: "Milk", bestBeforeDate: Date().addingTimeInterval(86400))
+        var initial = AddExpiryTrackerFeature.State()
+        initial.step = .reminder(draft)
+        let store = TestStore(initialState: initial) {
+            AddExpiryTrackerFeature()
+        }
+        await store.send(.navigationPathChanged([.itemDetails]))
+        await store.receive(\.backTapped) {
+            $0.step = .itemDetails(scannedDate: nil, ocrString: nil)
+        }
+    }
+
+    @Test("Popping straight to the root dismisses the flow")
+    func popToRootDismisses() async {
+        var initial = AddExpiryTrackerFeature.State()
+        initial.step = .scanLabel
+        let store = TestStore(initialState: initial) {
+            AddExpiryTrackerFeature()
+        }
+        let isDismissed = LockIsolated(false)
+        store.dependencies.dismiss = DismissEffect { isDismissed.setValue(true) }
+
+        await store.send(.navigationPathChanged([]))
+        await store.receive(\.dismiss)
+        #expect(isDismissed.value)
+    }
+
+    @Test("State-driven pushes are ignored by the path observer")
+    func pathPushIsIgnored() async {
+        let store = TestStore(initialState: AddExpiryTrackerFeature.State()) {
+            AddExpiryTrackerFeature()
+        }
+        await store.send(.navigationPathChanged([.scanLabel]))
     }
 }
 
