@@ -38,10 +38,9 @@ extension SettingsView {
             .sheet(isPresented: $store.isSafariPresented.sending(\.safariPresented)) {
                 safariSheetView
             }
-            .confirmationDialog(
+            .alert(
                 L10n.Settings.signOutConfirmTitle,
-                isPresented: $store.isSignOutConfirmationPresented.sending(\.signOutConfirmationPresented),
-                titleVisibility: .visible
+                isPresented: $store.isSignOutConfirmationPresented.sending(\.signOutConfirmationPresented)
             ) {
                 signOutDialogButtons
             }
