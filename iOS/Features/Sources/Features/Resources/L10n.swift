@@ -222,9 +222,42 @@ public enum L10n {
         public static let signOutConfirmButton = L10n.tr("settings.signOutConfirmButton", fallback: "Sign Out")
         public static let sectionAccount = L10n.tr("settings.sectionAccount", fallback: "Account")
         public static let connectedAccounts = L10n.tr("settings.connectedAccounts", fallback: "Connected accounts")
-        public static let defaultCurrency = L10n.tr("settings.defaultCurrency", fallback: "Default currency")
-        public static let preferredStores = L10n.tr("settings.preferredStores", fallback: "Preferred stores")
         public static let plan = L10n.tr("settings.plan", fallback: "Plan")
+        public static let fallbackDisplayName = L10n.tr("settings.fallbackDisplayName", fallback: "TrackPrice member")
+
+        // Connected accounts screen
+        public static let connectedBadge = L10n.tr("settings.connectedBadge", fallback: "Connected")
+        public static let connectedAccountsFooter = L10n.tr(
+            "settings.connectedAccountsFooter",
+            fallback: "This is the account you use to sign in to TrackPrice."
+        )
+
+        // Plan screen
+        public static let planCurrentPlan = L10n.tr("settings.planCurrentPlan", fallback: "Current plan")
+        public static let planFreeName = L10n.tr("settings.planFreeName", fallback: "Free")
+        public static let planPremiumName = L10n.tr("settings.planPremiumName", fallback: "Premium")
+        public static let planFreeFeatureTrackers = L10n.tr(
+            "settings.planFreeFeatureTrackers",
+            fallback: "Up to 10 price trackers"
+        )
+        public static let planFreeFeatureChecks = L10n.tr(
+            "settings.planFreeFeatureChecks",
+            fallback: "Daily price checks"
+        )
+        public static let planPremiumFeatureTrackers = L10n.tr(
+            "settings.planPremiumFeatureTrackers",
+            fallback: "Unlimited price trackers"
+        )
+        public static let planPremiumFeatureChecks = L10n.tr(
+            "settings.planPremiumFeatureChecks",
+            fallback: "Hourly price checks"
+        )
+
+        /// Help & feedback
+        public static let feedbackMailSubject = L10n.tr(
+            "settings.feedbackMailSubject",
+            fallback: "TrackPrice feedback"
+        )
         public static let sectionNotifications = L10n.tr("settings.sectionNotifications", fallback: "Notifications")
         public static let priceDrops = L10n.tr("settings.priceDrops", fallback: "Price drops")
         public static let expiringSoon = L10n.tr("settings.expiringSoon", fallback: "Expiring soon")

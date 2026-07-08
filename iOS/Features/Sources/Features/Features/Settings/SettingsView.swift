@@ -4,12 +4,6 @@ import SwiftUI
 public struct SettingsView: View {
     @Perception.Bindable var store: StoreOf<SettingsFeature>
 
-    // Fallback local toggles for notification rows not yet in TCA state
-    @State private var priceDropsOn: Bool = true
-    @State private var expiringSoonOn: Bool = true
-    @State private var runningLowOn: Bool = true
-    @State private var weeklyDigestOn: Bool = false
-
     public init(store: StoreOf<SettingsFeature>) {
         self.store = store
     }
@@ -18,20 +12,9 @@ public struct SettingsView: View {
 
     public var body: some View {
         WithPerceptionTracking {
-            scrollContentView
-                .background(Color(.ripeBg).ignoresSafeArea())
-                .confirmationDialog(
-                    L10n.Settings.signOutConfirmTitle,
-                    isPresented: $store.isSignOutConfirmationPresented.sending(\.signOutConfirmationPresented),
-                    titleVisibility: .visible
-                ) {
-                    Button(L10n.Settings.signOutConfirmButton, role: .destructive) {
-                        store.send(.signOutConfirmed)
-                    }
-                    Button(L10n.Common.cancel, role: .cancel) {
-                        store.send(.signOutCancelled)
-                    }
-                }
+            NavigationStack {
+                settingsContentView
+            }
         }
     }
 }
@@ -39,6 +22,31 @@ public struct SettingsView: View {
 // MARK: - Subviews
 
 extension SettingsView {
+    private var settingsContentView: some View {
+        scrollContentView
+            .background(Color(.ripeBg).ignoresSafeArea())
+            .task {
+                await store.send(.task).finish()
+            }
+            .navigationDestination(
+                item: $store.destination.sending(\.destinationChanged),
+                destination: destinationView
+            )
+            .sheet(isPresented: $store.isMailComposerPresented.sending(\.mailComposerPresented)) {
+                mailComposerSheetView
+            }
+            .sheet(isPresented: $store.isSafariPresented.sending(\.safariPresented)) {
+                safariSheetView
+            }
+            .confirmationDialog(
+                L10n.Settings.signOutConfirmTitle,
+                isPresented: $store.isSignOutConfirmationPresented.sending(\.signOutConfirmationPresented),
+                titleVisibility: .visible
+            ) {
+                signOutDialogButtons
+            }
+    }
+
     private var scrollContentView: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: RipeSpacing.s6) {
@@ -50,6 +58,41 @@ extension SettingsView {
             .padding(.horizontal, RipeSpacing.s5)
             .padding(.top, RipeSpacing.s6)
             .padding(.bottom, RipeSpacing.s7)
+        }
+    }
+
+    private func destinationView(_ destination: SettingsFeature.Destination) -> some View {
+        WithPerceptionTracking {
+            switch destination {
+            case .connectedAccounts:
+                ConnectedAccountsView(provider: store.user?.authProvider ?? "", email: store.user?.email)
+            case .plan:
+                PlanView(tier: store.user?.subscriptionTier ?? "free")
+            }
+        }
+    }
+
+    private var mailComposerSheetView: some View {
+        MailComposerView(
+            recipient: Config.supportEmail,
+            subject: L10n.Settings.feedbackMailSubject
+        ) {
+            store.send(.mailComposerPresented(false))
+        }
+    }
+
+    private var safariSheetView: some View {
+        SafariView(url: Config.privacyPolicyURL)
+            .ignoresSafeArea()
+    }
+
+    @ViewBuilder
+    private var signOutDialogButtons: some View {
+        Button(L10n.Settings.signOutConfirmButton, role: .destructive) {
+            store.send(.signOutConfirmed)
+        }
+        Button(L10n.Common.cancel, role: .cancel) {
+            store.send(.signOutCancelled)
         }
     }
 
@@ -65,9 +108,11 @@ extension SettingsView {
                 Text(displayName)
                     .customFont(.extrabold26)
                     .foregroundStyle(Color(.ripeInk))
-                Text(displayEmail)
-                    .customFont(.medium13)
-                    .foregroundStyle(Color(.ripeInk3))
+                if let email = store.user?.email {
+                    Text(email)
+                        .customFont(.medium13)
+                        .foregroundStyle(Color(.ripeInk3))
+                }
             }
             Spacer()
         }
@@ -82,30 +127,20 @@ extension SettingsView {
                         icon: "creditcard",
                         iconColor: Color(.ripeCat5),
                         title: L10n.Settings.connectedAccounts,
-                        value: "Apple · Google",
+                        value: providerDisplayName,
                         isLast: false
-                    )
-                    settingsRow(
-                        icon: "dollarsign.circle",
-                        iconColor: Color(.ripeGood),
-                        title: L10n.Settings.defaultCurrency,
-                        value: "USD $",
-                        isLast: false
-                    )
-                    settingsRow(
-                        icon: "bag",
-                        iconColor: Color(.ripeWarn),
-                        title: L10n.Settings.preferredStores,
-                        value: "3",
-                        isLast: false
-                    )
+                    ) {
+                        store.send(.rowTapped(.connectedAccounts))
+                    }
                     settingsRow(
                         icon: "sparkles",
                         iconColor: Color(.ripeAccent),
                         title: L10n.Settings.plan,
-                        value: "Free",
+                        value: planDisplayName,
                         isLast: true
-                    )
+                    ) {
+                        store.send(.rowTapped(.plan))
+                    }
                 }
             }
         }
@@ -121,7 +156,7 @@ extension SettingsView {
                         iconColor: Color(.ripeCat1),
                         title: L10n.Settings.priceDrops,
                         detail: "When a track hits target",
-                        isOn: $priceDropsOn,
+                        isOn: $store.preferences.sending(\.preferenceToggled).priceDrops,
                         isLast: false
                     )
                     notificationToggleRow(
@@ -129,7 +164,7 @@ extension SettingsView {
                         iconColor: Color(.ripeWarn),
                         title: L10n.Settings.expiringSoon,
                         detail: "3 days before",
-                        isOn: $expiringSoonOn,
+                        isOn: $store.preferences.sending(\.preferenceToggled).expiringSoon,
                         isLast: false
                     )
                     notificationToggleRow(
@@ -137,7 +172,7 @@ extension SettingsView {
                         iconColor: Color(.ripeCat5),
                         title: L10n.Settings.runningLow,
                         detail: "At reorder point",
-                        isOn: $runningLowOn,
+                        isOn: $store.preferences.sending(\.preferenceToggled).runningLow,
                         isLast: false
                     )
                     notificationToggleRow(
@@ -145,7 +180,7 @@ extension SettingsView {
                         iconColor: Color(.ripeInk2),
                         title: L10n.Settings.weeklyDigest,
                         detail: "Sunday summary",
-                        isOn: $weeklyDigestOn,
+                        isOn: $store.preferences.sending(\.preferenceToggled).weeklyDigest,
                         isLast: true
                     )
                 }
@@ -162,16 +197,18 @@ extension SettingsView {
                         icon: "questionmark.circle",
                         iconColor: Color(.ripeInk2),
                         title: L10n.Settings.helpAndFeedback,
-                        value: nil,
                         isLast: false
-                    )
+                    ) {
+                        store.send(.helpTapped)
+                    }
                     settingsRow(
                         icon: "lock.shield",
                         iconColor: Color(.ripeInk2),
                         title: L10n.Settings.privacyPolicy,
-                        value: nil,
                         isLast: false
-                    )
+                    ) {
+                        store.send(.privacyPolicyTapped)
+                    }
                     signOutRowView
                 }
             }
@@ -191,6 +228,7 @@ extension SettingsView {
             }
             .padding(.horizontal, RipeSpacing.s4)
             .padding(.vertical, RipeSpacing.s3)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }
@@ -200,13 +238,27 @@ extension SettingsView {
 
 extension SettingsView {
     private var displayName: String {
-        // SettingsFeature.State does not yet expose a display name field;
-        // fall back to "Sam Rivers" as placeholder per spec.
-        "Sam Rivers"
+        if let name = store.user?.displayName, !name.isEmpty {
+            return name
+        }
+        if let email = store.user?.email,
+           let prefix = email.split(separator: "@").first,
+           !prefix.isEmpty {
+            return String(prefix)
+        }
+        return L10n.Settings.fallbackDisplayName
     }
 
-    private var displayEmail: String {
-        store.userEmail.isEmpty ? "sam@rivers.me" : store.userEmail
+    private var providerDisplayName: String {
+        switch store.user?.authProvider {
+        case "apple": "Apple"
+        case "google": "Google"
+        default: ""
+        }
+    }
+
+    private var planDisplayName: String {
+        store.user?.subscriptionTier.capitalized ?? L10n.Settings.planFreeName
     }
 
     private var userInitials: String {
@@ -232,27 +284,32 @@ extension SettingsView {
         icon: String,
         iconColor: Color,
         title: String,
-        value: String?,
-        isLast: Bool
+        value: String? = nil,
+        isLast: Bool,
+        action: @escaping () -> Void
     ) -> some View {
         VStack(spacing: 0) {
-            HStack(spacing: RipeSpacing.s3) {
-                iconTileView(systemName: icon, color: iconColor)
-                Text(title)
-                    .customFont(.semibold15)
-                    .foregroundStyle(Color(.ripeInk))
-                Spacer()
-                if let value {
-                    Text(value)
-                        .customFont(.medium12)
-                        .foregroundStyle(Color(.ripeInk2))
+            Button(action: action) {
+                HStack(spacing: RipeSpacing.s3) {
+                    iconTileView(systemName: icon, color: iconColor)
+                    Text(title)
+                        .customFont(.semibold15)
+                        .foregroundStyle(Color(.ripeInk))
+                    Spacer()
+                    if let value {
+                        Text(value)
+                            .customFont(.medium12)
+                            .foregroundStyle(Color(.ripeInk2))
+                    }
+                    Image(systemName: "chevron.right")
+                        .iconFont(.sm)
+                        .foregroundStyle(Color(.ripeInk3))
                 }
-                Image(systemName: "chevron.right")
-                    .iconFont(.sm)
-                    .foregroundStyle(Color(.ripeInk3))
+                .padding(.horizontal, RipeSpacing.s4)
+                .padding(.vertical, RipeSpacing.s3)
+                .contentShape(Rectangle())
             }
-            .padding(.horizontal, RipeSpacing.s4)
-            .padding(.vertical, RipeSpacing.s3)
+            .buttonStyle(.plain)
 
             if !isLast {
                 Color(.ripeLine)
@@ -268,7 +325,7 @@ extension SettingsView {
         title: String,
         detail: String,
         isOn: Binding<Bool>,
-        isLast: Bool
+        isLast: Bool = false
     ) -> some View {
         VStack(spacing: 0) {
             HStack(spacing: RipeSpacing.s3) {

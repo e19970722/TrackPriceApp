@@ -1,8 +1,14 @@
 import AuthenticationServices
 import Foundation
 
+struct AppleSignInResult {
+    let identityToken: String
+    /// Formatted full name; non-nil only on the user's first sign-in with Apple.
+    let fullName: String?
+}
+
 enum AppleSignInHelper {
-    static func requestToken() async throws -> String {
+    static func requestToken() async throws -> AppleSignInResult {
         try await withCheckedThrowingContinuation { continuation in
             let provider = ASAuthorizationAppleIDProvider()
             let request = provider.createRequest()
@@ -19,9 +25,9 @@ enum AppleSignInHelper {
 }
 
 private final class AppleSignInDelegate: NSObject, ASAuthorizationControllerDelegate {
-    let continuation: CheckedContinuation<String, Error>
+    let continuation: CheckedContinuation<AppleSignInResult, Error>
 
-    init(continuation: CheckedContinuation<String, Error>) {
+    init(continuation: CheckedContinuation<AppleSignInResult, Error>) {
         self.continuation = continuation
     }
 
@@ -35,7 +41,10 @@ private final class AppleSignInDelegate: NSObject, ASAuthorizationControllerDele
             continuation.resume(throwing: AuthError.missingToken)
             return
         }
-        continuation.resume(returning: token)
+        continuation.resume(returning: AppleSignInResult(
+            identityToken: token,
+            fullName: cred.fullName.flatMap(Self.formattedName)
+        ))
     }
 
     func authorizationController(
@@ -43,6 +52,13 @@ private final class AppleSignInDelegate: NSObject, ASAuthorizationControllerDele
         didCompleteWithError error: Error
     ) {
         continuation.resume(throwing: error)
+    }
+
+    private static func formattedName(_ components: PersonNameComponents) -> String? {
+        let formatter = PersonNameComponentsFormatter()
+        formatter.style = .default
+        let name = formatter.string(from: components).trimmingCharacters(in: .whitespaces)
+        return name.isEmpty ? nil : name
     }
 }
 
