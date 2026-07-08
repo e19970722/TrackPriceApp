@@ -16,6 +16,10 @@ let package = Package(
             url: "https://github.com/google/GoogleSignIn-iOS",
             from: "8.0.0"
         ),
+        .package(
+            url: "https://github.com/onevcat/Kingfisher.git",
+            from: "8.10.0"
+        ),
     ],
     targets: [
         .target(
@@ -23,6 +27,7 @@ let package = Package(
             dependencies: [
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "GoogleSignIn", package: "GoogleSignIn-iOS"),
+                .product(name: "Kingfisher", package: "Kingfisher"),
             ],
             resources: [
                 .process("Resources/RipeColors.xcassets"),
