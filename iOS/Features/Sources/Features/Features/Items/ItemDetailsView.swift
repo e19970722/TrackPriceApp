@@ -21,10 +21,14 @@ public struct ItemDetailsView: View {
                     bottomButton
                 }
                 .ripeFlowScreen(
-                    title: L10n.Expiry.navTitleItemDetails,
-                    leadingTitle: L10n.Common.back,
-                    onLeading: { store.send(.backTapped) }
+                    title: store.isEditing ? L10n.Expiry.navTitleEdit : L10n.Expiry.navTitleItemDetails,
+                    leadingTitle: store.isEditing ? L10n.Common.cancel : L10n.Common.back,
+                    leadingDisabled: store.isSaving,
+                    onLeading: { store.send(store.isEditing ? .dismiss : .backTapped) }
                 )
+                // Cancelling mid-save could drop the response of an update the
+                // server already applied, leaving stale UI behind.
+                .interactiveDismissDisabled(store.isSaving)
                 .onAppear {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                         focusedField = .name
@@ -206,20 +210,28 @@ extension ItemDetailsView {
     // MARK: Bottom button
 
     private var bottomButton: some View {
-        continueButton
+        primaryButton
             .padding(.horizontal, RipeSpacing.s5)
             .padding(.bottom, RipeSpacing.s7)
     }
 
-    private var continueButton: some View {
-        RipeButton(
-            title: L10n.Expiry.continueButton,
-            variant: .primary,
-            size: .lg,
-            fullWidth: true,
-            action: { store.send(.continueTapped) }
-        )
-        .disabled(store.itemName.trimmingCharacters(in: .whitespaces).isEmpty)
+    /// Continues the add flow, or saves the changes when editing an existing item.
+    private var primaryButton: some View {
+        WithPerceptionTracking {
+            RipeButton(
+                title: primaryButtonTitle,
+                variant: .primary,
+                size: .lg,
+                fullWidth: true,
+                action: { store.send(.continueTapped) }
+            )
+            .disabled(store.itemName.trimmingCharacters(in: .whitespaces).isEmpty || store.isSaving)
+        }
+    }
+
+    private var primaryButtonTitle: String {
+        guard store.isEditing else { return L10n.Expiry.continueButton }
+        return store.isSaving ? L10n.Expiry.saving : L10n.Expiry.saveItem
     }
 }
 
@@ -242,6 +254,21 @@ extension ItemDetailsView {
                 itemName: "Greek Yogurt",
                 bestBeforeDate: Date().addingTimeInterval(5 * 86400),
                 isDateFromScan: true
+            )
+        ) { AddExpiryTrackerFeature() })
+    }
+}
+
+#Preview("Edit mode") {
+    NavigationStack {
+        ItemDetailsView(store: Store(
+            initialState: AddExpiryTrackerFeature.State(
+                editing: Item(
+                    name: "Greek Yogurt",
+                    quantity: "2",
+                    location: .fridge,
+                    bestBeforeDate: Date().addingTimeInterval(5 * 86400)
+                )
             )
         ) { AddExpiryTrackerFeature() })
     }
