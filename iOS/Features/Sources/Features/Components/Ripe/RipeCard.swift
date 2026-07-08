@@ -1,7 +1,10 @@
+import Perception
 import SwiftUI
 
 /// A surface card with automatic light/dark styling.
 /// Light mode: soft shadow. Dark mode: 1pt line stroke, no shadow.
+/// Stores `content` as an escaping closure evaluated in `body` (an untracked scope),
+/// so `body` wraps itself in `WithPerceptionTracking` to keep store reads inside tracked.
 public struct RipeCard<Content: View>: View {
     var padding: CGFloat
     @ViewBuilder var content: () -> Content
@@ -19,7 +22,9 @@ public struct RipeCard<Content: View>: View {
     // MARK: - Body
 
     public var body: some View {
-        cardContainerView
+        WithPerceptionTracking {
+            cardContainerView
+        }
     }
 }
 

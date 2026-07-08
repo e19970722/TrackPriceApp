@@ -20,6 +20,10 @@ let package = Package(
             url: "https://github.com/onevcat/Kingfisher.git",
             from: "8.10.0"
         ),
+        .package(
+            url: "https://github.com/pointfreeco/swift-perception",
+            from: "2.0.0"
+        ),
     ],
     targets: [
         .target(
@@ -28,6 +32,7 @@ let package = Package(
                 .product(name: "ComposableArchitecture", package: "swift-composable-architecture"),
                 .product(name: "GoogleSignIn", package: "GoogleSignIn-iOS"),
                 .product(name: "Kingfisher", package: "Kingfisher"),
+                .product(name: "Perception", package: "swift-perception"),
             ],
             resources: [
                 .process("Resources/RipeColors.xcassets"),
