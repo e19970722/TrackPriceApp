@@ -72,9 +72,12 @@ public struct UpdateTrackerRequest: Codable {
 // MARK: - APIClient
 
 public struct APIClient {
-    public var signInWithApple: @Sendable (String) async throws -> String
+    /// Parameters: Apple identity token, optional full name (only provided on first sign-in).
+    public var signInWithApple: @Sendable (String, String?) async throws -> String
     public var signInWithGoogle: @Sendable (String) async throws -> String
     public var updateDeviceToken: @Sendable (String) async throws -> Void
+    public var fetchMe: @Sendable () async throws -> User
+    public var updateNotificationPreferences: @Sendable (NotificationPreferences) async throws -> User
     public var fetchTrackers: @Sendable () async throws -> [Tracker]
     public var createTracker: @Sendable (CreateTrackerRequest) async throws -> Tracker
     public var updateTracker: @Sendable (UUID, UpdateTrackerRequest) async throws -> Tracker

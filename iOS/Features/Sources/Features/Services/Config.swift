@@ -8,4 +8,10 @@ enum Config {
         }
         return url
     }
+
+    /// Placeholder — swap in the real support address before release.
+    static let supportEmail = "support@trackprice.app"
+
+    /// Placeholder — swap in the real privacy policy URL before release.
+    static let privacyPolicyURL = URL(string: "https://trackprice.app/privacy")!
 }

@@ -33,8 +33,8 @@ public struct AuthFeature {
                 state.errorMessage = nil
                 return .run { send in
                     do {
-                        let idToken = try await AppleSignInHelper.requestToken()
-                        let jwt = try await apiClient.signInWithApple(idToken)
+                        let result = try await AppleSignInHelper.requestToken()
+                        let jwt = try await apiClient.signInWithApple(result.identityToken, result.fullName)
                         await send(.signInCompleted(jwt))
                     } catch {
                         await send(.signInFailed(error.localizedDescription))

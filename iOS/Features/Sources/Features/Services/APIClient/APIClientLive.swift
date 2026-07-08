@@ -39,10 +39,21 @@ extension JSONDecoder {
     }()
 }
 
-// MARK: - Auth response
+// MARK: - Auth request/response
+
+private struct AppleAuthRequest: Encodable {
+    let token: String
+    let fullName: String?
+}
 
 private struct AuthResponse: Decodable {
     let token: String
+}
+
+// MARK: - User requests
+
+private struct UpdateNotificationPreferencesRequest: Encodable {
+    let notificationPreferences: NotificationPreferences
 }
 
 // MARK: - HTTP helper
@@ -141,15 +152,25 @@ private func apiRequestVoid(_ method: String, path: String, body: (any Encodable
 
 // MARK: - Live & Mock
 
+extension User {
+    static let mock = User(
+        id: UUID(uuidString: "00000000-0000-0000-0000-000000000001")!,
+        email: "user@example.com",
+        displayName: "Sam Rivers",
+        authProvider: "apple",
+        subscriptionTier: "free"
+    )
+}
+
 extension APIClient {
     static var live: APIClient {
         @Dependency(\.keychainClient) var keychain
         return APIClient(
-            signInWithApple: { idToken in
+            signInWithApple: { idToken, fullName in
                 let res: AuthResponse = try await apiRequest(
                     "POST",
                     path: "/auth/apple",
-                    body: ["token": idToken],
+                    body: AppleAuthRequest(token: idToken, fullName: fullName),
                     token: nil
                 )
                 return res.token
@@ -169,6 +190,18 @@ extension APIClient {
                     path: "/users/me",
                     body: ["apns_token": apnsToken],
                     token: keychain.loadToken()
+                )
+            },
+            fetchMe: {
+                try await apiRequest("GET", path: "/users/me", token: keychain.loadToken(), as: User.self)
+            },
+            updateNotificationPreferences: { preferences in
+                try await apiRequest(
+                    "PATCH",
+                    path: "/users/me",
+                    body: UpdateNotificationPreferencesRequest(notificationPreferences: preferences),
+                    token: keychain.loadToken(),
+                    as: User.self
                 )
             },
             fetchTrackers: {
@@ -232,9 +265,15 @@ extension APIClient {
 
     static var mock: APIClient {
         APIClient(
-            signInWithApple: { _ in "mock-jwt" },
+            signInWithApple: { _, _ in "mock-jwt" },
             signInWithGoogle: { _ in "mock-jwt" },
             updateDeviceToken: { _ in },
+            fetchMe: { .mock },
+            updateNotificationPreferences: { preferences in
+                var user = User.mock
+                user.notificationPreferences = preferences
+                return user
+            },
             fetchTrackers: { [] },
             createTracker: { _ in fatalError("not implemented in mock") },
             updateTracker: { _, _ in fatalError("not implemented in mock") },
