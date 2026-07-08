@@ -228,6 +228,7 @@ extension SettingsView {
             }
             .padding(.horizontal, RipeSpacing.s4)
             .padding(.vertical, RipeSpacing.s3)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }
@@ -306,6 +307,7 @@ extension SettingsView {
                 }
                 .padding(.horizontal, RipeSpacing.s4)
                 .padding(.vertical, RipeSpacing.s3)
+                .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
 
