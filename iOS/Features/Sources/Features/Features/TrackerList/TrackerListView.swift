@@ -25,6 +25,7 @@ public struct TrackerListView: View {
                 .onTapGesture { isSearchFocused = false }
                 fabButton
             }
+            .overlay(alignment: .bottom) { expiryErrorToast }
             .fullScreenCover(item: $store.scope(state: \.addTracker, action: \.addTracker)) { addStore in
                 AddPriceTrackerView(store: addStore)
             }
@@ -150,7 +151,8 @@ extension TrackerListView {
             ItemsView(
                 store: store.scope(state: \.items, action: \.items),
                 showsHeader: false,
-                showsFab: false
+                showsFab: false,
+                showsErrorToast: false
             )
         }
     }
@@ -314,6 +316,33 @@ extension TrackerListView {
         }
         .frame(maxWidth: .infinity, minHeight: 200)
         .padding(.horizontal, RipeSpacing.s5)
+    }
+
+    private var expiryErrorToast: some View {
+        WithPerceptionTracking {
+            ZStack(alignment: .bottom) {
+                if store.selectedSegment == .items, let message = store.items.errorMessage {
+                    RipeToast(
+                        message: message,
+                        onDismiss: { store.send(.items(.errorToastDismissed)) },
+                        onRetry: {
+                            store.send(.items(.errorToastDismissed))
+                            store.send(.items(.fetchItems))
+                        }
+                    )
+                    .padding(.horizontal, RipeSpacing.s5)
+                    .padding(.bottom, RipeSpacing.s4)
+                    .transition(.move(edge: .bottom).combined(with: .opacity).combined(with: .scale(
+                        scale: 0.9,
+                        anchor: .bottom
+                    )))
+                }
+            }
+            .animation(
+                .spring(response: 0.35, dampingFraction: 0.7),
+                value: store.selectedSegment == .items && store.items.errorMessage != nil
+            )
+        }
     }
 
     private var fabButton: some View {
