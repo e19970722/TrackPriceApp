@@ -24,6 +24,10 @@ public struct AppFeature {
         case uploadDeviceToken(String)
     }
 
+    #if DEBUG
+        private enum CancelID { case devTokenFetch }
+    #endif
+
     @Dependency(\.keychainClient) var keychainClient
     @Dependency(\.notificationClient) var notificationClient
     @Dependency(\.apiClient) var apiClient
@@ -47,8 +51,7 @@ public struct AppFeature {
                     return .none
                 }
                 #if DEBUG
-                    state.authStatus = .authenticated
-                    return .run { _ in
+                    return .run { send in
                         struct DevTokenResponse: Decodable { let token: String }
                         var request = URLRequest(url: URL(string: "http://127.0.0.1:8000/dev/token")!)
                         request.httpMethod = "POST"
@@ -56,7 +59,9 @@ public struct AppFeature {
                               let response = try? JSONDecoder().decode(DevTokenResponse.self, from: data)
                         else { return }
                         keychainClient.saveToken(response.token)
+                        await send(.setAuthStatus(.authenticated))
                     }
+                    .cancellable(id: CancelID.devTokenFetch, cancelInFlight: true)
                 #else
                     state.authStatus = .unauthenticated
                     return .none
