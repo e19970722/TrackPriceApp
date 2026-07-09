@@ -53,6 +53,9 @@ public struct TrackerListFeature {
         Reduce { state, action in
             switch action {
             case .onAppear:
+                // The items segment fetches its own data via ItemsView's onAppear,
+                // so only fetch trackers when the trackers segment is visible.
+                guard state.selectedSegment == .trackers else { return .none }
                 state.isLoading = true
                 return .run { send in
                     do {
@@ -119,8 +122,12 @@ public struct TrackerListFeature {
                 return .none
 
             case let .segmentChanged(segment):
+                guard segment != state.selectedSegment else { return .none }
                 state.selectedSegment = segment
-                return .none
+                // Refetch trackers when switching back to the trackers segment,
+                // mirroring how ItemsView refetches items on every appearance.
+                guard segment == .trackers else { return .none }
+                return .send(.onAppear)
 
             case .items:
                 return .none
