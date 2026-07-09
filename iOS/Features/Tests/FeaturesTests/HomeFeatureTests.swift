@@ -74,12 +74,13 @@ struct HomeFeatureTests {
     }
 
     private static func makeStore(
+        initialState: HomeFeature.State = HomeFeature.State(),
         me: @escaping @Sendable () async throws -> User = { makeUser() },
         trends: @escaping @Sendable () async throws -> [TrackerTrend] = { [] },
         items: @escaping @Sendable () async throws -> [Item] = { [] },
         trackers: @escaping @Sendable () async throws -> [Tracker] = { [] }
     ) -> TestStoreOf<HomeFeature> {
-        TestStore(initialState: HomeFeature.State()) {
+        TestStore(initialState: initialState) {
             HomeFeature()
         } withDependencies: {
             $0.apiClient.fetchMe = me
@@ -226,6 +227,82 @@ struct HomeFeatureTests {
         await store.receive(\.loadResponse)
         #expect(store.state.expireItems.map(\.id) == [todayId, weekId])
         #expect(store.state.expireItems.map(\.chipLabel) == ["0d left", "7d left"])
+    }
+
+    // MARK: - Detail sheets
+
+    @Test("Tapping an expiring item presents its detail sheet")
+    func expireItemTapPresentsItemDetail() async throws {
+        let itemId = try #require(UUID(uuidString: "00000000-0000-0000-0000-0000000000C1"))
+        let item = Self.makeItem(id: itemId, bestBeforeDate: Self.daysFromNow(2))
+        var state = HomeFeature.State()
+        state.items = [item]
+        let store = Self.makeStore(initialState: state)
+
+        await store.send(.expireItemTapped(itemId)) {
+            $0.selectedItem = ItemDetailFeature.State(item: item)
+        }
+    }
+
+    @Test("Tapping a price target presents its tracker detail sheet")
+    func priceTargetTapPresentsTrackerDetail() async throws {
+        let trackerId = try #require(UUID(uuidString: "00000000-0000-0000-0000-0000000000D1"))
+        let tracker = Self.makeTracker(
+            id: trackerId,
+            targetPrice: 9.00,
+            targetDirection: .below,
+            lastPrice: 8.99
+        )
+        var state = HomeFeature.State()
+        state.trackers = [tracker]
+        let store = Self.makeStore(initialState: state)
+
+        await store.send(.priceTargetTapped(trackerId)) {
+            $0.selectedTracker = TrackerDetailFeature.State(tracker: tracker)
+        }
+    }
+
+    @Test("Tapping a row whose id is not in the fetched models is a no-op")
+    func unknownRowIdTapIsNoOp() async {
+        let store = Self.makeStore()
+
+        await store.send(.expireItemTapped(UUID()))
+        await store.send(.priceTargetTapped(UUID()))
+    }
+
+    @Test("Deleting an item from the detail sheet dismisses it and reloads Home")
+    func itemDeletedDelegateDismissesAndReloads() async throws {
+        let itemId = try #require(UUID(uuidString: "00000000-0000-0000-0000-0000000000C1"))
+        let item = Self.makeItem(id: itemId, bestBeforeDate: Self.daysFromNow(2))
+        var state = HomeFeature.State()
+        state.items = [item]
+        state.selectedItem = ItemDetailFeature.State(item: item)
+        let store = Self.makeStore(initialState: state)
+        store.exhaustivity = .off
+
+        await store.send(.selectedItem(.presented(.delegate(.itemDeleted)))) {
+            $0.selectedItem = nil
+        }
+        await store.receive(\.onAppear)
+        await store.receive(\.loadResponse) {
+            $0.items = []
+            $0.expireItems = []
+        }
+    }
+
+    @Test("Updating an item from the detail sheet reloads Home without dismissing")
+    func itemUpdatedDelegateReloads() async throws {
+        let itemId = try #require(UUID(uuidString: "00000000-0000-0000-0000-0000000000C1"))
+        let item = Self.makeItem(id: itemId, bestBeforeDate: Self.daysFromNow(2))
+        var state = HomeFeature.State()
+        state.selectedItem = ItemDetailFeature.State(item: item)
+        let store = Self.makeStore(initialState: state)
+        store.exhaustivity = .off
+
+        await store.send(.selectedItem(.presented(.delegate(.itemUpdated(item)))))
+        await store.receive(\.onAppear)
+        await store.receive(\.loadResponse)
+        #expect(store.state.selectedItem != nil)
     }
 
     // MARK: - Failure handling

@@ -2,7 +2,7 @@ import ComposableArchitecture
 import SwiftUI
 
 public struct HomeView: View {
-    let store: StoreOf<HomeFeature>
+    @Perception.Bindable var store: StoreOf<HomeFeature>
 
     public init(store: StoreOf<HomeFeature>) {
         self.store = store
@@ -21,6 +21,12 @@ public struct HomeView: View {
                 store.send(.onAppear)
             }
             .overlay(alignment: .bottom) { errorToastView }
+            .sheet(item: $store.scope(state: \.selectedItem, action: \.selectedItem)) { detailStore in
+                ItemDetailView(store: detailStore)
+            }
+            .sheet(item: $store.scope(state: \.selectedTracker, action: \.selectedTracker)) { detailStore in
+                TrackerDetailView(store: detailStore)
+            }
         }
     }
 }
@@ -210,11 +216,23 @@ extension HomeView {
         WithPerceptionTracking {
             VStack(spacing: 12) {
                 ForEach(store.expireItems) { item in
-                    expireItemCard(item)
+                    expireItemRowButton(item)
                 }
             }
             .padding(.horizontal, RipeSpacing.s5)
         }
+    }
+
+    private func expireItemRowButton(_ item: HomeFeature.ExpireItem) -> some View {
+        Button {
+            store.send(.expireItemTapped(item.id))
+        } label: {
+            expireItemCard(item)
+                // Plain button style skips hit-testing transparent areas (the
+                // Spacer inside the card), so force the full card as tap target.
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     private func expireItemCard(_ item: HomeFeature.ExpireItem) -> some View {
@@ -274,11 +292,23 @@ extension HomeView {
         WithPerceptionTracking {
             VStack(spacing: 12) {
                 ForEach(store.priceTargets) { target in
-                    priceTargetCard(target)
+                    priceTargetRowButton(target)
                 }
             }
             .padding(.horizontal, RipeSpacing.s5)
         }
+    }
+
+    private func priceTargetRowButton(_ target: HomeFeature.PriceTarget) -> some View {
+        Button {
+            store.send(.priceTargetTapped(target.id))
+        } label: {
+            priceTargetCard(target)
+                // Plain button style skips hit-testing transparent areas (the
+                // Spacer in the footer row), so force the full card as tap target.
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     private func priceTargetCard(_ target: HomeFeature.PriceTarget) -> some View {

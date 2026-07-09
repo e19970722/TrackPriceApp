@@ -11,6 +11,15 @@ public struct HomeFeature {
         public var priceTargets: [PriceTarget] = []
         public var errorMessage: String?
 
+        /// Raw fetched domain models, kept alongside the mapped section rows so a
+        /// row tap can look up the full model by id (`ExpireItem.id == Item.id`,
+        /// `PriceTarget.id == Tracker.id`).
+        public var items: [Item] = []
+        public var trackers: [Tracker] = []
+
+        @Presents public var selectedItem: ItemDetailFeature.State?
+        @Presents public var selectedTracker: TrackerDetailFeature.State?
+
         public init() {}
 
         /// The hit count shown as the Price Reach Targets section action label.
@@ -28,6 +37,10 @@ public struct HomeFeature {
             trackers: Result<[Tracker], any Error>
         )
         case errorToastDismissed
+        case expireItemTapped(UUID)
+        case priceTargetTapped(UUID)
+        case selectedItem(PresentationAction<ItemDetailFeature.Action>)
+        case selectedTracker(PresentationAction<TrackerDetailFeature.Action>)
     }
 
     private enum CancelID {
@@ -70,9 +83,11 @@ public struct HomeFeature {
                     state.trendItems = Self.trendItems(from: trends)
                 }
                 if case let .success(items) = items {
+                    state.items = items
                     state.expireItems = Self.expireItems(from: items, now: now, calendar: calendar)
                 }
                 if case let .success(trackers) = trackers {
+                    state.trackers = trackers
                     state.priceTargets = Self.priceTargets(from: trackers)
                 }
                 let failures: [any Error] = [
@@ -84,7 +99,41 @@ public struct HomeFeature {
             case .errorToastDismissed:
                 state.errorMessage = nil
                 return .none
+
+            case let .expireItemTapped(id):
+                guard let item = state.items.first(where: { $0.id == id }) else { return .none }
+                state.selectedItem = ItemDetailFeature.State(item: item)
+                return .none
+
+            case let .priceTargetTapped(id):
+                guard let tracker = state.trackers.first(where: { $0.id == id }) else { return .none }
+                state.selectedTracker = TrackerDetailFeature.State(tracker: tracker)
+                return .none
+
+            // Mirror ItemsFeature: dismiss on delete/mark-used, then reload every
+            // Home section so the mutated item disappears from Expiring Soon.
+            case .selectedItem(.presented(.delegate(.itemDeleted))),
+                 .selectedItem(.presented(.delegate(.itemMarkedUsed))):
+                state.selectedItem = nil
+                return .send(.onAppear)
+
+            case .selectedItem(.presented(.delegate(.itemUpdated))):
+                return .send(.onAppear)
+
+            case .selectedItem:
+                return .none
+
+            // TrackerDetailFeature exposes no delegate events (matching how
+            // TrackerListFeature ignores `.trackerDetail` actions).
+            case .selectedTracker:
+                return .none
             }
+        }
+        .ifLet(\.$selectedItem, action: \.selectedItem) {
+            ItemDetailFeature()
+        }
+        .ifLet(\.$selectedTracker, action: \.selectedTracker) {
+            TrackerDetailFeature()
         }
     }
 }
