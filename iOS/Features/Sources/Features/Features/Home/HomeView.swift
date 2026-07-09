@@ -20,6 +20,7 @@ public struct HomeView: View {
             .onAppear {
                 store.send(.onAppear)
             }
+            .overlay(alignment: .bottom) { errorToastView }
         }
     }
 }
@@ -67,12 +68,41 @@ extension HomeView {
     }
 
     private var avatarThumbnailView: some View {
-        MonoThumbnail(
-            label: "SR",
-            categoryColor: Color(.ripeAccent),
-            size: 46,
-            round: true
-        )
+        WithPerceptionTracking {
+            MonoThumbnail(
+                label: userInitials,
+                categoryColor: Color(.ripeAccent),
+                size: 46,
+                round: true
+            )
+        }
+    }
+
+    private var errorToastView: some View {
+        WithPerceptionTracking {
+            ZStack(alignment: .bottom) {
+                if let message = store.errorMessage {
+                    RipeToast(
+                        message: message,
+                        onDismiss: { store.send(.errorToastDismissed) },
+                        onRetry: {
+                            store.send(.errorToastDismissed)
+                            store.send(.onAppear)
+                        }
+                    )
+                    .padding(.horizontal, RipeSpacing.s5)
+                    .padding(.bottom, RipeSpacing.s4)
+                    .transition(.move(edge: .bottom).combined(with: .opacity).combined(with: .scale(
+                        scale: 0.9,
+                        anchor: .bottom
+                    )))
+                }
+            }
+            .animation(
+                .spring(response: 0.35, dampingFraction: 0.7),
+                value: store.errorMessage != nil
+            )
+        }
     }
 
     // MARK: 2 — On Trend Tracks
@@ -342,6 +372,18 @@ extension HomeView {
         }
         .padding(.horizontal, RipeSpacing.s4)
         .padding(.vertical, RipeSpacing.s3)
+    }
+}
+
+// MARK: - Helpers
+
+extension HomeView {
+    private var userInitials: String {
+        let words = store.userName
+            .split(separator: " ")
+            .prefix(2)
+            .compactMap { $0.first.map { String($0) } }
+        return words.isEmpty ? "?" : words.joined()
     }
 }
 

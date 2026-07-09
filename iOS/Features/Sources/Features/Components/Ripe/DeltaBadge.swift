@@ -1,7 +1,8 @@
 import SwiftUI
 
 /// The direction of a price movement.
-public enum PriceDirection {
+/// Raw values match the `direction` field of `GET /trackers/trends`.
+public enum PriceDirection: String, Codable, Sendable {
     case up
     case down
 }

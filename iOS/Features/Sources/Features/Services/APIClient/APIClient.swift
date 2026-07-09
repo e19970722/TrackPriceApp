@@ -79,6 +79,7 @@ public struct APIClient {
     public var fetchMe: @Sendable () async throws -> User
     public var updateNotificationPreferences: @Sendable (NotificationPreferences) async throws -> User
     public var fetchTrackers: @Sendable () async throws -> [Tracker]
+    public var fetchTrends: @Sendable () async throws -> [TrackerTrend]
     public var createTracker: @Sendable (CreateTrackerRequest) async throws -> Tracker
     public var updateTracker: @Sendable (UUID, UpdateTrackerRequest) async throws -> Tracker
     public var deleteTracker: @Sendable (UUID) async throws -> Void

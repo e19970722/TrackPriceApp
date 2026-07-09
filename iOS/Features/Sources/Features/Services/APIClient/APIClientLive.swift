@@ -207,6 +207,14 @@ extension APIClient {
             fetchTrackers: {
                 try await apiRequest("GET", path: "/trackers", token: keychain.loadToken(), as: [Tracker].self)
             },
+            fetchTrends: {
+                try await apiRequest(
+                    "GET",
+                    path: "/trackers/trends",
+                    token: keychain.loadToken(),
+                    as: [TrackerTrend].self
+                )
+            },
             createTracker: { req in
                 try await apiRequest(
                     "POST",
@@ -275,6 +283,24 @@ extension APIClient {
                 return user
             },
             fetchTrackers: { [] },
+            fetchTrends: {
+                [
+                    TrackerTrend(
+                        trackerId: UUID(uuidString: "00000000-0000-0000-0000-0000000000B1")!,
+                        name: "Coffee",
+                        direction: .up,
+                        deltaPercent: 6.2,
+                        currentPrice: 12.99
+                    ),
+                    TrackerTrend(
+                        trackerId: UUID(uuidString: "00000000-0000-0000-0000-0000000000B2")!,
+                        name: "Olive Oil",
+                        direction: .down,
+                        deltaPercent: 11.0,
+                        currentPrice: 8.99
+                    ),
+                ]
+            },
             createTracker: { _ in fatalError("not implemented in mock") },
             updateTracker: { _, _ in fatalError("not implemented in mock") },
             deleteTracker: { _ in },
