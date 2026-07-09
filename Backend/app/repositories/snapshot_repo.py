@@ -24,14 +24,13 @@ async def get_snapshots_for_tracker(
     return list(result.scalars().all())
 
 
-async def get_trend_rows_for_user(
-    db: AsyncSession, user_id: UUID, since: datetime
-) -> list[Row]:
-    """Return one row per active tracker of *user_id* with snapshot aggregates.
+async def get_global_trend_rows(db: AsyncSession, since: datetime) -> list[Row]:
+    """Return one row per active tracker (across ALL users) with snapshot aggregates.
 
     Each row carries (tracker_id, name, first_price, last_price, snapshot_count)
     computed over snapshots scraped at or after *since* — a single window-function
-    query, no per-tracker round trips.
+    query, no per-tracker round trips. This powers the GLOBAL "On Trend" feed:
+    what everyone tracks, including the seeded default trackers.
     """
     tracker_window = PriceSnapshot.tracker_id
     subq = (
@@ -51,7 +50,6 @@ async def get_trend_rows_for_user(
         )
         .join(PriceSnapshot, PriceSnapshot.tracker_id == Tracker.id)
         .where(
-            Tracker.user_id == user_id,
             Tracker.status == "active",
             PriceSnapshot.scraped_at >= since,
         )

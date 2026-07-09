@@ -78,7 +78,10 @@ struct HomeFeatureTests {
         me: @escaping @Sendable () async throws -> User = { makeUser() },
         trends: @escaping @Sendable () async throws -> [TrackerTrend] = { [] },
         items: @escaping @Sendable () async throws -> [Item] = { [] },
-        trackers: @escaping @Sendable () async throws -> [Tracker] = { [] }
+        trackers: @escaping @Sendable () async throws -> [Tracker] = { [] },
+        trackTrend: @escaping @Sendable (UUID) async throws -> Tracker = { _ in
+            fatalError("trackTrend not stubbed")
+        }
     ) -> TestStoreOf<HomeFeature> {
         TestStore(initialState: initialState) {
             HomeFeature()
@@ -87,6 +90,7 @@ struct HomeFeatureTests {
             $0.apiClient.fetchTrends = trends
             $0.apiClient.fetchItems = items
             $0.apiClient.fetchTrackers = trackers
+            $0.apiClient.trackTrend = trackTrend
             $0.date = .constant(now)
             $0.calendar = utcCalendar
         }
@@ -227,6 +231,95 @@ struct HomeFeatureTests {
         await store.receive(\.loadResponse)
         #expect(store.state.expireItems.map(\.id) == [todayId, weekId])
         #expect(store.state.expireItems.map(\.chipLabel) == ["0d left", "7d left"])
+    }
+
+    // MARK: - Tap an On Trend item to create a tracker
+
+    private static func makeTrend(
+        id: UUID,
+        name: String = "Coffee",
+        direction: PriceDirection = .up,
+        deltaPercent: Double = 6.0,
+        currentPrice: Double = 12.99
+    ) -> TrackerTrend {
+        TrackerTrend(
+            trackerId: id,
+            name: name,
+            direction: direction,
+            deltaPercent: deltaPercent,
+            currentPrice: currentPrice
+        )
+    }
+
+    @Test("Tapping an On Trend item tracks it, then reloads Home so the new tracker appears")
+    func trendItemTapCreatesTrackerAndReloads() async throws {
+        let trendId = try #require(UUID(uuidString: "00000000-0000-0000-0000-0000000000B1"))
+        let createdTracker = Self.makeTracker(
+            id: trendId,
+            name: "Coffee",
+            targetPrice: 9.00,
+            targetDirection: .below,
+            lastPrice: 8.99
+        )
+        var state = HomeFeature.State()
+        state.trendItems = HomeFeature.trendItems(from: [Self.makeTrend(id: trendId)])
+        let store = Self.makeStore(
+            initialState: state,
+            trends: { [Self.makeTrend(id: trendId)] },
+            trackers: { [createdTracker] },
+            trackTrend: { _ in createdTracker }
+        )
+        store.exhaustivity = .off
+
+        await store.send(.trendItemTapped(trendId)) {
+            $0.trackingTrendId = trendId
+        }
+        await store.receive(\.trendTrackResponse) {
+            $0.trackingTrendId = nil
+        }
+        // Success refreshes every Home section via onAppear.
+        await store.receive(\.onAppear)
+        await store.receive(\.loadResponse)
+        #expect(store.state.priceTargets.map(\.id) == [trendId])
+    }
+
+    @Test("A failed track request surfaces the error toast and clears the loading state")
+    func trendItemTapFailureShowsToast() async throws {
+        let trendId = try #require(UUID(uuidString: "00000000-0000-0000-0000-0000000000B1"))
+        let store = Self.makeStore(trackTrend: { _ in throw FakeError() })
+
+        await store.send(.trendItemTapped(trendId)) {
+            $0.trackingTrendId = trendId
+        }
+        await store.receive(\.trendTrackResponse) {
+            $0.trackingTrendId = nil
+            $0.errorMessage = FakeError().localizedDescription
+        }
+    }
+
+    @Test("A second tap while a track request is in flight is ignored")
+    func trendItemTapIgnoredWhileInFlight() async throws {
+        let firstId = try #require(UUID(uuidString: "00000000-0000-0000-0000-0000000000B1"))
+        let secondId = try #require(UUID(uuidString: "00000000-0000-0000-0000-0000000000B2"))
+        let createdTracker = Self.makeTracker(
+            id: firstId,
+            targetPrice: 9.00,
+            targetDirection: .below,
+            lastPrice: 8.99
+        )
+        let store = Self.makeStore(trackTrend: { _ in createdTracker })
+        store.exhaustivity = .off
+
+        await store.send(.trendItemTapped(firstId)) {
+            $0.trackingTrendId = firstId
+        }
+        // Blocked: no state change, no new effect.
+        await store.send(.trendItemTapped(secondId))
+        await store.receive(\.trendTrackResponse) {
+            $0.trackingTrendId = nil
+        }
+        await store.receive(\.onAppear)
+        await store.receive(\.loadResponse)
     }
 
     // MARK: - Detail sheets

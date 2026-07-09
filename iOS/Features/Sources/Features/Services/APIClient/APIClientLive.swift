@@ -215,6 +215,14 @@ extension APIClient {
                     as: [TrackerTrend].self
                 )
             },
+            trackTrend: { trackerId in
+                try await apiRequest(
+                    "POST",
+                    path: "/trackers/trends/\(trackerId)/track",
+                    token: keychain.loadToken(),
+                    as: Tracker.self
+                )
+            },
             createTracker: { req in
                 try await apiRequest(
                     "POST",
@@ -300,6 +308,24 @@ extension APIClient {
                         currentPrice: 8.99
                     ),
                 ]
+            },
+            trackTrend: { trackerId in
+                Tracker(
+                    id: trackerId,
+                    name: "Coffee",
+                    url: "https://example.com/coffee",
+                    currencySymbol: "$",
+                    targetPrice: 12.99,
+                    targetDirection: .below,
+                    status: .active,
+                    itemName: nil,
+                    itemImageUrl: nil,
+                    lastPrice: 12.99,
+                    lastCheckedAt: nil,
+                    checkInterval: 60,
+                    nextCheckedAt: nil,
+                    createdAt: Date(timeIntervalSince1970: 0)
+                )
             },
             createTracker: { _ in fatalError("not implemented in mock") },
             updateTracker: { _, _ in fatalError("not implemented in mock") },

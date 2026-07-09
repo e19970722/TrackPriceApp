@@ -11,6 +11,10 @@ public struct HomeFeature {
         public var priceTargets: [PriceTarget] = []
         public var errorMessage: String?
 
+        /// The trend item's id whose tap-to-track request is currently in flight,
+        /// used to show a spinner on that cell and to block concurrent taps.
+        public var trackingTrendId: UUID?
+
         /// Raw fetched domain models, kept alongside the mapped section rows so a
         /// row tap can look up the full model by id (`ExpireItem.id == Item.id`,
         /// `PriceTarget.id == Tracker.id`).
@@ -37,6 +41,8 @@ public struct HomeFeature {
             trackers: Result<[Tracker], any Error>
         )
         case errorToastDismissed
+        case trendItemTapped(UUID)
+        case trendTrackResponse(trackerId: UUID, Result<Tracker, any Error>)
         case expireItemTapped(UUID)
         case priceTargetTapped(UUID)
         case selectedItem(PresentationAction<ItemDetailFeature.Action>)
@@ -45,6 +51,7 @@ public struct HomeFeature {
 
     private enum CancelID {
         case load
+        case trackTrend
     }
 
     @Dependency(\.apiClient) var apiClient
@@ -99,6 +106,33 @@ public struct HomeFeature {
             case .errorToastDismissed:
                 state.errorMessage = nil
                 return .none
+
+            case let .trendItemTapped(id):
+                // Ignore taps while a track request is already in flight so a
+                // double-tap can't clone the same item twice.
+                guard state.trackingTrendId == nil else { return .none }
+                state.trackingTrendId = id
+                return .run { send in
+                    await send(.trendTrackResponse(
+                        trackerId: id,
+                        caught { try await apiClient.trackTrend(id) }
+                    ))
+                }
+                .cancellable(id: CancelID.trackTrend)
+
+            case let .trendTrackResponse(id, result):
+                // A stale response for a different in-flight id is ignored.
+                guard state.trackingTrendId == id else { return .none }
+                state.trackingTrendId = nil
+                switch result {
+                case .success:
+                    // Reload every Home section so the freshly-created tracker is
+                    // reflected (same refresh path used after item mutations).
+                    return .send(.onAppear)
+                case let .failure(error):
+                    state.errorMessage = error.localizedDescription
+                    return .none
+                }
 
             case let .expireItemTapped(id):
                 guard let item = state.items.first(where: { $0.id == id }) else { return .none }
