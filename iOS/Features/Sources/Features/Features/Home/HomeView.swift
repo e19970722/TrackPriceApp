@@ -141,11 +141,24 @@ extension HomeView {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(alignment: .top, spacing: RipeSpacing.s4) {
                     ForEach(store.trendItems) { item in
-                        trendItemCell(item)
+                        trendItemCellButton(item)
                     }
                 }
                 .padding(.horizontal, RipeSpacing.s5)
             }
+        }
+    }
+
+    private func trendItemCellButton(_ item: HomeFeature.TrendItem) -> some View {
+        WithPerceptionTracking {
+            Button {
+                store.send(.trendItemTapped(item.id))
+            } label: {
+                trendItemCell(item)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .disabled(store.trackingTrendId != nil)
         }
     }
 
@@ -164,14 +177,30 @@ extension HomeView {
     }
 
     private func trendThumbnailWithBadge(_ item: HomeFeature.TrendItem) -> some View {
-        ZStack(alignment: .bottomTrailing) {
-            MonoThumbnail(
-                label: item.name,
-                categoryColor: item.color,
-                size: 58,
-                round: true
-            )
-            directionBadgeOverlay(item.direction)
+        WithPerceptionTracking {
+            ZStack(alignment: .bottomTrailing) {
+                MonoThumbnail(
+                    label: item.name,
+                    categoryColor: item.color,
+                    size: 58,
+                    round: true
+                )
+                directionBadgeOverlay(item.direction)
+                trendLoadingOverlay(item)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func trendLoadingOverlay(_ item: HomeFeature.TrendItem) -> some View {
+        if store.trackingTrendId == item.id {
+            ZStack {
+                Circle()
+                    .fill(Color(.ripeInk).opacity(0.45))
+                ProgressView()
+                    .tint(Color(.ripeSurface))
+            }
+            .frame(width: 58, height: 58)
         }
     }
 
