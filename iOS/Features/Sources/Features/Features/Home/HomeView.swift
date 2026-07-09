@@ -2,7 +2,7 @@ import ComposableArchitecture
 import SwiftUI
 
 public struct HomeView: View {
-    let store: StoreOf<HomeFeature>
+    @Perception.Bindable var store: StoreOf<HomeFeature>
 
     public init(store: StoreOf<HomeFeature>) {
         self.store = store
@@ -19,6 +19,13 @@ public struct HomeView: View {
             }
             .onAppear {
                 store.send(.onAppear)
+            }
+            .overlay(alignment: .bottom) { errorToastView }
+            .sheet(item: $store.scope(state: \.selectedItem, action: \.selectedItem)) { detailStore in
+                ItemDetailView(store: detailStore)
+            }
+            .sheet(item: $store.scope(state: \.selectedTracker, action: \.selectedTracker)) { detailStore in
+                TrackerDetailView(store: detailStore)
             }
         }
     }
@@ -67,12 +74,41 @@ extension HomeView {
     }
 
     private var avatarThumbnailView: some View {
-        MonoThumbnail(
-            label: "SR",
-            categoryColor: Color(.ripeAccent),
-            size: 46,
-            round: true
-        )
+        WithPerceptionTracking {
+            MonoThumbnail(
+                label: userInitials,
+                categoryColor: Color(.ripeAccent),
+                size: 46,
+                round: true
+            )
+        }
+    }
+
+    private var errorToastView: some View {
+        WithPerceptionTracking {
+            ZStack(alignment: .bottom) {
+                if let message = store.errorMessage {
+                    RipeToast(
+                        message: message,
+                        onDismiss: { store.send(.errorToastDismissed) },
+                        onRetry: {
+                            store.send(.errorToastDismissed)
+                            store.send(.onAppear)
+                        }
+                    )
+                    .padding(.horizontal, RipeSpacing.s5)
+                    .padding(.bottom, RipeSpacing.s4)
+                    .transition(.move(edge: .bottom).combined(with: .opacity).combined(with: .scale(
+                        scale: 0.9,
+                        anchor: .bottom
+                    )))
+                }
+            }
+            .animation(
+                .spring(response: 0.35, dampingFraction: 0.7),
+                value: store.errorMessage != nil
+            )
+        }
     }
 
     // MARK: 2 — On Trend Tracks
@@ -180,11 +216,23 @@ extension HomeView {
         WithPerceptionTracking {
             VStack(spacing: 12) {
                 ForEach(store.expireItems) { item in
-                    expireItemCard(item)
+                    expireItemRowButton(item)
                 }
             }
             .padding(.horizontal, RipeSpacing.s5)
         }
+    }
+
+    private func expireItemRowButton(_ item: HomeFeature.ExpireItem) -> some View {
+        Button {
+            store.send(.expireItemTapped(item.id))
+        } label: {
+            expireItemCard(item)
+                // Plain button style skips hit-testing transparent areas (the
+                // Spacer inside the card), so force the full card as tap target.
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     private func expireItemCard(_ item: HomeFeature.ExpireItem) -> some View {
@@ -244,11 +292,23 @@ extension HomeView {
         WithPerceptionTracking {
             VStack(spacing: 12) {
                 ForEach(store.priceTargets) { target in
-                    priceTargetCard(target)
+                    priceTargetRowButton(target)
                 }
             }
             .padding(.horizontal, RipeSpacing.s5)
         }
+    }
+
+    private func priceTargetRowButton(_ target: HomeFeature.PriceTarget) -> some View {
+        Button {
+            store.send(.priceTargetTapped(target.id))
+        } label: {
+            priceTargetCard(target)
+                // Plain button style skips hit-testing transparent areas (the
+                // Spacer in the footer row), so force the full card as tap target.
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     private func priceTargetCard(_ target: HomeFeature.PriceTarget) -> some View {
@@ -342,6 +402,18 @@ extension HomeView {
         }
         .padding(.horizontal, RipeSpacing.s4)
         .padding(.vertical, RipeSpacing.s3)
+    }
+}
+
+// MARK: - Helpers
+
+extension HomeView {
+    private var userInitials: String {
+        let words = store.userName
+            .split(separator: " ")
+            .prefix(2)
+            .compactMap { $0.first.map { String($0) } }
+        return words.isEmpty ? "?" : words.joined()
     }
 }
 

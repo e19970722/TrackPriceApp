@@ -72,6 +72,10 @@ public enum L10n {
         public static func priceTargetHits(_ count: Int) -> String {
             L10n.tr("home.priceTargetHits", count, fallback: "%d hits")
         }
+
+        public static func targetWas(_ price: String) -> String {
+            L10n.tr("home.targetWas", price, fallback: "Target was %@")
+        }
     }
 
     // MARK: - TrackerList
