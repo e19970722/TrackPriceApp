@@ -32,6 +32,8 @@ def _fake_user() -> MagicMock:
     u.notify_expiring_soon = True
     u.notify_running_low = True
     u.notify_weekly_digest = False
+    u.expiring_soon_days_before = 3
+    u.running_low_threshold = 1
     return u
 
 
@@ -96,9 +98,13 @@ async def test_get_me_returns_user():
         "expiring_soon": True,
         "running_low": True,
         "weekly_digest": False,
+        "expiring_soon_days_before": 3,
+        "running_low_threshold": 1,
     }
     # Flat columns must not leak into the response body.
     assert "notify_price_drops" not in data
+    assert "expiring_soon_days_before" not in data
+    assert "running_low_threshold" not in data
 
 
 @pytest.mark.asyncio
@@ -148,6 +154,8 @@ async def test_patch_me_partial_notification_preferences_merge():
         "expiring_soon": True,
         "running_low": True,
         "weekly_digest": True,
+        "expiring_soon_days_before": 3,
+        "running_low_threshold": 1,
     }
 
 
@@ -193,3 +201,68 @@ async def test_patch_me_apns_token_and_preferences_in_one_body():
     assert user.notify_price_drops is True
     data = response.json()
     assert data["notification_preferences"]["expiring_soon"] is False
+
+
+@pytest.mark.asyncio
+async def test_patch_me_updates_numeric_notification_settings():
+    """The two int settings persist and round-trip through notification_preferences."""
+    user = _fake_user()
+    session = _mock_db(user)
+    _override_auth(user)
+    _override_db(session)
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        patch_response = await client.patch(
+            "/users/me",
+            json={
+                "notification_preferences": {
+                    "expiring_soon_days_before": 7,
+                    "running_low_threshold": 5,
+                }
+            },
+            headers={"Authorization": "Bearer fake"},
+        )
+
+    assert patch_response.status_code == 200
+    assert user.expiring_soon_days_before == 7
+    assert user.running_low_threshold == 5
+    # Other preferences untouched.
+    assert user.notify_price_drops is True
+    prefs = patch_response.json()["notification_preferences"]
+    assert prefs["expiring_soon_days_before"] == 7
+    assert prefs["running_low_threshold"] == 5
+
+    # Round-trip through GET /users/me.
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        get_response = await client.get("/users/me", headers={"Authorization": "Bearer fake"})
+
+    assert get_response.status_code == 200
+    get_prefs = get_response.json()["notification_preferences"]
+    assert get_prefs["expiring_soon_days_before"] == 7
+    assert get_prefs["running_low_threshold"] == 5
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "payload",
+    [
+        {"expiring_soon_days_before": 0},
+        {"expiring_soon_days_before": 31},
+        {"running_low_threshold": 0},
+        {"running_low_threshold": 100},
+    ],
+)
+async def test_patch_me_numeric_settings_out_of_range_returns_422(payload):
+    user = _fake_user()
+    session = _mock_db(user)
+    _override_auth(user)
+    _override_db(session)
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.patch(
+            "/users/me",
+            json={"notification_preferences": payload},
+            headers={"Authorization": "Bearer fake"},
+        )
+
+    assert response.status_code == 422

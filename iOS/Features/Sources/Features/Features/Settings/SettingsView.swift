@@ -3,6 +3,29 @@ import SwiftUI
 
 public struct SettingsView: View {
     @Perception.Bindable var store: StoreOf<SettingsFeature>
+    @FocusState private var focusedField: NumericField?
+
+    /// Editable draft strings for the numeric notification fields. Seeded from
+    /// `store.preferences` when a field gains focus and committed (parsed +
+    /// clamped) back into `store.preferences` when it loses focus. Holding the
+    /// in-progress text here keeps `store.preferences` the source of truth while
+    /// still letting the user type freely (including a transiently empty field).
+    @State private var draftValues: [NumericField: String] = [:]
+
+    /// The two numeric preferences editable via a trailing `TextField`. Each
+    /// case owns the `NotificationPreferences` key path it edits so the row
+    /// helper needs only the field, not a separate key-path argument.
+    enum NumericField: Hashable {
+        case expiringSoonDaysBefore
+        case runningLowThreshold
+
+        var keyPath: WritableKeyPath<NotificationPreferences, Int> {
+            switch self {
+            case .expiringSoonDaysBefore: \.expiringSoonDaysBefore
+            case .runningLowThreshold: \.runningLowThreshold
+            }
+        }
+    }
 
     public init(store: StoreOf<SettingsFeature>) {
         self.store = store
@@ -77,6 +100,17 @@ extension SettingsView {
             .padding(.horizontal, RipeSpacing.s5)
             .padding(.top, RipeSpacing.s6)
             .padding(.bottom, RipeSpacing.s7)
+        }
+        .scrollDismissesKeyboard(.interactively)
+        .toolbar { keyboardDoneToolbar }
+    }
+
+    private var keyboardDoneToolbar: some ToolbarContent {
+        ToolbarItemGroup(placement: .keyboard) {
+            Spacer()
+            Button(L10n.Common.done) {
+                focusedField = nil
+            }
         }
     }
 
@@ -190,15 +224,24 @@ extension SettingsView {
                         iconColor: Color(.ripeCat1),
                         title: L10n.Settings.priceDrops,
                         detail: "When a track hits target",
-                        isOn: $store.preferences.sending(\.preferenceToggled).priceDrops,
+                        isOn: $store.preferences.sending(\.preferencesChanged).priceDrops,
                         isLast: false
                     )
                     notificationToggleRow(
                         icon: "clock",
                         iconColor: Color(.ripeWarn),
                         title: L10n.Settings.expiringSoon,
-                        detail: "3 days before",
-                        isOn: $store.preferences.sending(\.preferenceToggled).expiringSoon,
+                        detail: "\(store.preferences.expiringSoonDaysBefore) days before",
+                        isOn: $store.preferences.sending(\.preferencesChanged).expiringSoon,
+                        isLast: false
+                    )
+                    notificationFieldRow(
+                        icon: "calendar",
+                        iconColor: Color(.ripeWarn),
+                        title: "Days before expiry",
+                        detail: "How early to warn",
+                        field: .expiringSoonDaysBefore,
+                        range: 1 ... 30,
                         isLast: false
                     )
                     notificationToggleRow(
@@ -206,7 +249,16 @@ extension SettingsView {
                         iconColor: Color(.ripeCat5),
                         title: L10n.Settings.runningLow,
                         detail: "At reorder point",
-                        isOn: $store.preferences.sending(\.preferenceToggled).runningLow,
+                        isOn: $store.preferences.sending(\.preferencesChanged).runningLow,
+                        isLast: false
+                    )
+                    notificationFieldRow(
+                        icon: "number",
+                        iconColor: Color(.ripeCat5),
+                        title: "Running-low threshold",
+                        detail: "Units left before alert",
+                        field: .runningLowThreshold,
+                        range: 1 ... 99,
                         isLast: false
                     )
                     notificationToggleRow(
@@ -214,7 +266,7 @@ extension SettingsView {
                         iconColor: Color(.ripeInk2),
                         title: L10n.Settings.weeklyDigest,
                         detail: "Sunday summary",
-                        isOn: $store.preferences.sending(\.preferenceToggled).weeklyDigest,
+                        isOn: $store.preferences.sending(\.preferencesChanged).weeklyDigest,
                         isLast: true
                     )
                 }
@@ -386,6 +438,110 @@ extension SettingsView {
                     .padding(.leading, RipeSpacing.s4 + 36 + RipeSpacing.s3)
             }
         }
+    }
+
+    /// Inline variant of `notificationToggleRow` for numeric preferences: the
+    /// icon + title/detail header sits on the left and a compact trailing
+    /// `TextField` (where a `Toggle` would be) takes the typed value.
+    ///
+    /// The field edits a draft `String` while focused so the user can type
+    /// freely; `commitField` parses + clamps to `range` and dispatches the full
+    /// mutated `NotificationPreferences` via `.preferencesChanged` on focus loss.
+    private func notificationFieldRow(
+        icon: String,
+        iconColor: Color,
+        title: String,
+        detail: String,
+        field: NumericField,
+        range: ClosedRange<Int> = 1 ... 99,
+        isLast: Bool = false
+    ) -> some View {
+        VStack(spacing: 0) {
+            HStack(spacing: RipeSpacing.s3) {
+                iconTileView(systemName: icon, color: iconColor)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .customFont(.semibold15)
+                        .foregroundStyle(Color(.ripeInk))
+                    Text(detail)
+                        .customFont(.medium12)
+                        .foregroundStyle(Color(.ripeInk2))
+                }
+                Spacer()
+                numericFieldControl(field: field, range: range)
+            }
+            .padding(.horizontal, RipeSpacing.s4)
+            .padding(.vertical, RipeSpacing.s3)
+
+            if !isLast {
+                Color(.ripeLine)
+                    .frame(height: 1)
+                    .padding(.leading, RipeSpacing.s4 + 36 + RipeSpacing.s3)
+            }
+        }
+    }
+
+    private func numericFieldControl(
+        field: NumericField,
+        range: ClosedRange<Int>
+    ) -> some View {
+        RipeInputShell(isFocused: focusedField == field) {
+            TextField("", text: draftBinding(for: field))
+                .keyboardType(.numberPad)
+                .multilineTextAlignment(.center)
+                .customFont(.bold17)
+                .monospacedDigit()
+                .foregroundStyle(Color(.ripeInk))
+                .frame(minWidth: 44)
+                .fixedSize()
+                .focused($focusedField, equals: field)
+        }
+        .fixedSize()
+        .onChange(of: focusedField) { newValue in
+            // Commit when this field loses focus (numberPad has no return key).
+            guard newValue != field else { return }
+            commitField(field, range: range)
+        }
+    }
+
+    /// While focused the field edits `draftValues[field]`; otherwise it mirrors
+    /// the committed value in `store.preferences` so external updates (server
+    /// response, retry) stay reflected.
+    private func draftBinding(for field: NumericField) -> Binding<String> {
+        Binding(
+            get: {
+                if let draft = draftValues[field] {
+                    return draft
+                }
+                return String(store.preferences[keyPath: field.keyPath])
+            },
+            set: { draftValues[field] = $0 }
+        )
+    }
+
+    /// Parses the draft String, clamps to `range`, and dispatches the full
+    /// mutated preferences if the value changed. An empty/invalid entry falls
+    /// back to the current committed value (never an out-of-range payload,
+    /// which the backend rejects with 422). Clears the draft so the field
+    /// snaps back to the source-of-truth value.
+    private func commitField(_ field: NumericField, range: ClosedRange<Int>) {
+        defer { draftValues[field] = nil }
+        guard let draft = draftValues[field] else { return }
+        let current = store.preferences[keyPath: field.keyPath]
+        let parsed = Int(draft.trimmingCharacters(in: .whitespaces)) ?? current
+        sendPreferenceValue(value: field.keyPath, newValue: parsed, range: range)
+    }
+
+    private func sendPreferenceValue(
+        value: WritableKeyPath<NotificationPreferences, Int>,
+        newValue: Int,
+        range: ClosedRange<Int>
+    ) {
+        let clamped = min(max(newValue, range.lowerBound), range.upperBound)
+        var updated = store.preferences
+        guard clamped != updated[keyPath: value] else { return }
+        updated[keyPath: value] = clamped
+        store.send(.preferencesChanged(updated))
     }
 }
 

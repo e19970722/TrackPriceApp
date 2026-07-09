@@ -25,7 +25,9 @@ struct SettingsFeatureTests {
             priceDrops: true,
             expiringSoon: false,
             runningLow: true,
-            weeklyDigest: true
+            weeklyDigest: true,
+            expiringSoonDaysBefore: 7,
+            runningLowThreshold: 2
         )
         let user = Self.makeUser(preferences: serverPreferences)
         let store = TestStore(initialState: SettingsFeature.State()) {
@@ -125,7 +127,7 @@ struct SettingsFeatureTests {
             $0.errorMessage = nil
             $0.failedPreferencesUpdate = nil
         }
-        await store.receive(\.preferenceToggled) {
+        await store.receive(\.preferencesChanged) {
             $0.preferences = toggled
         }
         await store.receive(\.preferencesUpdateResponse) {
@@ -155,13 +157,71 @@ struct SettingsFeatureTests {
             }
         }
 
-        await store.send(.preferenceToggled(toggled)) {
+        await store.send(.preferencesChanged(toggled)) {
             $0.preferences = toggled
         }
         await store.receive(\.preferencesUpdateResponse) {
             $0.user = updatedUser
         }
         #expect(sentPreferences.value == toggled)
+    }
+
+    @Test("Bumping a numeric preference updates optimistically and PATCHes the full object")
+    func numericPreferenceOptimisticallyUpdatesAndPatches() async {
+        let user = Self.makeUser()
+        var bumped = NotificationPreferences.default
+        bumped.expiringSoonDaysBefore = 4
+        var updatedUser = user
+        updatedUser.notificationPreferences = bumped
+
+        let sentPreferences = LockIsolated<NotificationPreferences?>(nil)
+        var initialState = SettingsFeature.State()
+        initialState.user = user
+        initialState.preferences = user.notificationPreferences
+
+        let store = TestStore(initialState: initialState) {
+            SettingsFeature()
+        } withDependencies: {
+            $0.apiClient.updateNotificationPreferences = { preferences in
+                sentPreferences.setValue(preferences)
+                return updatedUser
+            }
+        }
+
+        await store.send(.preferencesChanged(bumped)) {
+            $0.preferences = bumped
+        }
+        await store.receive(\.preferencesUpdateResponse) {
+            $0.user = updatedUser
+        }
+        #expect(sentPreferences.value == bumped)
+        #expect(sentPreferences.value?.expiringSoonDaysBefore == 4)
+    }
+
+    @Test("A failed numeric preference update reverts and stashes the attempt for retry")
+    func numericPreferenceFailureRevertsAndShowsToast() async {
+        let user = Self.makeUser()
+        var bumped = NotificationPreferences.default
+        bumped.expiringSoonDaysBefore = 5
+
+        var initialState = SettingsFeature.State()
+        initialState.user = user
+        initialState.preferences = user.notificationPreferences
+
+        let store = TestStore(initialState: initialState) {
+            SettingsFeature()
+        } withDependencies: {
+            $0.apiClient.updateNotificationPreferences = { _ in throw FakeError() }
+        }
+
+        await store.send(.preferencesChanged(bumped)) {
+            $0.preferences = bumped
+        }
+        await store.receive(\.preferencesUpdateResponse) {
+            $0.preferences = user.notificationPreferences
+            $0.errorMessage = FakeError().localizedDescription
+            $0.failedPreferencesUpdate = bumped
+        }
     }
 
     @Test("A failed preference update reverts, surfaces the toast, and stashes the attempt for retry")
@@ -180,7 +240,7 @@ struct SettingsFeatureTests {
             $0.apiClient.updateNotificationPreferences = { _ in throw FakeError() }
         }
 
-        await store.send(.preferenceToggled(toggled)) {
+        await store.send(.preferencesChanged(toggled)) {
             $0.preferences = toggled
         }
         await store.receive(\.preferencesUpdateResponse) {

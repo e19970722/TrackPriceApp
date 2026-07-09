@@ -30,7 +30,7 @@ public struct SettingsFeature {
     public enum Action {
         case task
         case meResponse(Result<User, any Error>)
-        case preferenceToggled(NotificationPreferences)
+        case preferencesChanged(NotificationPreferences)
         case preferencesUpdateResponse(attempted: NotificationPreferences, Result<User, any Error>)
         case errorToastDismissed
         case errorToastRetryTapped
@@ -79,7 +79,7 @@ public struct SettingsFeature {
                 state.errorMessage = error.localizedDescription
                 return .none
 
-            case let .preferenceToggled(preferences):
+            case let .preferencesChanged(preferences):
                 // Optimistic update; the PATCH always sends the full 4-key object.
                 state.preferences = preferences
                 return .run { send in
@@ -113,7 +113,7 @@ public struct SettingsFeature {
                 state.errorMessage = nil
                 if let attempted = state.failedPreferencesUpdate {
                     state.failedPreferencesUpdate = nil
-                    return .send(.preferenceToggled(attempted))
+                    return .send(.preferencesChanged(attempted))
                 }
                 return .run { send in
                     await send(.meResponse(Result { try await apiClient.fetchMe() }))
