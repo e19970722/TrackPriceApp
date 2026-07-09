@@ -4,8 +4,10 @@ import XCTest
 
 @MainActor
 final class TrackerListFeatureTests: XCTestCase {
-    func testOnAppearLoadsTrackers() async {
-        let store = TestStore(initialState: TrackerListFeature.State()) {
+    func testOnAppearWithTrackersSegmentLoadsTrackers() async {
+        var initialState = TrackerListFeature.State()
+        initialState.selectedSegment = .trackers
+        let store = TestStore(initialState: initialState) {
             TrackerListFeature()
         } withDependencies: { deps in
             deps.apiClient = .mock
@@ -14,21 +16,18 @@ final class TrackerListFeatureTests: XCTestCase {
         await store.receive(\.trackersLoaded) { $0.isLoading = false }
     }
 
-    func testOnAppearWithItemsSegmentDoesNotFetchTrackers() async {
-        var initialState = TrackerListFeature.State()
-        initialState.selectedSegment = .items
-        let store = TestStore(initialState: initialState) {
+    func testOnAppearWithDefaultItemsSegmentDoesNotFetchTrackers() async {
+        let store = TestStore(initialState: TrackerListFeature.State()) {
             TrackerListFeature()
         } withDependencies: { deps in
             deps.apiClient = .mock
         }
+        XCTAssertEqual(store.state.selectedSegment, .items)
         await store.send(.onAppear)
     }
 
     func testSegmentChangedToTrackersFetchesTrackers() async {
-        var initialState = TrackerListFeature.State()
-        initialState.selectedSegment = .items
-        let store = TestStore(initialState: initialState) {
+        let store = TestStore(initialState: TrackerListFeature.State()) {
             TrackerListFeature()
         } withDependencies: { deps in
             deps.apiClient = .mock
@@ -44,6 +43,6 @@ final class TrackerListFeatureTests: XCTestCase {
         } withDependencies: { deps in
             deps.apiClient = .mock
         }
-        await store.send(.segmentChanged(.trackers))
+        await store.send(.segmentChanged(.items))
     }
 }

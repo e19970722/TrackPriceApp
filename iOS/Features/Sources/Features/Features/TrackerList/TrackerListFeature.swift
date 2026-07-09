@@ -14,7 +14,7 @@ public struct TrackerListFeature {
         public var errorMessage: String?
         @Presents public var addTracker: AddPriceTrackerFeature.State?
         @Presents public var selectedTracker: TrackerDetailFeature.State?
-        public var selectedSegment: Segment = .trackers
+        public var selectedSegment: Segment = .items
         public var items: ItemsFeature.State = .init()
         public init() {}
 
