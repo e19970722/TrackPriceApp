@@ -22,6 +22,7 @@ htmlcov/
 .env
 .env.*
 !.env.example
+celerybeat-schedule.db
 
 # iOS / Xcode
 iOS/build/
