@@ -190,15 +190,24 @@ extension SettingsView {
                         iconColor: Color(.ripeCat1),
                         title: L10n.Settings.priceDrops,
                         detail: "When a track hits target",
-                        isOn: $store.preferences.sending(\.preferenceToggled).priceDrops,
+                        isOn: $store.preferences.sending(\.preferencesChanged).priceDrops,
                         isLast: false
                     )
                     notificationToggleRow(
                         icon: "clock",
                         iconColor: Color(.ripeWarn),
                         title: L10n.Settings.expiringSoon,
-                        detail: "3 days before",
-                        isOn: $store.preferences.sending(\.preferenceToggled).expiringSoon,
+                        detail: "\(store.preferences.expiringSoonDaysBefore) days before",
+                        isOn: $store.preferences.sending(\.preferencesChanged).expiringSoon,
+                        isLast: false
+                    )
+                    notificationStepperRow(
+                        icon: "calendar",
+                        iconColor: Color(.ripeWarn),
+                        title: "Days before expiry",
+                        detail: "How early to warn",
+                        value: \.expiringSoonDaysBefore,
+                        range: 1 ... 30,
                         isLast: false
                     )
                     notificationToggleRow(
@@ -206,7 +215,16 @@ extension SettingsView {
                         iconColor: Color(.ripeCat5),
                         title: L10n.Settings.runningLow,
                         detail: "At reorder point",
-                        isOn: $store.preferences.sending(\.preferenceToggled).runningLow,
+                        isOn: $store.preferences.sending(\.preferencesChanged).runningLow,
+                        isLast: false
+                    )
+                    notificationStepperRow(
+                        icon: "number",
+                        iconColor: Color(.ripeCat5),
+                        title: "Running-low threshold",
+                        detail: "Units left before alert",
+                        value: \.runningLowThreshold,
+                        range: 1 ... 99,
                         isLast: false
                     )
                     notificationToggleRow(
@@ -214,7 +232,7 @@ extension SettingsView {
                         iconColor: Color(.ripeInk2),
                         title: L10n.Settings.weeklyDigest,
                         detail: "Sunday summary",
-                        isOn: $store.preferences.sending(\.preferenceToggled).weeklyDigest,
+                        isOn: $store.preferences.sending(\.preferencesChanged).weeklyDigest,
                         isLast: true
                     )
                 }
@@ -386,6 +404,73 @@ extension SettingsView {
                     .padding(.leading, RipeSpacing.s4 + 36 + RipeSpacing.s3)
             }
         }
+    }
+
+    /// A stacked variant of `notificationToggleRow` for numeric preferences.
+    /// `QuantityStepper` uses 52pt tiles, so the control sits on its own line
+    /// below the icon + title/detail header rather than trailing inline.
+    ///
+    /// `QuantityStepper` is String-bound with parent-owned increment/decrement
+    /// closures; this helper bridges Int<->String, clamps to `range`, and
+    /// dispatches the full mutated `NotificationPreferences` via
+    /// `.preferencesChanged`.
+    private func notificationStepperRow(
+        icon: String,
+        iconColor: Color,
+        title: String,
+        detail: String,
+        value: WritableKeyPath<NotificationPreferences, Int>,
+        range: ClosedRange<Int> = 1 ... 99,
+        isLast: Bool = false
+    ) -> some View {
+        let current = store.preferences[keyPath: value]
+        return VStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: RipeSpacing.s3) {
+                HStack(spacing: RipeSpacing.s3) {
+                    iconTileView(systemName: icon, color: iconColor)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(title)
+                            .customFont(.semibold15)
+                            .foregroundStyle(Color(.ripeInk))
+                        Text(detail)
+                            .customFont(.medium12)
+                            .foregroundStyle(Color(.ripeInk2))
+                    }
+                    Spacer()
+                }
+                QuantityStepper(
+                    quantity: .constant(String(current)),
+                    decrementDisabled: current <= range.lowerBound,
+                    onDecrement: {
+                        sendPreferenceValue(value: value, newValue: current - 1, range: range)
+                    },
+                    onIncrement: {
+                        sendPreferenceValue(value: value, newValue: current + 1, range: range)
+                    }
+                )
+                .frame(maxWidth: .infinity)
+            }
+            .padding(.horizontal, RipeSpacing.s4)
+            .padding(.vertical, RipeSpacing.s3)
+
+            if !isLast {
+                Color(.ripeLine)
+                    .frame(height: 1)
+                    .padding(.leading, RipeSpacing.s4 + 36 + RipeSpacing.s3)
+            }
+        }
+    }
+
+    private func sendPreferenceValue(
+        value: WritableKeyPath<NotificationPreferences, Int>,
+        newValue: Int,
+        range: ClosedRange<Int>
+    ) {
+        let clamped = min(max(newValue, range.lowerBound), range.upperBound)
+        var updated = store.preferences
+        guard clamped != updated[keyPath: value] else { return }
+        updated[keyPath: value] = clamped
+        store.send(.preferencesChanged(updated))
     }
 }
 

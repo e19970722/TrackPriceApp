@@ -15,6 +15,8 @@ _PREF_COLUMNS = {
     "expiring_soon": "notify_expiring_soon",
     "running_low": "notify_running_low",
     "weekly_digest": "notify_weekly_digest",
+    "expiring_soon_days_before": "expiring_soon_days_before",
+    "running_low_threshold": "running_low_threshold",
 }
 
 

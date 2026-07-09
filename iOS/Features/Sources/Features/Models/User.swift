@@ -30,18 +30,31 @@ public struct NotificationPreferences: Codable, Equatable, Sendable {
     public var expiringSoon: Bool
     public var runningLow: Bool
     public var weeklyDigest: Bool
+    public var expiringSoonDaysBefore: Int
+    public var runningLowThreshold: Int
 
-    public init(priceDrops: Bool, expiringSoon: Bool, runningLow: Bool, weeklyDigest: Bool) {
+    public init(
+        priceDrops: Bool,
+        expiringSoon: Bool,
+        runningLow: Bool,
+        weeklyDigest: Bool,
+        expiringSoonDaysBefore: Int,
+        runningLowThreshold: Int
+    ) {
         self.priceDrops = priceDrops
         self.expiringSoon = expiringSoon
         self.runningLow = runningLow
         self.weeklyDigest = weeklyDigest
+        self.expiringSoonDaysBefore = expiringSoonDaysBefore
+        self.runningLowThreshold = runningLowThreshold
     }
 
     public static let `default` = NotificationPreferences(
         priceDrops: true,
         expiringSoon: true,
         runningLow: true,
-        weeklyDigest: false
+        weeklyDigest: false,
+        expiringSoonDaysBefore: 3,
+        runningLowThreshold: 1
     )
 }
