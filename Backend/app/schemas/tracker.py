@@ -45,6 +45,14 @@ class TrackerOut(BaseModel):
     created_at: datetime
 
 
+class TrackerTrendOut(BaseModel):
+    tracker_id: uuid.UUID
+    name: str
+    direction: str  # "up" | "down"
+    delta_percent: float
+    current_price: float
+
+
 class PriceSnapshotOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

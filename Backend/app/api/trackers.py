@@ -8,7 +8,13 @@ from app.auth import get_current_user
 from app.database import get_db
 from app.models.user import User
 from app.repositories import snapshot_repo
-from app.schemas.tracker import PriceSnapshotOut, TrackerCreate, TrackerOut, TrackerUpdate
+from app.schemas.tracker import (
+    PriceSnapshotOut,
+    TrackerCreate,
+    TrackerOut,
+    TrackerTrendOut,
+    TrackerUpdate,
+)
 from app.services import tracker_service
 
 router = APIRouter(prefix="/trackers", tags=["trackers"])
@@ -29,6 +35,16 @@ async def create_tracker(
     db: AsyncSession = Depends(get_db),
 ) -> TrackerOut:
     return await tracker_service.create_user_tracker(db, current_user, body)  # type: ignore[return-value]
+
+
+# NOTE: must stay registered before the dynamic "/{tracker_id}" routes below,
+# otherwise FastAPI tries to parse "trends" as a tracker UUID (422).
+@router.get("/trends", response_model=List[TrackerTrendOut])
+async def get_tracker_trends(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> List[TrackerTrendOut]:
+    return await tracker_service.get_user_tracker_trends(db, current_user)
 
 
 @router.get("/{tracker_id}", response_model=TrackerOut)
