@@ -38,13 +38,32 @@ extension SettingsView {
             .sheet(isPresented: $store.isSafariPresented.sending(\.safariPresented)) {
                 safariSheetView
             }
-            .confirmationDialog(
-                L10n.Settings.signOutConfirmTitle,
-                isPresented: $store.isSignOutConfirmationPresented.sending(\.signOutConfirmationPresented),
-                titleVisibility: .visible
-            ) {
-                signOutDialogButtons
+            .background(signOutAlertHostView)
+            .overlay(alignment: .bottom) { errorToastView }
+    }
+
+    private var errorToastView: some View {
+        WithPerceptionTracking {
+            ZStack(alignment: .bottom) {
+                if let message = store.errorMessage {
+                    RipeToast(
+                        message: message,
+                        onDismiss: { store.send(.errorToastDismissed) },
+                        onRetry: { store.send(.errorToastRetryTapped) }
+                    )
+                    .padding(.horizontal, RipeSpacing.s5)
+                    .padding(.bottom, RipeSpacing.s4)
+                    .transition(.move(edge: .bottom).combined(with: .opacity).combined(with: .scale(
+                        scale: 0.9,
+                        anchor: .bottom
+                    )))
+                }
             }
+            .animation(
+                .spring(response: 0.35, dampingFraction: 0.7),
+                value: store.errorMessage != nil
+            )
+        }
     }
 
     private var scrollContentView: some View {
@@ -84,6 +103,21 @@ extension SettingsView {
     private var safariSheetView: some View {
         SafariView(url: Config.privacyPolicyURL)
             .ignoresSafeArea()
+    }
+
+    /// Hosts the sign-out alert on a hidden view so a neutral tint can be
+    /// scoped to the alert alone: alert buttons inherit the presenting view's
+    /// tint (the global `.ripeAccent` otherwise), so this keeps Cancel gray
+    /// while the destructive role keeps "Sign out" red.
+    private var signOutAlertHostView: some View {
+        Color.clear
+            .alert(
+                L10n.Settings.signOutConfirmTitle,
+                isPresented: $store.isSignOutConfirmationPresented.sending(\.signOutConfirmationPresented)
+            ) {
+                signOutDialogButtons
+            }
+            .tint(Color(.ripeInk2))
     }
 
     @ViewBuilder

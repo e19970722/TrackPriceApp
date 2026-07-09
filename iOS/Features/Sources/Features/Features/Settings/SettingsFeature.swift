@@ -14,6 +14,10 @@ public struct SettingsFeature {
     public struct State: Equatable {
         public var user: User?
         public var preferences: NotificationPreferences = .default
+        public var errorMessage: String?
+        /// The preferences payload of the most recent failed PATCH, kept only so the
+        /// error toast's Retry can re-apply it. Cleared on success, retry, and dismiss.
+        public var failedPreferencesUpdate: NotificationPreferences?
         public var destination: Destination?
         public var isMailComposerPresented: Bool = false
         public var isSafariPresented: Bool = false
@@ -27,7 +31,9 @@ public struct SettingsFeature {
         case task
         case meResponse(Result<User, any Error>)
         case preferenceToggled(NotificationPreferences)
-        case preferencesUpdateResponse(Result<User, any Error>)
+        case preferencesUpdateResponse(attempted: NotificationPreferences, Result<User, any Error>)
+        case errorToastDismissed
+        case errorToastRetryTapped
         case rowTapped(Destination)
         case destinationChanged(Destination?)
         case helpTapped
@@ -67,29 +73,51 @@ public struct SettingsFeature {
                 state.preferences = user.notificationPreferences
                 return .none
 
-            case .meResponse(.failure):
-                // Silent: the header falls back to placeholders and toggles keep defaults.
+            case let .meResponse(.failure(error)):
+                // The header falls back to placeholders and toggles keep defaults;
+                // the toast offers a manual retry of the load.
+                state.errorMessage = error.localizedDescription
                 return .none
 
             case let .preferenceToggled(preferences):
                 // Optimistic update; the PATCH always sends the full 4-key object.
                 state.preferences = preferences
                 return .run { send in
-                    await send(.preferencesUpdateResponse(Result {
-                        try await apiClient.updateNotificationPreferences(preferences)
-                    }))
+                    await send(.preferencesUpdateResponse(
+                        attempted: preferences,
+                        Result { try await apiClient.updateNotificationPreferences(preferences) }
+                    ))
                 }
                 .cancellable(id: CancelID.updatePreferences, cancelInFlight: true)
 
-            case let .preferencesUpdateResponse(.success(user)):
+            case let .preferencesUpdateResponse(_, .success(user)):
                 state.user = user
                 state.preferences = user.notificationPreferences
+                state.failedPreferencesUpdate = nil
                 return .none
 
-            case .preferencesUpdateResponse(.failure):
-                // Silent revert to the last-known server values.
+            case let .preferencesUpdateResponse(attempted, .failure(error)):
+                // Revert to the last-known server values; the toast offers a retry
+                // of the attempted payload.
                 state.preferences = state.user?.notificationPreferences ?? .default
+                state.errorMessage = error.localizedDescription
+                state.failedPreferencesUpdate = attempted
                 return .none
+
+            case .errorToastDismissed:
+                state.errorMessage = nil
+                state.failedPreferencesUpdate = nil
+                return .none
+
+            case .errorToastRetryTapped:
+                state.errorMessage = nil
+                if let attempted = state.failedPreferencesUpdate {
+                    state.failedPreferencesUpdate = nil
+                    return .send(.preferenceToggled(attempted))
+                }
+                return .run { send in
+                    await send(.meResponse(Result { try await apiClient.fetchMe() }))
+                }
 
             case let .rowTapped(destination):
                 state.destination = destination
