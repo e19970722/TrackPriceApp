@@ -38,12 +38,7 @@ extension SettingsView {
             .sheet(isPresented: $store.isSafariPresented.sending(\.safariPresented)) {
                 safariSheetView
             }
-            .alert(
-                L10n.Settings.signOutConfirmTitle,
-                isPresented: $store.isSignOutConfirmationPresented.sending(\.signOutConfirmationPresented)
-            ) {
-                signOutDialogButtons
-            }
+            .background(signOutAlertHostView)
             .overlay(alignment: .bottom) { errorToastView }
     }
 
@@ -108,6 +103,21 @@ extension SettingsView {
     private var safariSheetView: some View {
         SafariView(url: Config.privacyPolicyURL)
             .ignoresSafeArea()
+    }
+
+    /// Hosts the sign-out alert on a hidden view so a neutral tint can be
+    /// scoped to the alert alone: alert buttons inherit the presenting view's
+    /// tint (the global `.ripeAccent` otherwise), so this keeps Cancel gray
+    /// while the destructive role keeps "Sign out" red.
+    private var signOutAlertHostView: some View {
+        Color.clear
+            .alert(
+                L10n.Settings.signOutConfirmTitle,
+                isPresented: $store.isSignOutConfirmationPresented.sending(\.signOutConfirmationPresented)
+            ) {
+                signOutDialogButtons
+            }
+            .tint(Color(.ripeInk2))
     }
 
     @ViewBuilder
