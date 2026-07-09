@@ -45,15 +45,17 @@ public struct HomeFeature {
             switch action {
             case .onAppear:
                 return .run { send in
-                    async let me = apiClient.fetchMe()
-                    async let trends = apiClient.fetchTrends()
-                    async let items = apiClient.fetchItems()
-                    async let trackers = apiClient.fetchTrackers()
+                    // Wrap each fetch in a Result at the `async let` site: capturing an
+                    // `async let` binding inside `Result { try await … }` is a compile error.
+                    async let me = caught { try await apiClient.fetchMe() }
+                    async let trends = caught { try await apiClient.fetchTrends() }
+                    async let items = caught { try await apiClient.fetchItems() }
+                    async let trackers = caught { try await apiClient.fetchTrackers() }
                     await send(.loadResponse(
-                        me: Result { try await me },
-                        trends: Result { try await trends },
-                        items: Result { try await items },
-                        trackers: Result { try await trackers }
+                        me: me,
+                        trends: trends,
+                        items: items,
+                        trackers: trackers
                     ))
                 }
                 .cancellable(id: CancelID.load, cancelInFlight: true)
@@ -201,6 +203,17 @@ private extension Result {
     var failureError: Failure? {
         guard case let .failure(error) = self else { return nil }
         return error
+    }
+}
+
+/// Runs a throwing async operation and packages the outcome as a `Result`,
+/// so `async let` bindings hold plain values instead of throwing tasks.
+@Sendable
+private func caught<T>(_ body: @Sendable () async throws -> T) async -> Result<T, any Error> {
+    do {
+        return try await .success(body())
+    } catch {
+        return .failure(error)
     }
 }
 
