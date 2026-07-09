@@ -44,7 +44,27 @@ async def get_tracker_trends(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> List[TrackerTrendOut]:
-    return await tracker_service.get_user_tracker_trends(db, current_user)
+    """GLOBAL trending across all users (incl. seeded defaults), not just this user."""
+    return await tracker_service.get_global_tracker_trends(db, current_user)
+
+
+@router.post(
+    "/trends/{tracker_id}/track",
+    response_model=TrackerOut,
+    status_code=status.HTTP_201_CREATED,
+)
+async def track_trend_item(
+    tracker_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> TrackerOut:
+    """Clone a global/seed trend tracker into a new tracker owned by the caller."""
+    try:
+        return await tracker_service.clone_trend_tracker(db, tracker_id, current_user)  # type: ignore[return-value]
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Trend tracker not found"
+        )
 
 
 @router.get("/{tracker_id}", response_model=TrackerOut)

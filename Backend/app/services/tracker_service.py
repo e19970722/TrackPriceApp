@@ -6,6 +6,7 @@ domain-level ValueError so the API layer can convert to HTTP 404/403.
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
+from decimal import Decimal
 from typing import Any, Sequence
 from uuid import UUID
 
@@ -15,6 +16,7 @@ from app.models.tracker import Tracker
 from app.models.user import User
 from app.repositories import snapshot_repo, tracker_repo
 from app.schemas.tracker import TrackerCreate, TrackerOut, TrackerTrendOut, TrackerUpdate
+from app.seed_data import SEED_TRACKER_IDS
 
 TREND_WINDOW_DAYS = 7
 TREND_LIMIT = 10
@@ -88,11 +90,55 @@ def compute_trends(rows: Sequence[Any], limit: int = TREND_LIMIT) -> list[Tracke
     return trends[:limit]
 
 
-async def get_user_tracker_trends(db: AsyncSession, user: User) -> list[TrackerTrendOut]:
-    """Price movement over the trend window for the user's active trackers."""
+async def get_global_tracker_trends(db: AsyncSession, user: User) -> list[TrackerTrendOut]:
+    """GLOBAL price movement over the trend window across ALL users' trackers.
+
+    "On Trend" reflects what everyone tracks (including the seeded default
+    trackers), so a brand-new user still sees a populated feed. *user* is
+    accepted for interface symmetry / future personalisation but not filtered on.
+    """
     since = datetime.now(timezone.utc) - timedelta(days=TREND_WINDOW_DAYS)
-    rows = await snapshot_repo.get_trend_rows_for_user(db, user.id, since)
+    rows = await snapshot_repo.get_global_trend_rows(db, since)
     return compute_trends(rows)
+
+
+async def clone_trend_tracker(
+    db: AsyncSession, tracker_id: UUID, user: User
+) -> dict:
+    """Clone a global/seed trend tracker into a NEW tracker owned by *user*.
+
+    Copies url, name, currency_symbol, interactions, item_name/item_image_url and
+    seeds a sensible initial target (target_price = last/current price,
+    target_direction = "below"). Duplicates are allowed — a user may track the
+    same seed item more than once. Raises ValueError if *tracker_id* is not a
+    valid trend source (unknown, or an active tracker owned by another user).
+    """
+    source = await tracker_repo.get_tracker_by_id(db, tracker_id)
+    if source is None or not _is_trend_source(source):
+        raise ValueError("Trend tracker not found")
+
+    last_price = source.last_price if source.last_price is not None else Decimal("0")
+    body = TrackerCreate(
+        url=source.url,
+        name=source.name,
+        interactions=list(source.interactions or []),
+        currency_symbol=source.currency_symbol,
+        confirmed_price=Decimal(str(last_price)),
+        target_price=Decimal(str(last_price)),
+        target_direction="below",
+        item_image_url=source.item_image_url,
+    )
+    clone = await tracker_repo.create_tracker(db, user.id, body)
+    if source.item_name is not None:
+        clone = await tracker_repo.update_tracker(
+            db, clone, {"item_name": source.item_name}
+        )
+    return build_tracker_out(clone)
+
+
+def _is_trend_source(tracker: Tracker) -> bool:
+    """A tracker is a valid clone source if it is a seed item or any active tracker."""
+    return tracker.id in SEED_TRACKER_IDS or tracker.status == "active"
 
 
 async def get_owned_tracker_model(
