@@ -10,7 +10,11 @@ let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/pointfreeco/swift-composable-architecture",
-            from: "1.15.0"
+            exact: "1.23.3"
+        ),
+        .package(
+            url: "https://github.com/pointfreeco/swift-sharing",
+            exact: "2.9.0"
         ),
         .package(
             url: "https://github.com/google/GoogleSignIn-iOS",
