@@ -54,3 +54,7 @@ xcuserdata/
 *.pem
 *.key
 *.p8
+
+# Machine-local agent overrides
+.claude/settings.local.json
+.codex/config.local.toml
