@@ -1,2 +1,16 @@
 approval_policy = "never"
-sandbox_mode = "workspace-write"
+default_permissions = "repo-edit"
+
+[permissions.repo-edit]
+extends = ":workspace"
+
+[permissions.repo-edit.filesystem.":workspace_roots"]
+".codex" = "write"
+".git" = "write"
+
+[[hooks.Stop]]
+
+[[hooks.Stop.hooks]]
+type = "command"
+command = 'python3 "/Users/yenlin/Desktop/Swift課程_Files/CodexShared/hooks/stop_notify.py"'
+timeout = 5
